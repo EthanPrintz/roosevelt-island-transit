@@ -1,0 +1,29 @@
+{
+	"departures": [
+		{
+			"id": "q102-astoria-1",
+			"mode": "q102_bus",
+			"routeId": "Q102",
+			"routeName": "Q102 Bus",
+			"headsign": "Astoria - 27 Ave via RI Bridge",
+			"destination": "Astoria",
+			"departureTime": "2026-08-08T20:32:00Z",
+			"minutesAway": 4,
+			"status": "normal",
+			"trackOrPlatform": "Main St / Tramway Stop"
+		},
+		{
+			"id": "q102-coler-1",
+			"mode": "q102_bus",
+			"routeId": "Q102",
+			"routeName": "Q102 Bus",
+			"headsign": "Roosevelt Island - Coler Hospital",
+			"destination": "Coler Hospital",
+			"departureTime": "2026-08-08T20:41:00Z",
+			"minutesAway": 13,
+			"status": "normal",
+			"trackOrPlatform": "Main St / Subway Stop"
+		}
+	],
+	"alerts": []
+}

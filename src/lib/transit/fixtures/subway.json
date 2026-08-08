@@ -1,0 +1,50 @@
+{
+	"departures": [
+		{
+			"id": "subway-f-uptown-1",
+			"mode": "subway",
+			"routeId": "F",
+			"routeName": "F Train",
+			"headsign": "Jamaica - 179 St",
+			"destination": "Queens",
+			"departureTime": "2026-08-08T20:31:00Z",
+			"minutesAway": 3,
+			"status": "normal",
+			"trackOrPlatform": "Uptown Track"
+		},
+		{
+			"id": "subway-f-downtown-1",
+			"mode": "subway",
+			"routeId": "F",
+			"routeName": "F Train",
+			"headsign": "Coney Island - Stillwell Ave via 63rd St",
+			"destination": "Manhattan",
+			"departureTime": "2026-08-08T20:34:00Z",
+			"minutesAway": 6,
+			"status": "normal",
+			"trackOrPlatform": "Downtown Track"
+		},
+		{
+			"id": "subway-m-uptown-1",
+			"mode": "subway",
+			"routeId": "M",
+			"routeName": "M Train",
+			"headsign": "Forest Hills - 71 Ave",
+			"destination": "Queens",
+			"departureTime": "2026-08-08T20:38:00Z",
+			"minutesAway": 10,
+			"status": "rerouted",
+			"trackOrPlatform": "Uptown Track",
+			"alert": "F/M Shuttle service active during 63rd St Track Maintenance"
+		}
+	],
+	"alerts": [
+		{
+			"id": "subway-alert-fm-switch",
+			"mode": "subway",
+			"title": "F/M Train Service Switch Notice",
+			"description": "During off-peak track work, M trains replace F trains between 47-50 Sts-Rockefeller Ctr and Roosevelt Island via 63rd St Line.",
+			"severity": "warning"
+		}
+	]
+}

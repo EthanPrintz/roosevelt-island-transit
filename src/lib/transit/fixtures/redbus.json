@@ -1,0 +1,29 @@
+{
+	"departures": [
+		{
+			"id": "redbus-octagon-1",
+			"mode": "red_bus",
+			"routeId": "RED_BUS",
+			"routeName": "RIOC Red Bus",
+			"headsign": "Octagon via Main St",
+			"destination": "Octagon",
+			"departureTime": "2026-08-08T20:29:00Z",
+			"minutesAway": 1,
+			"status": "normal",
+			"trackOrPlatform": "Tram/Subway Stop"
+		},
+		{
+			"id": "redbus-southtown-1",
+			"mode": "red_bus",
+			"routeId": "RED_BUS",
+			"routeName": "RIOC Red Bus",
+			"headsign": "Southtown / Cornell Tech Express",
+			"destination": "Cornell Tech",
+			"departureTime": "2026-08-08T20:33:00Z",
+			"minutesAway": 5,
+			"status": "normal",
+			"trackOrPlatform": "Motorgate Stop"
+		}
+	],
+	"alerts": []
+}

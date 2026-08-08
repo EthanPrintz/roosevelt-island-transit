@@ -1,0 +1,29 @@
+{
+	"departures": [
+		{
+			"id": "ferry-astoria-south-1",
+			"mode": "ferry",
+			"routeId": "AST",
+			"routeName": "NYC Ferry - Astoria Line",
+			"headsign": "Wall St / Pier 11 via Long Island City & E 34th St",
+			"destination": "Wall St / Pier 11",
+			"departureTime": "2026-08-08T20:36:00Z",
+			"minutesAway": 8,
+			"status": "normal",
+			"trackOrPlatform": "Roosevelt Island Dock"
+		},
+		{
+			"id": "ferry-astoria-north-1",
+			"mode": "ferry",
+			"routeId": "AST",
+			"routeName": "NYC Ferry - Astoria Line",
+			"headsign": "East 90th St / Upper East Side",
+			"destination": "E 90th St",
+			"departureTime": "2026-08-08T20:45:00Z",
+			"minutesAway": 17,
+			"status": "normal",
+			"trackOrPlatform": "Roosevelt Island Dock"
+		}
+	],
+	"alerts": []
+}

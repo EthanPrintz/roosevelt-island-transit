@@ -1,6 +1,6 @@
-# Roosevelt Island Transit (Svelte 5 Base)
+# Roosevelt Island Public Transit Tracker
 
-A modern full-stack web application base powered by **Bun v1.3**, **SvelteKit 2**, **Svelte 5 Runes**, **Tailwind CSS v4**, **Hugeicons**, and **Biome v2.3**. Fully aligned with 2026 recommended best practices.
+A highly modular, multi-pronged public transit tracking web application built on **Bun v1.3**, **SvelteKit 2**, **Svelte 5 Runes**, **Tailwind CSS v4**, **Hugeicons**, and **Biome v2.3**.
 
 ## 🚀 Repositories
 
@@ -9,37 +9,38 @@ A modern full-stack web application base powered by **Bun v1.3**, **SvelteKit 2*
 
 ---
 
-## ✨ Features & Architecture
+## 🚇 Supported Transit Channels
 
-- **Bun v1.3 Runtime**: Ultra-fast package management, native worker support, and script execution.
-- **Svelte 5 Runes**: Next-gen fine-grained reactivity using `$state`, `$derived`, `$props`, and `<snippet>` template composition.
-- **Tailwind CSS v4**: CSS-first design system with `@theme` block in `src/app.css` using perceptually uniform **OKLCH** color tokens.
-- **Roosevelt Island Tram Theme**: Primary brand scale styled with the iconic Roosevelt Island Tram crimson red.
-- **Declarative Theme Switcher**: Instant light, dark, and system preference toggling using a reactive `$state` store in `src/lib/state/theme.svelte.ts` with zero FOUC on page load.
-- **Hugeicons Integration**: Vector icon components powered by `@hugeicons/svelte` and `@hugeicons/core-free-icons`.
-- **Biome v2.3 Tooling**: High-performance linting, import sorting, and code formatting.
-- **Agentic Guidelines**: Dedicated workspace configuration in `.agents/AGENTS.md` for AI coding assistants (Antigravity / Gemini).
+1. **Roosevelt Island Tramway**: Cabin departure countdowns & line service status.
+2. **MTA Subway (F & M Trains)**: Roosevelt Island Station departures + **63rd St Service Switch Alerts**.
+3. **RIOC Red Bus**: Local island shuttle stop predictions (Motorgate, Octagon, Subway/Tram, Southtown).
+4. **MTA Q102 Bus**: Astoria / Queens bridge connection.
+5. **NYC Ferry (Astoria Line)**: Roosevelt Island Landing departures to Wall St / Pier 11 & E 90th St.
+6. **Citi Bike**: Dock capacity, classic bike, and e-bike availability meters across Roosevelt Island stations.
 
 ---
 
-## 🛠️ Getting Started
+## 🧩 Architecture & Modular TDD Structure
 
-### Prerequisites
+The transit layer is decoupled from UI rendering via the `TransitProvider` interface contract and managed by `TransitAggregator`:
 
-- [Bun](https://bun.sh) v1.3+
-
-### Installation & Development
-
-```bash
-# Clone the repository
-git clone https://github.com/EthanPrintz/roosevelt-island-transit.git
-cd roosevelt-island-transit
-
-# Install dependencies
-bun install
-
-# Start local development server
-bun run dev
+```
+src/lib/transit/
+├── domain/                      # Core Contracts & Domain Interfaces
+│   ├── types.ts                 # TransitMode, TransitDeparture, TransitStation, TransitAlert
+│   └── provider.ts              # TransitProvider Interface Contract
+├── fixtures/                    # Mock JSON Fixtures for TDD & Deterministic UI
+│   ├── tram.json, subway.json, redbus.json, q102.json, ferry.json, citibike.json
+├── providers/                   # Mock Provider Stubs (Adhering to TransitProvider Contract)
+│   ├── MockTramProvider.ts & MockTramProvider.test.ts
+│   ├── MockSubwayProvider.ts & MockSubwayProvider.test.ts
+│   ├── MockRedBusProvider.ts & MockRedBusProvider.test.ts
+│   ├── MockQ102Provider.ts & MockQ102Provider.test.ts
+│   ├── MockFerryProvider.ts & MockFerryProvider.test.ts
+│   └── MockCitiBikeProvider.ts & MockCitiBikeProvider.test.ts
+└── aggregator/                  # Aggregator Orchestrator
+    ├── TransitAggregator.ts     # Aggregates provider streams with Promise.allSettled error boundaries
+    └── TransitAggregator.test.ts# Vitest test suite for aggregator
 ```
 
 ---
@@ -49,20 +50,14 @@ bun run dev
 | Script | Command | Description |
 | --- | --- | --- |
 | `dev` | `bun run dev` | Starts Vite development server |
-| `build` | `bun run build` | Builds SvelteKit client and server production bundle |
-| `preview` | `bun run preview` | Previews production build locally |
+| `test` | `bun run test` | Runs Vitest unit test suite (8 test files, 13 tests) |
 | `check` | `bun run check` | Runs Svelte template type checking (`svelte-check`) |
 | `lint` | `bun run lint` | Runs Biome linter and static code analysis |
 | `format` | `bun run format` | Auto-formats code with Biome |
-| `test` | `bun run test` | Runs unit test suite with Vitest |
+| `build` | `bun run build` | Builds production client & server bundle |
 
 ---
 
-## 🤖 Agentic AI Configuration
+## 🤖 Agentic AI Guidelines
 
-This project includes agentic instructions for Antigravity / Gemini AI assistants located in [`.agents/AGENTS.md`](file://./.agents/AGENTS.md). 
-
-When contributing with AI pair programmers, ensure that:
-1. Svelte 5 Runes (`$state`, `$derived`, `$props`) are strictly preferred over legacy Svelte 4 syntax.
-2. Styling modifications are added to `src/app.css` under the `@theme` directive using CSS variables.
-3. Code formatting and linting pass clean via `bun run lint && bun run check`.
+Workspace agentic rules are defined in [`.agents/AGENTS.md`](file://./.agents/AGENTS.md). All AI assistants (Antigravity / Gemini) must maintain strict TDD unit test coverage and interface compliance when extending transit providers.
