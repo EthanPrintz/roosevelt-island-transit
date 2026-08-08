@@ -5,8 +5,48 @@ import type { FerryDeparture, ProviderResult, TransitAlert, TransitMode } from '
 export const NYC_FERRY_TRIP_UPDATE_URL =
 	'https://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/tripupdate';
 
-// Static GTFS timetable for Roosevelt Island Landing (GTFS Stop ID 25)
-const ROOSEVELT_ISLAND_SCHEDULE = [
+// Weekday Static Schedule (service_id = 1, Mon-Fri)
+const WEEKDAY_SCHEDULE = [
+	{
+		tripId: '1001',
+		headsign: 'East 90th St',
+		direction: 'northbound' as const,
+		departureTimeStr: '16:54:00',
+	},
+	{
+		tripId: '1148',
+		headsign: 'Wall St / Pier 11',
+		direction: 'southbound' as const,
+		departureTimeStr: '17:03:00',
+	},
+	{
+		tripId: '1002',
+		headsign: 'East 90th St',
+		direction: 'northbound' as const,
+		departureTimeStr: '17:33:00',
+	},
+	{
+		tripId: '1149',
+		headsign: 'Wall St / Pier 11',
+		direction: 'southbound' as const,
+		departureTimeStr: '17:44:00',
+	},
+	{
+		tripId: '1003',
+		headsign: 'East 90th St',
+		direction: 'northbound' as const,
+		departureTimeStr: '18:12:00',
+	},
+	{
+		tripId: '1150',
+		headsign: 'Wall St / Pier 11',
+		direction: 'southbound' as const,
+		departureTimeStr: '18:25:00',
+	},
+];
+
+// Weekend Static Schedule (service_id = 2, Sat-Sun)
+const WEEKEND_SCHEDULE = [
 	{
 		tripId: '1134',
 		headsign: 'East 90th St',
@@ -18,12 +58,6 @@ const ROOSEVELT_ISLAND_SCHEDULE = [
 		headsign: 'Wall St / Pier 11',
 		direction: 'southbound' as const,
 		departureTimeStr: '17:25:00',
-	},
-	{
-		tripId: '1002',
-		headsign: 'East 90th St',
-		direction: 'northbound' as const,
-		departureTimeStr: '17:33:00',
 	},
 	{
 		tripId: '1149',
@@ -42,12 +76,6 @@ const ROOSEVELT_ISLAND_SCHEDULE = [
 		headsign: 'Wall St / Pier 11',
 		direction: 'southbound' as const,
 		departureTimeStr: '18:05:00',
-	},
-	{
-		tripId: '1003',
-		headsign: 'East 90th St',
-		direction: 'northbound' as const,
-		departureTimeStr: '18:12:00',
 	},
 	{
 		tripId: '1150',
@@ -74,6 +102,7 @@ const ROOSEVELT_ISLAND_SCHEDULE = [
  *
  * Merges NYC Ferry GTFS timetable schedule for Roosevelt Island Landing (Stop 25)
  * with live real-time vessel telemetry & delay offsets from Connexionz.
+ * Dynamically selects Weekday (service_id = 1) vs Weekend (service_id = 2) static schedules.
  */
 export class LiveFerryProvider implements TransitProvider {
 	readonly mode: TransitMode = 'ferry';
@@ -100,9 +129,12 @@ export class LiveFerryProvider implements TransitProvider {
 			}
 
 			const now = new Date();
+			const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+			const targetSchedule = isWeekend ? WEEKEND_SCHEDULE : WEEKDAY_SCHEDULE;
+
 			const departures: FerryDeparture[] = [];
 
-			for (const item of ROOSEVELT_ISLAND_SCHEDULE) {
+			for (const item of targetSchedule) {
 				const [h, m, s] = item.departureTimeStr.split(':').map(Number);
 				const scheduledDate = new Date(now);
 				scheduledDate.setHours(h, m, s, 0);
