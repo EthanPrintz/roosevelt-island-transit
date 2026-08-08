@@ -1,33 +1,34 @@
 <script lang="ts">
-import { TransitAggregator } from '$lib/transit/aggregator/TransitAggregator';
 import type { BikeStation, TransitAlert, TransitDeparture } from '$lib/transit/domain/types';
-import { MockCitiBikeProvider } from '$lib/transit/providers/MockCitiBikeProvider';
-import { MockFerryProvider } from '$lib/transit/providers/MockFerryProvider';
-import { MockQ102Provider } from '$lib/transit/providers/MockQ102Provider';
-import { MockRedBusProvider } from '$lib/transit/providers/MockRedBusProvider';
-import { MockSubwayProvider } from '$lib/transit/providers/MockSubwayProvider';
-import { MockTramProvider } from '$lib/transit/providers/MockTramProvider';
-
-const aggregator = new TransitAggregator();
-aggregator.registerProvider(new MockTramProvider());
-aggregator.registerProvider(new MockSubwayProvider());
-aggregator.registerProvider(new MockRedBusProvider());
-aggregator.registerProvider(new MockQ102Provider());
-aggregator.registerProvider(new MockFerryProvider());
-aggregator.registerProvider(new MockCitiBikeProvider());
 
 let departures = $state<TransitDeparture[]>([]);
 let alerts = $state<TransitAlert[]>([]);
 let stations = $state<BikeStation[]>([]);
+let isCached = $state<boolean>(false);
+let fetchedAt = $state<string>('');
+let isLoading = $state<boolean>(true);
 
 $effect(() => {
-	loadData();
+	loadLiveData();
 });
 
-async function loadData() {
-	departures = await aggregator.getAllDepartures();
-	alerts = await aggregator.getAllAlerts();
-	stations = await aggregator.getBikeStations();
+async function loadLiveData() {
+	try {
+		isLoading = true;
+		const res = await fetch('/api/transit');
+		if (res.ok) {
+			const json = await res.json();
+			departures = json.departures || [];
+			alerts = json.alerts || [];
+			stations = json.stations || [];
+			isCached = json.isCached || false;
+			fetchedAt = json.fetchedAt || '';
+		}
+	} catch (_err) {
+		// Fallback handle
+	} finally {
+		isLoading = false;
+	}
 }
 </script>
 
@@ -36,9 +37,26 @@ async function loadData() {
 </svelte:head>
 
 <div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
-	<div>
-		<h1 class="text-2xl font-bold text-text-main">Roosevelt Island Transit Core</h1>
-		<p class="text-xs text-text-muted mt-1">Backend service initialization & data stream status.</p>
+	<div class="flex items-start justify-between gap-4">
+		<div>
+			<h1 class="text-2xl font-bold text-text-main">Roosevelt Island Transit Core</h1>
+			<p class="text-xs text-text-muted mt-1">Live data ingestion stream & GTFS-RT / GBFS API integration.</p>
+		</div>
+
+		<div class="text-right">
+			<button
+				onclick={loadLiveData}
+				disabled={isLoading}
+				class="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+			>
+				{isLoading ? 'Fetching...' : 'Refresh Feed'}
+			</button>
+			{#if fetchedAt}
+				<span class="block text-[10px] text-text-muted mt-1 font-mono">
+					Updated: {new Date(fetchedAt).toLocaleTimeString()} {isCached ? '(Cached 15s)' : '(Live)'}
+				</span>
+			{/if}
+		</div>
 	</div>
 
 	<!-- System Alerts -->
