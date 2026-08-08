@@ -30,6 +30,9 @@ async function loadLiveData() {
 		isLoading = false;
 	}
 }
+
+let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
+let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 </script>
 
 <svelte:head>
@@ -37,6 +40,7 @@ async function loadLiveData() {
 </svelte:head>
 
 <div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
+	<!-- Top Bar -->
 	<div class="flex items-start justify-between gap-4">
 		<div>
 			<div class="flex items-center gap-2">
@@ -46,14 +50,14 @@ async function loadLiveData() {
 				</span>
 			</div>
 			<h1 class="text-2xl font-bold text-text-main mt-1">Roosevelt Island Live Transit Feed</h1>
-			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway & GBFS bikeshare stream.</p>
+			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway, ferry & GBFS bikeshare streams.</p>
 		</div>
 
 		<div class="text-right">
 			<button
 				onclick={loadLiveData}
 				disabled={isLoading}
-				class="px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs"
+				class="px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
 			>
 				{isLoading ? 'Refreshing...' : 'Refresh Live Feeds'}
 			</button>
@@ -65,7 +69,7 @@ async function loadLiveData() {
 		</div>
 	</div>
 
-	<!-- System Alerts -->
+	<!-- Active System Alerts -->
 	{#if alerts.length > 0}
 		<div class="space-y-2">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted">Live Service Alerts ({alerts.length})</h2>
@@ -85,22 +89,25 @@ async function loadLiveData() {
 		</div>
 	{/if}
 
-	<!-- Live Departures Stream -->
+	<!-- Dedicated Section: 🚇 MTA Subway (F/M Trains) -->
 	<div class="space-y-2">
 		<div class="flex items-center justify-between">
-			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted">Active Subway Departures ({departures.length})</h2>
+			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
+				<span>🚇</span>
+				MTA Subway (F/M Trains) — {subwayDepartures.length} Live Departures
+			</h2>
 		</div>
 
-		{#if departures.length === 0}
+		{#if subwayDepartures.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
-				{isLoading ? 'Loading active feeds...' : 'No active train departures returned from MTA GTFS-RT feed.'}
+				{isLoading ? 'Loading live train feeds...' : 'No active train departures returned from MTA GTFS-RT feed.'}
 			</div>
 		{:else}
 			<div class="divide-y divide-border-subtle rounded-xl bg-bg-surface border border-border-default overflow-hidden">
-				{#each departures as departure (departure.id)}
+				{#each subwayDepartures as departure (departure.id)}
 					<div class="p-3.5 flex items-center justify-between text-xs gap-3">
 						<div class="flex items-center gap-2.5">
-							<span class="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-mono font-extrabold text-[11px] uppercase border border-primary/20">
+							<span class="px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 font-mono font-extrabold text-[11px] uppercase border border-orange-500/20">
 								{departure.routeId}
 							</span>
 							<div>
@@ -127,9 +134,57 @@ async function loadLiveData() {
 		{/if}
 	</div>
 
-	<!-- Live Citi Bike Docks -->
+	<!-- Dedicated Section: ⛴️ NYC Ferry (Astoria Line) -->
 	<div class="space-y-2">
-		<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted">Active Citi Bike Dock Status ({stations.length})</h2>
+		<div class="flex items-center justify-between">
+			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
+				<span>⛴️</span>
+				NYC Ferry (Astoria Line) — {ferryDepartures.length} Live Departures
+			</h2>
+		</div>
+
+		{#if ferryDepartures.length === 0}
+			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
+				{isLoading ? 'Loading NYC Ferry feeds...' : 'No upcoming ferry boats active in Connexionz GTFS-RT feed.'}
+			</div>
+		{:else}
+			<div class="divide-y divide-border-subtle rounded-xl bg-bg-surface border border-border-default overflow-hidden">
+				{#each ferryDepartures as departure (departure.id)}
+					<div class="p-3.5 flex items-center justify-between text-xs gap-3">
+						<div class="flex items-center gap-2.5">
+							<span class="px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono font-extrabold text-[11px] uppercase border border-sky-500/20">
+								FERRY
+							</span>
+							<div>
+								<div class="font-bold text-text-main">{departure.headsign}</div>
+								<div class="text-[11px] text-text-muted">
+									{departure.stopName}
+									{#if departure.mode === 'ferry' && departure.vesselName}
+										• Vessel: {departure.vesselName}
+									{/if}
+								</div>
+							</div>
+						</div>
+						<div class="text-right">
+							<div class="font-mono text-sm font-extrabold text-text-main">
+								{new Date(departure.predictedTime || departure.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+							</div>
+							{#if departure.isRealtime}
+								<span class="text-[10px] font-bold text-emerald-500">Live Vessel</span>
+							{/if}
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</div>
+
+	<!-- Dedicated Section: 🚲 Citi Bike Docks -->
+	<div class="space-y-2">
+		<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
+			<span>🚲</span>
+			Citi Bike Docks — {stations.length} Active Stations
+		</h2>
 
 		{#if stations.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
