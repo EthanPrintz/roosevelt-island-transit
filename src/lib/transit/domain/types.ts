@@ -19,7 +19,12 @@ export type TransitDirection =
 export type ServiceStatus = 'normal' | 'delays' | 'rerouted' | 'suspended' | 'shuttle_service';
 
 /**
- * Realtime Vehicle Occupancy (GTFS-RT standard)
+ * GTFS-RT Standard Schedule Relationship
+ */
+export type ScheduleRelationship = 'SCHEDULED' | 'ADDED' | 'UNSCHEDULED' | 'CANCELED' | 'SKIPPED';
+
+/**
+ * GTFS-RT Standard Vehicle Occupancy
  */
 export type VehicleOccupancy =
 	| 'empty'
@@ -29,13 +34,25 @@ export type VehicleOccupancy =
 	| 'full';
 
 /**
- * Base Transit Departure Record
+ * Live Geographic Location & Telemetry
+ */
+export interface VehicleLocation {
+	lat: number;
+	lng: number;
+	bearing?: number; // 0-360 degrees
+	speed?: number; // meters per second
+	updatedAt: string; // ISO 8601
+}
+
+/**
+ * Base Transit Departure Record (GTFS-RT / SIRI Aligned)
  */
 export interface BaseDeparture {
 	id: string;
 	mode: TransitMode;
 	routeId: string;
 	routeName: string;
+	tripId?: string;
 	headsign: string;
 	destinationName: string;
 	direction: TransitDirection;
@@ -43,14 +60,17 @@ export interface BaseDeparture {
 	predictedTime?: string; // ISO 8601 if real-time
 	isRealtime: boolean;
 	delaySeconds?: number;
+	scheduleRelationship?: ScheduleRelationship;
 	status: ServiceStatus;
 	stopName: string;
 	stopId?: string;
+	stopSequence?: number;
+	vehicleLocation?: VehicleLocation;
 	alertId?: string;
 }
 
 /**
- * Subway-Specific Departure (F/M Trains)
+ * Subway-Specific Departure (F/M Trains & GTFS-RT NYCT Extensions)
  */
 export interface SubwayDeparture extends BaseDeparture {
 	mode: 'subway';
@@ -94,7 +114,7 @@ export interface FerryDeparture extends BaseDeparture {
 export type TransitDeparture = SubwayDeparture | TramDeparture | BusDeparture | FerryDeparture;
 
 /**
- * Bike Station Record (Citi Bike GBFS)
+ * Bike Station Record (GBFS v3.0 Standard)
  */
 export interface BikeStation {
 	id: string;
@@ -118,15 +138,17 @@ export interface BikeStation {
 }
 
 /**
- * Disruption & Service Alert Entity
+ * Disruption & Service Alert Entity (GTFS-RT Alert Standard)
  */
 export interface TransitAlert {
 	id: string;
 	mode: TransitMode;
 	affectedRoutes: string[];
+	affectedStops?: string[];
 	title: string;
 	description: string;
 	severity: 'info' | 'warning' | 'critical';
+	cause?: 'MAINTENANCE' | 'TECHNICAL_PROBLEM' | 'WEATHER' | 'ACCIDENT' | 'OTHER';
 	effect: 'NO_SERVICE' | 'MODIFIED_SERVICE' | 'DELAYS' | 'DETOUR' | 'OTHER';
 	activeFrom?: string;
 	activeTo?: string;
