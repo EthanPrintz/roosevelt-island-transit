@@ -7,9 +7,25 @@ let stations = $state<BikeStation[]>([]);
 let isCached = $state<boolean>(false);
 let fetchedAt = $state<string>('');
 let isLoading = $state<boolean>(true);
+let autoRefreshSeconds = $state<number>(15);
 
 $effect(() => {
 	loadLiveData();
+
+	// Auto-refresh every 15 seconds (matching server cache TTL)
+	const interval = setInterval(() => {
+		loadLiveData();
+	}, 15000);
+
+	// Countdown tick timer for UI feedback
+	const tick = setInterval(() => {
+		autoRefreshSeconds = autoRefreshSeconds <= 1 ? 15 : autoRefreshSeconds - 1;
+	}, 1000);
+
+	return () => {
+		clearInterval(interval);
+		clearInterval(tick);
+	};
 });
 
 async function loadLiveData() {
@@ -23,6 +39,7 @@ async function loadLiveData() {
 			stations = json.stations || [];
 			isCached = json.isCached || false;
 			fetchedAt = json.fetchedAt || '';
+			autoRefreshSeconds = 15;
 		}
 	} catch (_err) {
 		// Catch network error
@@ -46,7 +63,7 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 			<div class="flex items-center gap-2">
 				<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold border border-emerald-500/20">
 					<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-					100% LIVE API STREAMS
+					AUTO-REFRESHING ({autoRefreshSeconds}s)
 				</span>
 			</div>
 			<h1 class="text-2xl font-bold text-text-main mt-1">Roosevelt Island Live Transit Feed</h1>
@@ -59,7 +76,7 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 				disabled={isLoading}
 				class="px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
 			>
-				{isLoading ? 'Refreshing...' : 'Refresh Live Feeds'}
+				{isLoading ? 'Refreshing...' : 'Refresh Now'}
 			</button>
 		</div>
 	</div>
