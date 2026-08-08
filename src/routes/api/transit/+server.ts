@@ -1,10 +1,16 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { serverCache } from '$lib/server/cache';
-import { LiveCitiBikeProvider, LiveSubwayProvider, TransitAggregator } from '$lib/transit';
+import {
+	LiveCitiBikeProvider,
+	LiveFerryProvider,
+	LiveSubwayProvider,
+	TransitAggregator,
+} from '$lib/transit';
 import type { TransitMode } from '$lib/transit/domain/types';
 
 const aggregator = new TransitAggregator();
 aggregator.registerProvider(new LiveSubwayProvider());
+aggregator.registerProvider(new LiveFerryProvider());
 aggregator.registerProvider(new LiveCitiBikeProvider());
 
 export const GET: RequestHandler = async ({ url }) => {

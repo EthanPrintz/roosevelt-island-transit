@@ -5,6 +5,7 @@ export * from './aggregator/TransitAggregator';
 export * from './domain/provider';
 export * from './domain/types';
 export * from './providers/LiveCitiBikeProvider';
+export * from './providers/LiveFerryProvider';
 export * from './providers/LiveSubwayProvider';
 export * from './providers/MockCitiBikeProvider';
 export * from './providers/MockFerryProvider';

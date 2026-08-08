@@ -14,6 +14,11 @@ export interface DecodedGtfsFeed {
 				startDate?: string;
 				startTime?: string;
 			};
+			vehicle?: {
+				id?: string;
+				label?: string;
+			};
+			delay?: number;
 			stopTimeUpdate?: Array<{
 				stopSequence?: number;
 				stopId?: string;
