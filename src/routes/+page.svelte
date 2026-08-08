@@ -48,7 +48,18 @@ async function loadLiveData() {
 	}
 }
 
+function getRelativeTimeLabel(isoString: string): string {
+	const diffMs = new Date(isoString).getTime() - Date.now();
+	const mins = Math.round(diffMs / 60000);
+	if (mins <= 0) return 'Arriving Now';
+	if (mins === 1) return 'In 1 min';
+	return `In ${mins} mins`;
+}
+
 let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
+let manhattanSubways = $derived(subwayDepartures.filter((d) => d.direction === 'manhattan_bound'));
+let queensSubways = $derived(subwayDepartures.filter((d) => d.direction === 'queens_bound'));
+
 let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 </script>
 
@@ -107,51 +118,144 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 		</div>
 	{/if}
 
-	<!-- Dedicated Section: 🚇 MTA Subway (F/M Trains) -->
-	<div class="space-y-2">
+	<!-- Dedicated Section: 🚇 MTA Subway (F/M Trains) Split by Direction -->
+	<div class="space-y-4">
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>🚇</span>
-				MTA Subway (F/M Trains) — {subwayDepartures.length} Live Departures
+				MTA Subway (F/M Trains) — {subwayDepartures.length} Live Trains
 			</h2>
 		</div>
 
-		{#if subwayDepartures.length === 0}
-			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
-				{isLoading ? 'Loading live train feeds...' : 'No active train departures returned from MTA GTFS-RT feed.'}
-			</div>
-		{:else}
-			<div class="divide-y divide-border-subtle rounded-xl bg-bg-surface border border-border-default overflow-hidden">
-				{#each subwayDepartures as departure (departure.id)}
-					<div class="p-3.5 flex items-center justify-between text-xs gap-3">
-						<div class="flex items-center gap-2.5">
-							<span class="px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 font-mono font-extrabold text-[11px] uppercase border border-orange-500/20">
-								{departure.routeId}
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+			<!-- Manhattan-Bound Column -->
+			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<span class="px-2.5 py-0.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 font-mono font-black text-xs border border-orange-500/20">
+							F / M
+						</span>
+						<h3 class="text-sm font-bold text-text-main">Downtown / Manhattan-Bound</h3>
+					</div>
+					<span class="text-[11px] font-mono text-text-muted">Track B06S</span>
+				</div>
+
+				{#if manhattanSubways.length === 0}
+					<div class="p-4 text-center text-xs text-text-muted">
+						{isLoading ? 'Loading Manhattan trains...' : 'No upcoming Manhattan-bound trains in feed.'}
+					</div>
+				{:else}
+					<!-- HERO CARD: Next Manhattan-Bound Train -->
+					{@const nextTrain = manhattanSubways[0]}
+					<div class="p-4 rounded-xl bg-gradient-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
+						<div class="flex items-center justify-between text-xs">
+							<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
+								NEXT TRAIN
 							</span>
-							<div>
-								<div class="font-bold text-text-main">{departure.headsign}</div>
-								<div class="text-[11px] text-text-muted">
-									{departure.stopName}
-									{#if departure.mode === 'subway'}
-										({departure.track})
-									{/if}
-								</div>
-							</div>
+							<span class="font-mono text-xs font-bold text-orange-600 dark:text-orange-400">
+								{getRelativeTimeLabel(nextTrain.predictedTime || nextTrain.scheduledTime)}
+							</span>
 						</div>
-						<div class="text-right">
-							<div class="font-mono text-sm font-extrabold text-text-main">
-								{new Date(departure.predictedTime || departure.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+						<div class="flex items-baseline justify-between pt-1">
+							<div>
+								<div class="text-base font-extrabold text-text-main leading-tight">{nextTrain.headsign}</div>
+								<div class="text-[11px] text-text-muted mt-0.5">Roosevelt Island Station</div>
 							</div>
-							{#if departure.status === 'rerouted'}
-								<span class="text-[10px] font-bold text-amber-500">Rerouted</span>
-							{:else}
+							<div class="text-right">
+								<div class="font-mono text-xl font-black text-text-main">
+									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+								</div>
 								<span class="text-[10px] font-bold text-emerald-500">Live GTFS-RT</span>
-							{/if}
+							</div>
 						</div>
 					</div>
-				{/each}
+
+					<!-- SUBSEQUENT TRAINS -->
+					{#if manhattanSubways.length > 1}
+						<div class="space-y-1.5 pt-1">
+							<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Following Trains</div>
+							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+								{#each manhattanSubways.slice(1) as train (train.id)}
+									<div class="p-2.5 flex items-center justify-between text-xs">
+										<div class="font-medium text-text-main">{train.headsign}</div>
+										<div class="flex items-center gap-3 font-mono">
+											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
+											<span class="font-bold text-text-main">
+												{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+											</span>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				{/if}
 			</div>
-		{/if}
+
+			<!-- Queens-Bound Column -->
+			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<span class="px-2.5 py-0.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 font-mono font-black text-xs border border-orange-500/20">
+							F / M
+						</span>
+						<h3 class="text-sm font-bold text-text-main">Uptown / Queens-Bound</h3>
+					</div>
+					<span class="text-[11px] font-mono text-text-muted">Track B06N</span>
+				</div>
+
+				{#if queensSubways.length === 0}
+					<div class="p-4 text-center text-xs text-text-muted">
+						{isLoading ? 'Loading Queens trains...' : 'No upcoming Queens-bound trains in feed.'}
+					</div>
+				{:else}
+					<!-- HERO CARD: Next Queens-Bound Train -->
+					{@const nextTrain = queensSubways[0]}
+					<div class="p-4 rounded-xl bg-gradient-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
+						<div class="flex items-center justify-between text-xs">
+							<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
+								NEXT TRAIN
+							</span>
+							<span class="font-mono text-xs font-bold text-orange-600 dark:text-orange-400">
+								{getRelativeTimeLabel(nextTrain.predictedTime || nextTrain.scheduledTime)}
+							</span>
+						</div>
+						<div class="flex items-baseline justify-between pt-1">
+							<div>
+								<div class="text-base font-extrabold text-text-main leading-tight">{nextTrain.headsign}</div>
+								<div class="text-[11px] text-text-muted mt-0.5">Roosevelt Island Station</div>
+							</div>
+							<div class="text-right">
+								<div class="font-mono text-xl font-black text-text-main">
+									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+								</div>
+								<span class="text-[10px] font-bold text-emerald-500">Live GTFS-RT</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- SUBSEQUENT TRAINS -->
+					{#if queensSubways.length > 1}
+						<div class="space-y-1.5 pt-1">
+							<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Following Trains</div>
+							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+								{#each queensSubways.slice(1) as train (train.id)}
+									<div class="p-2.5 flex items-center justify-between text-xs">
+										<div class="font-medium text-text-main">{train.headsign}</div>
+										<div class="flex items-center gap-3 font-mono">
+											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
+											<span class="font-bold text-text-main">
+												{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+											</span>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				{/if}
+			</div>
+		</div>
 	</div>
 
 	<!-- Dedicated Section: ⛴️ NYC Ferry (Astoria Line) -->
