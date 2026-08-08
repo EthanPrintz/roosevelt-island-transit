@@ -6,11 +6,16 @@
 			"routeId": "TRAM",
 			"routeName": "Roosevelt Island Tramway",
 			"headsign": "Manhattan (59th St & 2nd Ave)",
-			"destination": "Manhattan",
-			"departureTime": "2026-08-08T20:30:00Z",
-			"minutesAway": 2,
+			"destinationName": "Manhattan",
+			"direction": "manhattan_bound",
+			"scheduledTime": "2026-08-08T20:30:00Z",
+			"predictedTime": "2026-08-08T20:30:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "North Cabin"
+			"stopName": "Roosevelt Island Tram Station",
+			"cabin": "North Cabin",
+			"isBoarding": true
 		},
 		{
 			"id": "tram-ri-manhattan-2",
@@ -18,20 +23,27 @@
 			"routeId": "TRAM",
 			"routeName": "Roosevelt Island Tramway",
 			"headsign": "Manhattan (59th St & 2nd Ave)",
-			"destination": "Manhattan",
-			"departureTime": "2026-08-08T20:37:30Z",
-			"minutesAway": 9,
+			"destinationName": "Manhattan",
+			"direction": "manhattan_bound",
+			"scheduledTime": "2026-08-08T20:37:30Z",
+			"predictedTime": "2026-08-08T20:37:30Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "South Cabin"
+			"stopName": "Roosevelt Island Tram Station",
+			"cabin": "South Cabin",
+			"isBoarding": false
 		}
 	],
 	"alerts": [
 		{
 			"id": "tram-alert-1",
 			"mode": "tram",
+			"affectedRoutes": ["TRAM"],
 			"title": "Tramway Normal Service",
 			"description": "Both North and South cabins are operating on standard peak 7.5-minute headways.",
-			"severity": "info"
+			"severity": "info",
+			"effect": "OTHER"
 		}
 	]
 }

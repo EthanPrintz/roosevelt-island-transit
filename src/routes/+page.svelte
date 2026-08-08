@@ -1,5 +1,5 @@
 <script lang="ts">
-import { BicycleIcon, Compass01Icon, FlashIcon, SparklesIcon } from '@hugeicons/core-free-icons';
+import { BicycleIcon, Compass01Icon, FlashIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import CitiBikeWidget from '$lib/components/CitiBikeWidget.svelte';
 import ModeFilter from '$lib/components/ModeFilter.svelte';
@@ -7,10 +7,10 @@ import SubwaySwitchNotice from '$lib/components/SubwaySwitchNotice.svelte';
 import TransitDepartureCard from '$lib/components/TransitDepartureCard.svelte';
 import { TransitAggregator } from '$lib/transit/aggregator/TransitAggregator';
 import type {
+	BikeStation,
 	TransitAlert,
 	TransitDeparture,
 	TransitMode,
-	TransitStation,
 } from '$lib/transit/domain/types';
 import { MockCitiBikeProvider } from '$lib/transit/providers/MockCitiBikeProvider';
 import { MockFerryProvider } from '$lib/transit/providers/MockFerryProvider';
@@ -32,7 +32,7 @@ aggregator.registerProvider(new MockCitiBikeProvider());
 let selectedMode = $state<TransitMode | 'all'>('all');
 let departures = $state<TransitDeparture[]>([]);
 let alerts = $state<TransitAlert[]>([]);
-let stations = $state<TransitStation[]>([]);
+let stations = $state<BikeStation[]>([]);
 
 $effect(() => {
 	loadData(selectedMode);
@@ -41,7 +41,7 @@ $effect(() => {
 async function loadData(mode: TransitMode | 'all') {
 	departures = await aggregator.getAllDepartures(mode);
 	alerts = await aggregator.getAllAlerts(mode);
-	stations = await aggregator.getAllStations(mode);
+	stations = await aggregator.getBikeStations(mode);
 }
 
 let subwaySwitchAlert = $derived(alerts.find((a) => a.id.includes('fm-switch')));

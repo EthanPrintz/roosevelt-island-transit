@@ -2,45 +2,63 @@
 	"stations": [
 		{
 			"id": "citibike-tram",
-			"mode": "citibike",
 			"name": "Roosevelt Island Tramway Plaza",
+			"mode": "citibike",
 			"location": {
 				"lat": 40.7608,
 				"lng": -73.9535
 			},
-			"totalBikes": 18,
-			"ebikesAvailable": 7,
-			"classicBikesAvailable": 11,
+			"capacity": 32,
+			"bikesAvailable": {
+				"classic": 11,
+				"ebike": 7,
+				"total": 18
+			},
 			"docksAvailable": 14,
-			"status": "normal"
+			"isRenting": true,
+			"isReturning": true,
+			"status": "normal",
+			"lastReported": "2026-08-08T20:25:00Z"
 		},
 		{
 			"id": "citibike-subway",
-			"mode": "citibike",
 			"name": "Roosevelt Island Subway Station",
+			"mode": "citibike",
 			"location": {
 				"lat": 40.7629,
 				"lng": -73.9533
 			},
-			"totalBikes": 12,
-			"ebikesAvailable": 4,
-			"classicBikesAvailable": 8,
+			"capacity": 32,
+			"bikesAvailable": {
+				"classic": 8,
+				"ebike": 4,
+				"total": 12
+			},
 			"docksAvailable": 20,
-			"status": "normal"
+			"isRenting": true,
+			"isReturning": true,
+			"status": "normal",
+			"lastReported": "2026-08-08T20:25:00Z"
 		},
 		{
 			"id": "citibike-cornell-tech",
-			"mode": "citibike",
 			"name": "Cornell Tech Campus",
+			"mode": "citibike",
 			"location": {
 				"lat": 40.7562,
 				"lng": -73.956
 			},
-			"totalBikes": 22,
-			"ebikesAvailable": 10,
-			"classicBikesAvailable": 12,
+			"capacity": 30,
+			"bikesAvailable": {
+				"classic": 12,
+				"ebike": 10,
+				"total": 22
+			},
 			"docksAvailable": 8,
-			"status": "normal"
+			"isRenting": true,
+			"isReturning": true,
+			"status": "normal",
+			"lastReported": "2026-08-08T20:25:00Z"
 		}
 	],
 	"alerts": []

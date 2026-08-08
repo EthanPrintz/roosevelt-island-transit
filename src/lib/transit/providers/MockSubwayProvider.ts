@@ -1,17 +1,26 @@
-import type { TransitProvider } from '../domain/provider';
-import type { TransitAlert, TransitDeparture, TransitMode } from '../domain/types';
+import type { ProviderCapability, TransitProvider } from '../domain/provider';
+import type { ProviderResult, SubwayDeparture, TransitAlert, TransitMode } from '../domain/types';
 import fixtureData from '../fixtures/subway.json';
 
 export class MockSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
 	readonly name = 'MTA Subway (F/M Trains)';
+	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
 
-	async getDepartures(): Promise<TransitDeparture[]> {
-		return fixtureData.departures as TransitDeparture[];
+	async getDepartures(): Promise<ProviderResult<SubwayDeparture>> {
+		return {
+			data: fixtureData.departures as SubwayDeparture[],
+			fetchedAt: new Date().toISOString(),
+			isCached: false,
+		};
 	}
 
-	async getAlerts(): Promise<TransitAlert[]> {
-		return fixtureData.alerts as TransitAlert[];
+	async getAlerts(): Promise<ProviderResult<TransitAlert>> {
+		return {
+			data: fixtureData.alerts as TransitAlert[],
+			fetchedAt: new Date().toISOString(),
+			isCached: false,
+		};
 	}
 
 	hasServiceSwitch(): boolean {

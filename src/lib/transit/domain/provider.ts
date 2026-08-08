@@ -1,9 +1,19 @@
-import type { TransitAlert, TransitDeparture, TransitMode, TransitStation } from './types';
+import type {
+	BikeStation,
+	ProviderResult,
+	TransitAlert,
+	TransitDeparture,
+	TransitMode,
+} from './types';
+
+export type ProviderCapability = 'departures' | 'alerts' | 'bike_stations';
 
 export interface TransitProvider {
 	readonly mode: TransitMode;
 	readonly name: string;
-	getDepartures(): Promise<TransitDeparture[]>;
-	getAlerts?(): Promise<TransitAlert[]>;
-	getStations?(): Promise<TransitStation[]>;
+	readonly capabilities: Set<ProviderCapability>;
+
+	getDepartures?(): Promise<ProviderResult<TransitDeparture>>;
+	getAlerts?(): Promise<ProviderResult<TransitAlert>>;
+	getBikeStations?(): Promise<ProviderResult<BikeStation>>;
 }

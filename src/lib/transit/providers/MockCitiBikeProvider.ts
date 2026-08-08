@@ -1,20 +1,25 @@
-import type { TransitProvider } from '../domain/provider';
-import type { TransitAlert, TransitDeparture, TransitMode, TransitStation } from '../domain/types';
+import type { ProviderCapability, TransitProvider } from '../domain/provider';
+import type { BikeStation, ProviderResult, TransitAlert, TransitMode } from '../domain/types';
 import fixtureData from '../fixtures/citibike.json';
 
 export class MockCitiBikeProvider implements TransitProvider {
 	readonly mode: TransitMode = 'citibike';
 	readonly name = 'Citi Bike (Roosevelt Island)';
+	readonly capabilities = new Set<ProviderCapability>(['bike_stations', 'alerts']);
 
-	async getDepartures(): Promise<TransitDeparture[]> {
-		return [];
+	async getBikeStations(): Promise<ProviderResult<BikeStation>> {
+		return {
+			data: fixtureData.stations as BikeStation[],
+			fetchedAt: new Date().toISOString(),
+			isCached: false,
+		};
 	}
 
-	async getStations(): Promise<TransitStation[]> {
-		return fixtureData.stations as TransitStation[];
-	}
-
-	async getAlerts(): Promise<TransitAlert[]> {
-		return fixtureData.alerts as TransitAlert[];
+	async getAlerts(): Promise<ProviderResult<TransitAlert>> {
+		return {
+			data: fixtureData.alerts as TransitAlert[],
+			fetchedAt: new Date().toISOString(),
+			isCached: false,
+		};
 	}
 }

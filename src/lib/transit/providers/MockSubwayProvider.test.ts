@@ -6,9 +6,9 @@ describe('MockSubwayProvider', () => {
 		const provider = new MockSubwayProvider();
 		expect(provider.mode).toBe('subway');
 
-		const departures = await provider.getDepartures();
-		expect(departures.length).toBeGreaterThan(0);
-		const routes = departures.map((d) => d.routeId);
+		const result = await provider.getDepartures();
+		expect(result.data.length).toBeGreaterThan(0);
+		const routes = result.data.map((d) => d.routeId);
 		expect(routes).toContain('F');
 		expect(routes).toContain('M');
 	});

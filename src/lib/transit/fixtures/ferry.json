@@ -5,12 +5,17 @@
 			"mode": "ferry",
 			"routeId": "AST",
 			"routeName": "NYC Ferry - Astoria Line",
-			"headsign": "Wall St / Pier 11 via Long Island City & E 34th St",
-			"destination": "Wall St / Pier 11",
-			"departureTime": "2026-08-08T20:36:00Z",
-			"minutesAway": 8,
+			"headsign": "Wall St / Pier 11 via LIC & E 34th St",
+			"destinationName": "Wall St / Pier 11",
+			"direction": "southbound",
+			"scheduledTime": "2026-08-08T20:36:00Z",
+			"predictedTime": "2026-08-08T20:36:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "Roosevelt Island Dock"
+			"stopName": "Roosevelt Island Ferry Terminal",
+			"vesselName": "M/V Sunset Park",
+			"pierName": "Roosevelt Island Dock"
 		},
 		{
 			"id": "ferry-astoria-north-1",
@@ -18,11 +23,16 @@
 			"routeId": "AST",
 			"routeName": "NYC Ferry - Astoria Line",
 			"headsign": "East 90th St / Upper East Side",
-			"destination": "E 90th St",
-			"departureTime": "2026-08-08T20:45:00Z",
-			"minutesAway": 17,
+			"destinationName": "E 90th St",
+			"direction": "northbound",
+			"scheduledTime": "2026-08-08T20:45:00Z",
+			"predictedTime": "2026-08-08T20:45:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "Roosevelt Island Dock"
+			"stopName": "Roosevelt Island Ferry Terminal",
+			"vesselName": "M/V Brooklyn",
+			"pierName": "Roosevelt Island Dock"
 		}
 	],
 	"alerts": []

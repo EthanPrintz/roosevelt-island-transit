@@ -20,7 +20,7 @@ describe('TransitAggregator', () => {
 		expect(aggregator.getRegisteredModes().length).toBe(6);
 	});
 
-	it('returns departures sorted chronologically by minutes away', async () => {
+	it('returns departures sorted chronologically by predicted/scheduled time', async () => {
 		const aggregator = new TransitAggregator();
 		aggregator.registerProvider(new MockTramProvider());
 		aggregator.registerProvider(new MockSubwayProvider());
@@ -29,7 +29,11 @@ describe('TransitAggregator', () => {
 		const departures = await aggregator.getAllDepartures('all');
 		expect(departures.length).toBeGreaterThan(0);
 		for (let i = 0; i < departures.length - 1; i++) {
-			expect(departures[i].minutesAway).toBeLessThanOrEqual(departures[i + 1].minutesAway);
+			const timeA = new Date(departures[i].predictedTime || departures[i].scheduledTime).getTime();
+			const timeB = new Date(
+				departures[i + 1].predictedTime || departures[i + 1].scheduledTime,
+			).getTime();
+			expect(timeA).toBeLessThanOrEqual(timeB);
 		}
 	});
 
@@ -40,5 +44,14 @@ describe('TransitAggregator', () => {
 
 		const subwayOnly = await aggregator.getAllDepartures('subway');
 		expect(subwayOnly.every((d) => d.mode === 'subway')).toBe(true);
+	});
+
+	it('fetches Citi Bike stations via getBikeStations', async () => {
+		const aggregator = new TransitAggregator();
+		aggregator.registerProvider(new MockCitiBikeProvider());
+
+		const stations = await aggregator.getBikeStations('citibike');
+		expect(stations.length).toBeGreaterThan(0);
+		expect(stations[0].bikesAvailable.total).toBeGreaterThan(0);
 	});
 });

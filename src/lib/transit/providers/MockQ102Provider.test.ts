@@ -6,8 +6,8 @@ describe('MockQ102Provider', () => {
 		const provider = new MockQ102Provider();
 		expect(provider.mode).toBe('q102_bus');
 
-		const departures = await provider.getDepartures();
-		expect(departures.length).toBeGreaterThan(0);
-		expect(departures[0].routeId).toBe('Q102');
+		const result = await provider.getDepartures();
+		expect(result.data.length).toBeGreaterThan(0);
+		expect(result.data[0].routeId).toBe('Q102');
 	});
 });

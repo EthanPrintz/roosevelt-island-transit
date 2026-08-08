@@ -27,6 +27,13 @@ function getModeIcon(mode: string) {
 			return Clock01Icon;
 	}
 }
+
+let minutesAway = $derived.by(() => {
+	const targetTime = new Date(departure.predictedTime || departure.scheduledTime).getTime();
+	const now = new Date().getTime();
+	const diffMinutes = Math.max(0, Math.round((targetTime - now) / 60000));
+	return diffMinutes;
+});
 </script>
 
 <div class="p-5 rounded-2xl bg-bg-surface border border-border-default shadow-xs hover:border-border-hover transition-all duration-200 flex flex-col justify-between gap-4">
@@ -50,31 +57,27 @@ function getModeIcon(mode: string) {
 		<div class="text-right">
 			<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-bg-base border border-border-default">
 				<HugeiconsIcon icon={Clock01Icon} size={14} class="text-primary" />
-				<span class="font-mono font-extrabold text-base text-text-main">{departure.minutesAway}</span>
+				<span class="font-mono font-extrabold text-base text-text-main">{minutesAway}</span>
 				<span class="text-[11px] font-medium text-text-muted">min</span>
 			</div>
 		</div>
 	</div>
 
-	{#if departure.trackOrPlatform || departure.alert || departure.status !== 'normal'}
-		<div class="pt-3 border-t border-border-subtle flex flex-wrap items-center justify-between gap-2 text-xs">
-			{#if departure.trackOrPlatform}
-				<span class="text-text-muted font-medium flex items-center gap-1">
-					📍 {departure.trackOrPlatform}
-				</span>
-			{/if}
+	<div class="pt-3 border-t border-border-subtle flex flex-wrap items-center justify-between gap-2 text-xs">
+		<span class="text-text-muted font-medium flex items-center gap-1">
+			📍 {departure.stopName}
+		</span>
 
-			{#if departure.status === 'rerouted'}
-				<span class="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium text-[11px] flex items-center gap-1 border border-amber-500/20">
-					<HugeiconsIcon icon={AlertCircleIcon} size={13} />
-					Rerouted
-				</span>
-			{:else if departure.status === 'delays'}
-				<span class="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 font-medium text-[11px] flex items-center gap-1 border border-rose-500/20">
-					<HugeiconsIcon icon={AlertCircleIcon} size={13} />
-					Delayed
-				</span>
-			{/if}
-		</div>
-	{/if}
+		{#if departure.status === 'rerouted'}
+			<span class="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium text-[11px] flex items-center gap-1 border border-amber-500/20">
+				<HugeiconsIcon icon={AlertCircleIcon} size={13} />
+				Rerouted
+			</span>
+		{:else if departure.status === 'delays'}
+			<span class="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 font-medium text-[11px] flex items-center gap-1 border border-rose-500/20">
+				<HugeiconsIcon icon={AlertCircleIcon} size={13} />
+				Delayed
+			</span>
+		{/if}
+	</div>
 </div>

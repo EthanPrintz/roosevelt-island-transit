@@ -6,11 +6,16 @@
 			"routeId": "F",
 			"routeName": "F Train",
 			"headsign": "Jamaica - 179 St",
-			"destination": "Queens",
-			"departureTime": "2026-08-08T20:31:00Z",
-			"minutesAway": 3,
+			"destinationName": "Queens",
+			"direction": "queens_bound",
+			"scheduledTime": "2026-08-08T20:31:00Z",
+			"predictedTime": "2026-08-08T20:31:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "Uptown Track"
+			"stopName": "Roosevelt Island Station B29",
+			"track": "Uptown",
+			"isShuttle": false
 		},
 		{
 			"id": "subway-f-downtown-1",
@@ -18,11 +23,16 @@
 			"routeId": "F",
 			"routeName": "F Train",
 			"headsign": "Coney Island - Stillwell Ave via 63rd St",
-			"destination": "Manhattan",
-			"departureTime": "2026-08-08T20:34:00Z",
-			"minutesAway": 6,
+			"destinationName": "Manhattan",
+			"direction": "manhattan_bound",
+			"scheduledTime": "2026-08-08T20:34:00Z",
+			"predictedTime": "2026-08-08T20:34:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "Downtown Track"
+			"stopName": "Roosevelt Island Station B29",
+			"track": "Downtown",
+			"isShuttle": false
 		},
 		{
 			"id": "subway-m-uptown-1",
@@ -30,21 +40,28 @@
 			"routeId": "M",
 			"routeName": "M Train",
 			"headsign": "Forest Hills - 71 Ave",
-			"destination": "Queens",
-			"departureTime": "2026-08-08T20:38:00Z",
-			"minutesAway": 10,
+			"destinationName": "Queens",
+			"direction": "queens_bound",
+			"scheduledTime": "2026-08-08T20:38:00Z",
+			"predictedTime": "2026-08-08T20:40:00Z",
+			"isRealtime": true,
+			"delaySeconds": 120,
 			"status": "rerouted",
-			"trackOrPlatform": "Uptown Track",
-			"alert": "F/M Shuttle service active during 63rd St Track Maintenance"
+			"stopName": "Roosevelt Island Station B29",
+			"track": "Uptown",
+			"isShuttle": true,
+			"alertId": "subway-alert-fm-switch"
 		}
 	],
 	"alerts": [
 		{
 			"id": "subway-alert-fm-switch",
 			"mode": "subway",
+			"affectedRoutes": ["F", "M"],
 			"title": "F/M Train Service Switch Notice",
 			"description": "During off-peak track work, M trains replace F trains between 47-50 Sts-Rockefeller Ctr and Roosevelt Island via 63rd St Line.",
-			"severity": "warning"
+			"severity": "warning",
+			"effect": "MODIFIED_SERVICE"
 		}
 	]
 }

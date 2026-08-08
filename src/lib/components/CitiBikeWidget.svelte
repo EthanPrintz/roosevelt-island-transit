@@ -1,14 +1,12 @@
 <script lang="ts">
 import { BicycleIcon, FlashIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
-import type { TransitStation } from '$lib/transit/domain/types';
+import type { BikeStation } from '$lib/transit/domain/types';
 
-let { station }: { station: TransitStation } = $props();
+let { station }: { station: BikeStation } = $props();
 
 let fillPercentage = $derived(
-	station.totalBikes && station.docksAvailable
-		? Math.round((station.totalBikes / (station.totalBikes + station.docksAvailable)) * 100)
-		: 50,
+	station.capacity > 0 ? Math.round((station.bikesAvailable.total / station.capacity) * 100) : 50,
 );
 </script>
 
@@ -40,18 +38,18 @@ let fillPercentage = $derived(
 	<div class="grid grid-cols-3 gap-2 pt-1 text-center">
 		<div class="p-2 rounded-xl bg-bg-base border border-border-subtle space-y-0.5">
 			<span class="text-[10px] font-semibold text-text-muted uppercase block">Classic</span>
-			<span class="font-mono font-bold text-sm text-text-main">{station.classicBikesAvailable ?? 0}</span>
+			<span class="font-mono font-bold text-sm text-text-main">{station.bikesAvailable.classic}</span>
 		</div>
 		<div class="p-2 rounded-xl bg-bg-base border border-border-subtle space-y-0.5">
 			<span class="text-[10px] font-semibold text-text-muted uppercase flex items-center justify-center gap-0.5">
 				<HugeiconsIcon icon={FlashIcon} size={11} class="text-amber-500" />
 				E-Bikes
 			</span>
-			<span class="font-mono font-bold text-sm text-primary">{station.ebikesAvailable ?? 0}</span>
+			<span class="font-mono font-bold text-sm text-primary">{station.bikesAvailable.ebike}</span>
 		</div>
 		<div class="p-2 rounded-xl bg-bg-base border border-border-subtle space-y-0.5">
 			<span class="text-[10px] font-semibold text-text-muted uppercase block">Open Docks</span>
-			<span class="font-mono font-bold text-sm text-text-main">{station.docksAvailable ?? 0}</span>
+			<span class="font-mono font-bold text-sm text-text-main">{station.docksAvailable}</span>
 		</div>
 	</div>
 </div>

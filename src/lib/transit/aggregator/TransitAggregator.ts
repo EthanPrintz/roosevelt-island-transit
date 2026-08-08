@@ -1,5 +1,5 @@
 import type { TransitProvider } from '../domain/provider';
-import type { TransitAlert, TransitDeparture, TransitMode, TransitStation } from '../domain/types';
+import type { BikeStation, TransitAlert, TransitDeparture, TransitMode } from '../domain/types';
 
 export class TransitAggregator {
 	private providers: Map<TransitMode, TransitProvider> = new Map();
@@ -14,56 +14,77 @@ export class TransitAggregator {
 
 	async getAllDepartures(filterMode?: TransitMode | 'all'): Promise<TransitDeparture[]> {
 		const activeProviders = Array.from(this.providers.values()).filter(
-			(p) => !filterMode || filterMode === 'all' || p.mode === filterMode,
+			(p) =>
+				(!filterMode || filterMode === 'all' || p.mode === filterMode) &&
+				p.capabilities.has('departures') &&
+				p.getDepartures,
 		);
 
-		const results = await Promise.allSettled(activeProviders.map((p) => p.getDepartures()));
+		const results = await Promise.allSettled(
+			activeProviders.map(async (p) =>
+				p.getDepartures ? p.getDepartures() : { data: [], fetchedAt: '', isCached: false },
+			),
+		);
 
 		const departures: TransitDeparture[] = [];
 
 		for (const result of results) {
-			if (result.status === 'fulfilled') {
-				departures.push(...result.value);
+			if (result.status === 'fulfilled' && result.value?.data) {
+				departures.push(...result.value.data);
 			}
 		}
 
-		return departures.sort((a, b) => a.minutesAway - b.minutesAway);
+		return departures.sort((a, b) => {
+			const timeA = new Date(a.predictedTime || a.scheduledTime).getTime();
+			const timeB = new Date(b.predictedTime || b.scheduledTime).getTime();
+			return timeA - timeB;
+		});
 	}
 
 	async getAllAlerts(filterMode?: TransitMode | 'all'): Promise<TransitAlert[]> {
 		const activeProviders = Array.from(this.providers.values()).filter(
-			(p) => (!filterMode || filterMode === 'all' || p.mode === filterMode) && p.getAlerts,
+			(p) =>
+				(!filterMode || filterMode === 'all' || p.mode === filterMode) &&
+				p.capabilities.has('alerts') &&
+				p.getAlerts,
 		);
 
 		const results = await Promise.allSettled(
-			activeProviders.map(async (p) => (p.getAlerts ? p.getAlerts() : [])),
+			activeProviders.map(async (p) =>
+				p.getAlerts ? p.getAlerts() : { data: [], fetchedAt: '', isCached: false },
+			),
 		);
 
 		const alerts: TransitAlert[] = [];
 
 		for (const result of results) {
-			if (result.status === 'fulfilled' && result.value) {
-				alerts.push(...result.value);
+			if (result.status === 'fulfilled' && result.value?.data) {
+				alerts.push(...result.value.data);
 			}
 		}
 
 		return alerts;
 	}
 
-	async getAllStations(filterMode?: TransitMode | 'all'): Promise<TransitStation[]> {
+	async getBikeStations(filterMode?: TransitMode | 'all'): Promise<BikeStation[]> {
 		const activeProviders = Array.from(this.providers.values()).filter(
-			(p) => (!filterMode || filterMode === 'all' || p.mode === filterMode) && p.getStations,
+			(p) =>
+				(!filterMode || filterMode === 'all' || p.mode === filterMode) &&
+				p.capabilities.has('bike_stations') &&
+				p.getBikeStations,
 		);
 
 		const results = await Promise.allSettled(
-			activeProviders.map(async (p) => (p.getStations ? p.getStations() : [])),
+			activeProviders.map(async (p) =>
+				p.getBikeStations ? p.getBikeStations() : { data: [], fetchedAt: '', isCached: false },
+			),
 		);
 
-		const stations: TransitStation[] = [];
+		const stations: BikeStation[] = [];
 
 		for (const result of results) {
-			if (result.status === 'fulfilled' && result.value) {
-				stations.push(...result.value);
+			if (result.status === 'fulfilled' && result.value?.data) {
+				stations.push(...result.value.data);
 			}
 		}
 

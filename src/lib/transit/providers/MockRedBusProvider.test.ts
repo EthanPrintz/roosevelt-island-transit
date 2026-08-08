@@ -6,8 +6,8 @@ describe('MockRedBusProvider', () => {
 		const provider = new MockRedBusProvider();
 		expect(provider.mode).toBe('red_bus');
 
-		const departures = await provider.getDepartures();
-		expect(departures.length).toBeGreaterThan(0);
-		expect(departures[0].routeName).toContain('Red Bus');
+		const result = await provider.getDepartures();
+		expect(result.data.length).toBeGreaterThan(0);
+		expect(result.data[0].routeName).toContain('Red Bus');
 	});
 });

@@ -6,8 +6,8 @@ describe('MockFerryProvider', () => {
 		const provider = new MockFerryProvider();
 		expect(provider.mode).toBe('ferry');
 
-		const departures = await provider.getDepartures();
-		expect(departures.length).toBeGreaterThan(0);
-		expect(departures[0].routeId).toBe('AST');
+		const result = await provider.getDepartures();
+		expect(result.data.length).toBeGreaterThan(0);
+		expect(result.data[0].routeId).toBe('AST');
 	});
 });

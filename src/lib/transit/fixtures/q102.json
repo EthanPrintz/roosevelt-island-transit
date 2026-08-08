@@ -6,11 +6,15 @@
 			"routeId": "Q102",
 			"routeName": "Q102 Bus",
 			"headsign": "Astoria - 27 Ave via RI Bridge",
-			"destination": "Astoria",
-			"departureTime": "2026-08-08T20:32:00Z",
-			"minutesAway": 4,
+			"destinationName": "Astoria",
+			"direction": "queens_bound",
+			"scheduledTime": "2026-08-08T20:32:00Z",
+			"predictedTime": "2026-08-08T20:32:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "Main St / Tramway Stop"
+			"stopName": "Main St / Tramway Stop",
+			"occupancy": "standing_room_only"
 		},
 		{
 			"id": "q102-coler-1",
@@ -18,11 +22,15 @@
 			"routeId": "Q102",
 			"routeName": "Q102 Bus",
 			"headsign": "Roosevelt Island - Coler Hospital",
-			"destination": "Coler Hospital",
-			"departureTime": "2026-08-08T20:41:00Z",
-			"minutesAway": 13,
+			"destinationName": "Coler Hospital",
+			"direction": "northbound",
+			"scheduledTime": "2026-08-08T20:41:00Z",
+			"predictedTime": "2026-08-08T20:41:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "Main St / Subway Stop"
+			"stopName": "Main St / Subway Stop",
+			"occupancy": "many_seats_available"
 		}
 	],
 	"alerts": []

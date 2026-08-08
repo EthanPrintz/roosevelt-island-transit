@@ -6,11 +6,15 @@
 			"routeId": "RED_BUS",
 			"routeName": "RIOC Red Bus",
 			"headsign": "Octagon via Main St",
-			"destination": "Octagon",
-			"departureTime": "2026-08-08T20:29:00Z",
-			"minutesAway": 1,
+			"destinationName": "Octagon",
+			"direction": "northbound",
+			"scheduledTime": "2026-08-08T20:29:00Z",
+			"predictedTime": "2026-08-08T20:29:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "Tram/Subway Stop"
+			"stopName": "Tram/Subway Plaza Stop",
+			"occupancy": "many_seats_available"
 		},
 		{
 			"id": "redbus-southtown-1",
@@ -18,11 +22,15 @@
 			"routeId": "RED_BUS",
 			"routeName": "RIOC Red Bus",
 			"headsign": "Southtown / Cornell Tech Express",
-			"destination": "Cornell Tech",
-			"departureTime": "2026-08-08T20:33:00Z",
-			"minutesAway": 5,
+			"destinationName": "Cornell Tech",
+			"direction": "southbound",
+			"scheduledTime": "2026-08-08T20:33:00Z",
+			"predictedTime": "2026-08-08T20:33:00Z",
+			"isRealtime": true,
+			"delaySeconds": 0,
 			"status": "normal",
-			"trackOrPlatform": "Motorgate Stop"
+			"stopName": "Motorgate Stop",
+			"occupancy": "few_seats_available"
 		}
 	],
 	"alerts": []
