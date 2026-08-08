@@ -1,17 +1,37 @@
 import type { TransitProvider } from '../domain/provider';
 import type { BikeStation, TransitAlert, TransitDeparture, TransitMode } from '../domain/types';
 
+/**
+ * TransitAggregator
+ *
+ * Central orchestrator for Roosevelt Island multi-modal transit providers.
+ * Executes registered transit mode providers concurrently using Promise.allSettled
+ * to ensure high fault tolerance (if one upstream API fails, remaining modes return intact).
+ */
 export class TransitAggregator {
 	private providers: Map<TransitMode, TransitProvider> = new Map();
 
+	/**
+	 * Registers a new TransitProvider implementation.
+	 * Overwrites any existing provider registered for the same mode.
+	 */
 	registerProvider(provider: TransitProvider): void {
 		this.providers.set(provider.mode, provider);
 	}
 
+	/**
+	 * Returns list of registered transit modes currently loaded in the aggregator.
+	 */
 	getRegisteredModes(): TransitMode[] {
 		return Array.from(this.providers.keys());
 	}
 
+	/**
+	 * Fetches upcoming departures across all active registered providers.
+	 * Sorts results chronologically based on predicted/scheduled departure time.
+	 *
+	 * @param filterMode Optional transit mode filter (e.g. 'subway', 'tram', or 'all')
+	 */
 	async getAllDepartures(filterMode?: TransitMode | 'all'): Promise<TransitDeparture[]> {
 		const activeProviders = Array.from(this.providers.values()).filter(
 			(p) =>
@@ -41,6 +61,11 @@ export class TransitAggregator {
 		});
 	}
 
+	/**
+	 * Fetches active service disruptions and alerts across registered providers.
+	 *
+	 * @param filterMode Optional transit mode filter
+	 */
 	async getAllAlerts(filterMode?: TransitMode | 'all'): Promise<TransitAlert[]> {
 		const activeProviders = Array.from(this.providers.values()).filter(
 			(p) =>
@@ -66,6 +91,11 @@ export class TransitAggregator {
 		return alerts;
 	}
 
+	/**
+	 * Fetches bikeshare station occupancy and dock availability.
+	 *
+	 * @param filterMode Optional mode filter (defaults to 'citibike' or 'all')
+	 */
 	async getBikeStations(filterMode?: TransitMode | 'all'): Promise<BikeStation[]> {
 		const activeProviders = Array.from(this.providers.values()).filter(
 			(p) =>
