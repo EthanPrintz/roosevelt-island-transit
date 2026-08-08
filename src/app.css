@@ -13,17 +13,17 @@
 	--color-neutral-900: oklch(0.21 0.006 285.885);
 	--color-neutral-950: oklch(0.14 0.004 285.823);
 
-	--color-brand-50: oklch(0.96 0.015 17);
-	--color-brand-100: oklch(0.91 0.035 17);
-	--color-brand-200: oklch(0.82 0.07 17);
-	--color-brand-300: oklch(0.71 0.12 17);
-	--color-brand-400: oklch(0.58 0.17 17);
-	--color-brand-500: oklch(0.48 0.19 17);
-	--color-brand-600: oklch(0.42 0.18 17);
-	--color-brand-700: oklch(0.35 0.15 17);
-	--color-brand-800: oklch(0.29 0.12 17);
-	--color-brand-900: oklch(0.23 0.08 17);
-	--color-brand-950: oklch(0.16 0.05 17);
+	--color-brand-50: oklch(0.965 0.015 19.5);
+	--color-brand-100: oklch(0.92 0.038 19.5);
+	--color-brand-200: oklch(0.84 0.075 19.5);
+	--color-brand-300: oklch(0.735 0.135 19.5);
+	--color-brand-400: oklch(0.62 0.19 19.5);
+	--color-brand-500: oklch(0.535 0.21 19.5);
+	--color-brand-600: oklch(0.47 0.2 19.5);
+	--color-brand-700: oklch(0.395 0.17 19.5);
+	--color-brand-800: oklch(0.325 0.135 19.5);
+	--color-brand-900: oklch(0.255 0.09 19.5);
+	--color-brand-950: oklch(0.17 0.055 19.5);
 
 	/* Semantic design tokens mapped to CSS variables */
 	--color-bg-base: var(--bg-base);

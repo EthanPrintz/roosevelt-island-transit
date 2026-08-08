@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
   <title>Svelte 5 Base Favicon</title>
-  <rect width="32" height="32" rx="8" fill="#821516" />
+  <rect width="32" height="32" rx="8" fill="#b31d20" />
   <path d="M17 5L7 17H15L13 27L25 13H16L17 5Z" fill="#ffffff" stroke="#ffffff" stroke-width="0.5" stroke-linejoin="round"/>
 </svg>
