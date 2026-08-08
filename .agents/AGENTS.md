@@ -1,0 +1,36 @@
+# Agentic Guidelines & Engineering Best Practices (.agents/AGENTS.md)
+
+This workspace is configured for Antigravity / Gemini coding agents. All agents MUST follow these instructions and rules when operating within this codebase.
+
+## 1. Core Principles
+- **No Guesswork**: Do not guess file paths, symbol names, or API signatures. Verify using workspace tools.
+- **Runtime & Package Manager**: Always use `bun` (v1.3+). Use `bun install`, `bun run dev`, `bun run check`, `bun run lint`, `bun run format`, `bun run test`.
+- **Type Safety**: Maintain strict TypeScript v5.9 definitions.
+
+## 2. Framework Guidelines: Svelte 5 & SvelteKit 2
+- **Runes**:
+  - Use `$state` for all reactive state.
+  - Use `$derived` for computed expressions. Avoid complex logic inside templates.
+  - Use `$props` for component prop interfaces instead of legacy `export let`.
+  - Use `<snippet>` over `<slot>` for template slots.
+- **Event Handling**: Use standard HTML attributes (e.g., `onclick`, `onkeydown`) instead of legacy `on:` directives.
+- **Global Client State**: Store shared client state in `.svelte.ts` modules (e.g. `src/lib/state/theme.svelte.ts`) using `$state` runes instead of writable stores.
+- **Data Loading & Form Actions**:
+  - Use `+page.server.ts` for server-only logic and DB queries.
+  - Apply `use:enhance` on form elements for progressive enhancement.
+
+## 3. Styling & Design System: Tailwind CSS v4
+- **CSS-First Architecture**: Define design system tokens directly in `src/app.css` using the `@theme` directive.
+- **OKLCH Color Tokens**: Layer raw OKLCH values to semantic variables (`--color-bg-base`, `--color-bg-surface`, `--color-text-main`, `--color-primary`).
+- **Declarative Theme Switching**: Theme modes (`system`, `light`, `dark`) operate via `document.documentElement.dataset.theme` and native `@media (prefers-color-scheme: dark)`.
+
+## 4. Icon System: Hugeicons
+- Use `@hugeicons/svelte` for rendering icon components (`<HugeiconsIcon icon={IconName} size={20} />`).
+- Import free icons from `@hugeicons/core-free-icons`.
+- Consult the `hugeicons` MCP server when looking for available vector icon glyphs.
+
+## 5. Tooling, Linting & Verification
+- **Linter & Formatter**: Biome v2.3 (`bun run lint`, `bun run format`).
+- **Type Diagnostics**: Svelte Check (`bun run check`).
+- **Unit Testing**: Vitest (`bun run test`).
+- Always run `bun run check && bun run lint && bun run test` before declaring code changes complete.
