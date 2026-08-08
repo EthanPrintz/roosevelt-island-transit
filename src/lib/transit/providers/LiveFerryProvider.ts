@@ -5,104 +5,12 @@ import type { FerryDeparture, ProviderResult, TransitAlert, TransitMode } from '
 export const NYC_FERRY_TRIP_UPDATE_URL =
 	'https://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/tripupdate';
 
-// Weekday Static Schedule (service_id = 1, Mon-Fri)
-const WEEKDAY_SCHEDULE = [
-	{
-		tripId: '1001',
-		headsign: 'East 90th St',
-		direction: 'northbound' as const,
-		departureTimeStr: '16:54:00',
-	},
-	{
-		tripId: '1148',
-		headsign: 'Wall St / Pier 11',
-		direction: 'southbound' as const,
-		departureTimeStr: '17:03:00',
-	},
-	{
-		tripId: '1002',
-		headsign: 'East 90th St',
-		direction: 'northbound' as const,
-		departureTimeStr: '17:33:00',
-	},
-	{
-		tripId: '1149',
-		headsign: 'Wall St / Pier 11',
-		direction: 'southbound' as const,
-		departureTimeStr: '17:44:00',
-	},
-	{
-		tripId: '1003',
-		headsign: 'East 90th St',
-		direction: 'northbound' as const,
-		departureTimeStr: '18:12:00',
-	},
-	{
-		tripId: '1150',
-		headsign: 'Wall St / Pier 11',
-		direction: 'southbound' as const,
-		departureTimeStr: '18:25:00',
-	},
-];
-
-// Weekend Static Schedule (service_id = 2, Sat-Sun)
-const WEEKEND_SCHEDULE = [
-	{
-		tripId: '1134',
-		headsign: 'East 90th St',
-		direction: 'northbound' as const,
-		departureTimeStr: '17:11:00',
-	},
-	{
-		tripId: '1022',
-		headsign: 'Wall St / Pier 11',
-		direction: 'southbound' as const,
-		departureTimeStr: '17:25:00',
-	},
-	{
-		tripId: '1149',
-		headsign: 'Wall St / Pier 11',
-		direction: 'southbound' as const,
-		departureTimeStr: '17:44:00',
-	},
-	{
-		tripId: '1135',
-		headsign: 'East 90th St',
-		direction: 'northbound' as const,
-		departureTimeStr: '17:52:00',
-	},
-	{
-		tripId: '1023',
-		headsign: 'Wall St / Pier 11',
-		direction: 'southbound' as const,
-		departureTimeStr: '18:05:00',
-	},
-	{
-		tripId: '1150',
-		headsign: 'Wall St / Pier 11',
-		direction: 'southbound' as const,
-		departureTimeStr: '18:25:00',
-	},
-	{
-		tripId: '1136',
-		headsign: 'East 90th St',
-		direction: 'northbound' as const,
-		departureTimeStr: '18:33:00',
-	},
-	{
-		tripId: '1024',
-		headsign: 'Wall St / Pier 11',
-		direction: 'southbound' as const,
-		departureTimeStr: '18:44:00',
-	},
-];
-
 /**
  * LiveFerryProvider
  *
- * Merges NYC Ferry GTFS timetable schedule for Roosevelt Island Landing (Stop 25)
- * with live real-time vessel telemetry & delay offsets from Connexionz.
- * Dynamically selects Weekday (service_id = 1) vs Weekend (service_id = 2) static schedules.
+ * Fetches real-time GTFS-RT Protobuf feeds directly from NYC Ferry (Connexionz engine).
+ * 100% Pure API driven. Zero hardcoded schedules or fallbacks.
+ * Filters exclusively for Roosevelt Island Landing (GTFS Stop ID 25).
  */
 export class LiveFerryProvider implements TransitProvider {
 	readonly mode: TransitMode = 'ferry';
@@ -112,57 +20,53 @@ export class LiveFerryProvider implements TransitProvider {
 	async getDepartures(): Promise<ProviderResult<FerryDeparture>> {
 		try {
 			const res = await fetch(NYC_FERRY_TRIP_UPDATE_URL);
-			const liveDelays = new Map<string, { delay: number; vessel?: string }>();
-
-			if (res.ok) {
-				const arrayBuffer = await res.arrayBuffer();
-				const feed = decodeGtfsRealtimeBuffer(arrayBuffer);
-
-				for (const entity of feed.entity) {
-					const tripId = entity.tripUpdate?.trip?.tripId;
-					const vehicle = entity.tripUpdate?.vehicle?.label;
-					const delay = entity.tripUpdate?.delay || 0;
-					if (tripId) {
-						liveDelays.set(tripId, { delay, vessel: vehicle });
-					}
-				}
+			if (!res.ok) {
+				throw new Error(`NYC Ferry API returned status ${res.status}`);
 			}
 
-			const now = new Date();
-			const isWeekend = now.getDay() === 0 || now.getDay() === 6;
-			const targetSchedule = isWeekend ? WEEKEND_SCHEDULE : WEEKDAY_SCHEDULE;
+			const arrayBuffer = await res.arrayBuffer();
+			const feed = decodeGtfsRealtimeBuffer(arrayBuffer);
 
 			const departures: FerryDeparture[] = [];
 
-			for (const item of targetSchedule) {
-				const [h, m, s] = item.departureTimeStr.split(':').map(Number);
-				const scheduledDate = new Date(now);
-				scheduledDate.setHours(h, m, s, 0);
+			for (const entity of feed.entity) {
+				if (!entity.tripUpdate?.stopTimeUpdate) continue;
 
-				const rtData = liveDelays.get(item.tripId);
-				const isRealtime = Boolean(rtData);
-				const delaySec = rtData?.delay || 0;
-				const predictedDate = new Date(scheduledDate.getTime() + delaySec * 1000);
+				const trip = entity.tripUpdate.trip;
+				const vehicleLabel = entity.tripUpdate.vehicle?.label;
 
-				// Include departures that are upcoming or within last 5 minutes
-				if (predictedDate.getTime() >= now.getTime() - 300000) {
+				for (const update of entity.tripUpdate.stopTimeUpdate) {
+					const stopId = String(update.stopId || '').replace(/"/g, '');
+
+					// Stop ID 25 is Roosevelt Island Ferry Landing
+					if (stopId !== '25') continue;
+
+					const timeVal = update.departure?.time || update.arrival?.time;
+					if (!timeVal) continue;
+
+					const isoTime = new Date(timeVal * 1000).toISOString();
+					const seq = update.stopSequence || 0;
+					const isSouthbound = seq <= 3;
+
 					departures.push({
-						id: `ferry-live-${item.tripId}-${item.departureTimeStr}`,
+						id: `ferry-live-${trip.tripId || Math.random()}-${stopId}`,
 						mode: 'ferry',
 						routeId: 'AST',
 						routeName: 'NYC Ferry - Astoria Line',
-						tripId: item.tripId,
-						headsign: item.headsign,
-						destinationName: item.headsign.includes('Wall') ? 'Wall St / Pier 11' : 'E 90th St',
-						direction: item.direction,
-						scheduledTime: scheduledDate.toISOString(),
-						predictedTime: predictedDate.toISOString(),
-						isRealtime,
-						delaySeconds: delaySec,
-						status: delaySec > 180 ? 'delays' : 'normal',
+						tripId: trip.tripId,
+						headsign: isSouthbound
+							? 'Wall St / Pier 11 via LIC & E 34th St'
+							: 'East 90th St / Upper East Side',
+						destinationName: isSouthbound ? 'Wall St / Pier 11' : 'E 90th St',
+						direction: isSouthbound ? 'southbound' : 'northbound',
+						scheduledTime: isoTime,
+						predictedTime: isoTime,
+						isRealtime: true,
+						delaySeconds: update.departure?.delay || 0,
+						status: 'normal',
 						stopName: 'Roosevelt Island Ferry Landing',
 						stopId: '25',
-						vesselName: isRealtime && rtData?.vessel ? rtData.vessel : undefined,
+						vesselName: vehicleLabel || undefined,
 						pierName: 'Roosevelt Island Dock',
 					});
 				}

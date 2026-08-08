@@ -7,7 +7,6 @@ let stations = $state<BikeStation[]>([]);
 let isCached = $state<boolean>(false);
 let fetchedAt = $state<string>('');
 let isLoading = $state<boolean>(true);
-let liveOnly = $state<boolean>(false);
 
 $effect(() => {
 	loadLiveData();
@@ -32,13 +31,8 @@ async function loadLiveData() {
 	}
 }
 
-let subwayDepartures = $derived(
-	departures.filter((d) => d.mode === 'subway').filter((d) => !liveOnly || d.isRealtime),
-);
-
-let ferryDepartures = $derived(
-	departures.filter((d) => d.mode === 'ferry').filter((d) => !liveOnly || d.isRealtime),
-);
+let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
+let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 </script>
 
 <svelte:head>
@@ -52,30 +46,20 @@ let ferryDepartures = $derived(
 			<div class="flex items-center gap-2">
 				<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold border border-emerald-500/20">
 					<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-					LIVE STREAMS
+					100% LIVE API STREAMS
 				</span>
 			</div>
 			<h1 class="text-2xl font-bold text-text-main mt-1">Roosevelt Island Live Transit Feed</h1>
-			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway, ferry & GBFS bikeshare streams.</p>
+			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare streams.</p>
 		</div>
 
 		<div class="flex items-center gap-3">
-			<!-- Filter Toggle: Live Tracked Only vs Scheduled -->
-			<button
-				onclick={() => (liveOnly = !liveOnly)}
-				class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer {liveOnly
-					? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400'
-					: 'bg-bg-surface text-text-muted border-border-default hover:border-border-hover'}"
-			>
-				{liveOnly ? '✓ Live Vessels Only' : 'Show Timetables + Live'}
-			</button>
-
 			<button
 				onclick={loadLiveData}
 				disabled={isLoading}
 				class="px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
 			>
-				{isLoading ? 'Refreshing...' : 'Refresh'}
+				{isLoading ? 'Refreshing...' : 'Refresh Live Feeds'}
 			</button>
 		</div>
 	</div>
@@ -111,7 +95,7 @@ let ferryDepartures = $derived(
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>🚇</span>
-				MTA Subway (F/M Trains) — {subwayDepartures.length} Departures
+				MTA Subway (F/M Trains) — {subwayDepartures.length} Live Departures
 			</h2>
 		</div>
 
@@ -143,8 +127,8 @@ let ferryDepartures = $derived(
 							</div>
 							{#if departure.status === 'rerouted'}
 								<span class="text-[10px] font-bold text-amber-500">Rerouted</span>
-							{:else if departure.isRealtime}
-								<span class="text-[10px] font-bold text-emerald-500">Live GPS</span>
+							{:else}
+								<span class="text-[10px] font-bold text-emerald-500">Live GTFS-RT</span>
 							{/if}
 						</div>
 					</div>
@@ -158,13 +142,13 @@ let ferryDepartures = $derived(
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>⛴️</span>
-				NYC Ferry (Astoria Line) — {ferryDepartures.length} Departures
+				NYC Ferry (Astoria Line) — {ferryDepartures.length} Live Departures
 			</h2>
 		</div>
 
 		{#if ferryDepartures.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
-				{isLoading ? 'Loading NYC Ferry feeds...' : 'No ferry departures matching current filter.'}
+				{isLoading ? 'Loading NYC Ferry feeds...' : 'No incoming ferry boats active in Connexionz GTFS-RT feed for stop 25.'}
 			</div>
 		{:else}
 			<div class="divide-y divide-border-subtle rounded-xl bg-bg-surface border border-border-default overflow-hidden">
@@ -188,14 +172,10 @@ let ferryDepartures = $derived(
 							<div class="font-mono text-sm font-extrabold text-text-main">
 								{new Date(departure.predictedTime || departure.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 							</div>
-							{#if departure.isRealtime}
-								<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-									<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-									Live Vessel
-								</span>
-							{:else}
-								<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
-							{/if}
+							<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
+								<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+								Live GTFS-RT
+							</span>
 						</div>
 					</div>
 				{/each}
