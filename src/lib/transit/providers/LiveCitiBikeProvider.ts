@@ -4,12 +4,11 @@ import type { BikeStation, ProviderResult, TransitAlert, TransitMode } from '../
 export const CITIBIKE_STATUS_URL = 'https://gbfs.citibikenyc.com/gbfs/en/station_status.json';
 export const CITIBIKE_INFO_URL = 'https://gbfs.citibikenyc.com/gbfs/en/station_information.json';
 
-const ROOSEVELT_ISLAND_STATION_NAMES = [
-	'Roosevelt Island Tramway Plaza',
-	'Roosevelt Island Subway Station',
-	'Cornell Tech Campus',
-	'Motorgate',
-	'Octagon',
+const ROOSEVELT_ISLAND_STATION_KEYWORDS = [
+	'roosevelt island',
+	'southpoint park',
+	'motorgate',
+	'octagon',
 ];
 
 interface GbfsStatusItem {
@@ -34,7 +33,7 @@ interface GbfsInfoItem {
  * LiveCitiBikeProvider
  *
  * Fetches real-time Citi Bike station status via public GBFS v3.0 JSON endpoints.
- * Filters for stations located on Roosevelt Island.
+ * Filters for Roosevelt Island docking stations.
  */
 export class LiveCitiBikeProvider implements TransitProvider {
 	readonly mode: TransitMode = 'citibike';
@@ -61,12 +60,11 @@ export class LiveCitiBikeProvider implements TransitProvider {
 
 			const infoMap = new Map<string, GbfsInfoItem>();
 			for (const info of infoJson.data.stations) {
-				if (
-					ROOSEVELT_ISLAND_STATION_NAMES.some((name) =>
-						info.name.toLowerCase().includes(name.toLowerCase()),
-					) ||
-					(info.lat >= 40.75 && info.lat <= 40.77 && info.lon >= -73.96 && info.lon <= -73.94)
-				) {
+				const lowerName = info.name.toLowerCase();
+
+				const isRiStation = ROOSEVELT_ISLAND_STATION_KEYWORDS.some((kw) => lowerName.includes(kw));
+
+				if (isRiStation) {
 					infoMap.set(info.station_id, info);
 				}
 			}

@@ -9,7 +9,7 @@ export const MTA_SUBWAY_BDFM_URL =
  * LiveSubwayProvider
  *
  * Fetches real-time GTFS-RT Protobuf feed from MTA for F/M subway lines.
- * Filters for Roosevelt Island Station (Stop ID B29N / B29S).
+ * Filters for Roosevelt Island Station (GTFS Stop ID B06N / B06S).
  */
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
@@ -37,12 +37,10 @@ export class LiveSubwayProvider implements TransitProvider {
 				const trip = entity.tripUpdate.trip;
 				const routeId = (trip.routeId || '').toUpperCase();
 
-				// We care about F and M trains at Roosevelt Island (B29)
-				if (routeId !== 'F' && routeId !== 'M') continue;
-
 				for (const update of entity.tripUpdate.stopTimeUpdate) {
 					const stopId = update.stopId || '';
-					if (!stopId.startsWith('B29')) continue;
+					// Roosevelt Island GTFS Station ID is B06 (B06N = Uptown/Queens, B06S = Downtown/Manhattan)
+					if (!stopId.startsWith('B06')) continue;
 
 					const isUptown = stopId.endsWith('N');
 					const timeVal = update.departure?.time || update.arrival?.time;
@@ -54,14 +52,14 @@ export class LiveSubwayProvider implements TransitProvider {
 					departures.push({
 						id: `subway-live-${trip.tripId || Math.random()}-${stopId}`,
 						mode: 'subway',
-						routeId: routeId as 'F' | 'M',
-						routeName: `${routeId} Train`,
+						routeId: routeId === 'M' ? 'M' : 'F',
+						routeName: `${routeId || 'F'} Train`,
 						tripId: trip.tripId,
 						headsign: isUptown
 							? routeId === 'F'
-								? 'Jamaica - 179 St'
+								? 'Queens / Jamaica 179 St'
 								: 'Forest Hills - 71 Ave via 63rd St'
-							: 'Coney Island - Stillwell Ave',
+							: 'Manhattan / Coney Island',
 						destinationName: isUptown ? 'Queens' : 'Manhattan',
 						direction: isUptown ? 'queens_bound' : 'manhattan_bound',
 						scheduledTime: isoTime,
@@ -69,7 +67,7 @@ export class LiveSubwayProvider implements TransitProvider {
 						isRealtime: true,
 						delaySeconds: update.departure?.delay || 0,
 						status: isMShuttle ? 'rerouted' : 'normal',
-						stopName: 'Roosevelt Island Station B29',
+						stopName: 'Roosevelt Island Station',
 						stopId,
 						track: isUptown ? 'Uptown' : 'Downtown',
 						isShuttle: isMShuttle,
