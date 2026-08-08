@@ -5,7 +5,7 @@ import type { FerryDeparture, ProviderResult, TransitAlert, TransitMode } from '
 export const NYC_FERRY_TRIP_UPDATE_URL =
 	'https://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/tripupdate';
 
-// Static timetable for Roosevelt Island Landing (GTFS Stop ID 25)
+// Static GTFS timetable for Roosevelt Island Landing (GTFS Stop ID 25)
 const ROOSEVELT_ISLAND_SCHEDULE = [
 	{
 		tripId: '1134',
@@ -72,8 +72,8 @@ const ROOSEVELT_ISLAND_SCHEDULE = [
 /**
  * LiveFerryProvider
  *
- * Combines NYC Ferry GTFS schedule timetable for Roosevelt Island Landing (Stop 25)
- * with real-time vessel position & delay updates from Connexionz's GTFS-RT feed.
+ * Merges NYC Ferry GTFS timetable schedule for Roosevelt Island Landing (Stop 25)
+ * with live real-time vessel telemetry & delay offsets from Connexionz.
  */
 export class LiveFerryProvider implements TransitProvider {
 	readonly mode: TransitMode = 'ferry';
@@ -83,7 +83,7 @@ export class LiveFerryProvider implements TransitProvider {
 	async getDepartures(): Promise<ProviderResult<FerryDeparture>> {
 		try {
 			const res = await fetch(NYC_FERRY_TRIP_UPDATE_URL);
-			const liveDelays = new Map<string, { delay: number; vessel: string }>();
+			const liveDelays = new Map<string, { delay: number; vessel?: string }>();
 
 			if (res.ok) {
 				const arrayBuffer = await res.arrayBuffer();
@@ -94,7 +94,7 @@ export class LiveFerryProvider implements TransitProvider {
 					const vehicle = entity.tripUpdate?.vehicle?.label;
 					const delay = entity.tripUpdate?.delay || 0;
 					if (tripId) {
-						liveDelays.set(tripId, { delay, vessel: vehicle || 'NYC Ferry Vessel' });
+						liveDelays.set(tripId, { delay, vessel: vehicle });
 					}
 				}
 			}
@@ -108,6 +108,7 @@ export class LiveFerryProvider implements TransitProvider {
 				scheduledDate.setHours(h, m, s, 0);
 
 				const rtData = liveDelays.get(item.tripId);
+				const isRealtime = Boolean(rtData);
 				const delaySec = rtData?.delay || 0;
 				const predictedDate = new Date(scheduledDate.getTime() + delaySec * 1000);
 
@@ -124,12 +125,12 @@ export class LiveFerryProvider implements TransitProvider {
 						direction: item.direction,
 						scheduledTime: scheduledDate.toISOString(),
 						predictedTime: predictedDate.toISOString(),
-						isRealtime: liveDelays.has(item.tripId),
+						isRealtime,
 						delaySeconds: delaySec,
 						status: delaySec > 180 ? 'delays' : 'normal',
 						stopName: 'Roosevelt Island Ferry Landing',
 						stopId: '25',
-						vesselName: rtData?.vessel || 'M/V Sunset Park',
+						vesselName: isRealtime && rtData?.vessel ? rtData.vessel : undefined,
 						pierName: 'Roosevelt Island Dock',
 					});
 				}

@@ -7,6 +7,7 @@ let stations = $state<BikeStation[]>([]);
 let isCached = $state<boolean>(false);
 let fetchedAt = $state<string>('');
 let isLoading = $state<boolean>(true);
+let liveOnly = $state<boolean>(false);
 
 $effect(() => {
 	loadLiveData();
@@ -31,8 +32,13 @@ async function loadLiveData() {
 	}
 }
 
-let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
-let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
+let subwayDepartures = $derived(
+	departures.filter((d) => d.mode === 'subway').filter((d) => !liveOnly || d.isRealtime),
+);
+
+let ferryDepartures = $derived(
+	departures.filter((d) => d.mode === 'ferry').filter((d) => !liveOnly || d.isRealtime),
+);
 </script>
 
 <svelte:head>
@@ -41,7 +47,7 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 
 <div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
 	<!-- Top Bar -->
-	<div class="flex items-start justify-between gap-4">
+	<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
 		<div>
 			<div class="flex items-center gap-2">
 				<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold border border-emerald-500/20">
@@ -53,21 +59,32 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway, ferry & GBFS bikeshare streams.</p>
 		</div>
 
-		<div class="text-right">
+		<div class="flex items-center gap-3">
+			<!-- Filter Toggle: Live Tracked Only vs Scheduled -->
+			<button
+				onclick={() => (liveOnly = !liveOnly)}
+				class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer {liveOnly
+					? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400'
+					: 'bg-bg-surface text-text-muted border-border-default hover:border-border-hover'}"
+			>
+				{liveOnly ? '✓ Live Vessels Only' : 'Show Timetables + Live'}
+			</button>
+
 			<button
 				onclick={loadLiveData}
 				disabled={isLoading}
 				class="px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
 			>
-				{isLoading ? 'Refreshing...' : 'Refresh Live Feeds'}
+				{isLoading ? 'Refreshing...' : 'Refresh'}
 			</button>
-			{#if fetchedAt}
-				<span class="block text-[10px] text-text-muted mt-1 font-mono">
-					Fetched: {new Date(fetchedAt).toLocaleTimeString()} {isCached ? '(Cached 15s)' : '(Live API)'}
-				</span>
-			{/if}
 		</div>
 	</div>
+
+	{#if fetchedAt}
+		<div class="text-right -mt-4 text-[10px] text-text-muted font-mono">
+			Fetched: {new Date(fetchedAt).toLocaleTimeString()} {isCached ? '(Cached 15s)' : '(Live API)'}
+		</div>
+	{/if}
 
 	<!-- Active System Alerts -->
 	{#if alerts.length > 0}
@@ -94,7 +111,7 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>🚇</span>
-				MTA Subway (F/M Trains) — {subwayDepartures.length} Live Departures
+				MTA Subway (F/M Trains) — {subwayDepartures.length} Departures
 			</h2>
 		</div>
 
@@ -126,6 +143,8 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 							</div>
 							{#if departure.status === 'rerouted'}
 								<span class="text-[10px] font-bold text-amber-500">Rerouted</span>
+							{:else if departure.isRealtime}
+								<span class="text-[10px] font-bold text-emerald-500">Live GPS</span>
 							{/if}
 						</div>
 					</div>
@@ -139,13 +158,13 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>⛴️</span>
-				NYC Ferry (Astoria Line) — {ferryDepartures.length} Live Departures
+				NYC Ferry (Astoria Line) — {ferryDepartures.length} Departures
 			</h2>
 		</div>
 
 		{#if ferryDepartures.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
-				{isLoading ? 'Loading NYC Ferry feeds...' : 'No upcoming ferry boats active in Connexionz GTFS-RT feed.'}
+				{isLoading ? 'Loading NYC Ferry feeds...' : 'No ferry departures matching current filter.'}
 			</div>
 		{:else}
 			<div class="divide-y divide-border-subtle rounded-xl bg-bg-surface border border-border-default overflow-hidden">
@@ -160,7 +179,7 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 								<div class="text-[11px] text-text-muted">
 									{departure.stopName}
 									{#if departure.mode === 'ferry' && departure.vesselName}
-										• Vessel: {departure.vesselName}
+										• Vessel: <strong class="text-text-main font-mono">{departure.vesselName}</strong>
 									{/if}
 								</div>
 							</div>
@@ -170,7 +189,12 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 								{new Date(departure.predictedTime || departure.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 							</div>
 							{#if departure.isRealtime}
-								<span class="text-[10px] font-bold text-emerald-500">Live Vessel</span>
+								<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
+									<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+									Live Vessel
+								</span>
+							{:else}
+								<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
 							{/if}
 						</div>
 					</div>
