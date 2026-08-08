@@ -9,8 +9,7 @@ export const NYC_FERRY_TRIP_UPDATE_URL =
  * LiveFerryProvider
  *
  * Fetches real-time GTFS-RT Protobuf feeds directly from NYC Ferry (Connexionz engine).
- * 100% Pure API driven. Zero hardcoded schedules or fallbacks.
- * Filters exclusively for Roosevelt Island Landing (GTFS Stop ID 25).
+ * 100% Pure API driven. Prefers arrival.time over departure.time to avoid live clock creeping while docked.
  */
 export class LiveFerryProvider implements TransitProvider {
 	readonly mode: TransitMode = 'ferry';
@@ -28,6 +27,7 @@ export class LiveFerryProvider implements TransitProvider {
 			const feed = decodeGtfsRealtimeBuffer(arrayBuffer);
 
 			const departures: FerryDeparture[] = [];
+			const nowMs = Date.now();
 
 			for (const entity of feed.entity) {
 				if (!entity.tripUpdate?.stopTimeUpdate) continue;
@@ -41,10 +41,15 @@ export class LiveFerryProvider implements TransitProvider {
 					// Stop ID 25 is Roosevelt Island Ferry Landing
 					if (stopId !== '25') continue;
 
-					const timeVal = update.departure?.time || update.arrival?.time;
+					// Prefer arrival.time over departure.time to avoid live clock creeping while docked
+					const timeVal = update.arrival?.time || update.departure?.time;
 					if (!timeVal) continue;
 
-					const isoTime = new Date(timeVal * 1000).toISOString();
+					const depMs = timeVal * 1000;
+					// Filter out arrivals that occurred more than 2 minutes ago
+					if (depMs < nowMs - 120000) continue;
+
+					const isoTime = new Date(depMs).toISOString();
 					const seq = update.stopSequence || 0;
 					const isSouthbound = seq <= 3;
 
@@ -62,7 +67,7 @@ export class LiveFerryProvider implements TransitProvider {
 						scheduledTime: isoTime,
 						predictedTime: isoTime,
 						isRealtime: true,
-						delaySeconds: update.departure?.delay || 0,
+						delaySeconds: update.arrival?.delay || update.departure?.delay || 0,
 						status: 'normal',
 						stopName: 'Roosevelt Island Ferry Landing',
 						stopId: '25',
