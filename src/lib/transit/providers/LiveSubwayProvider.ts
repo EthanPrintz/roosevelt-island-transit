@@ -1,7 +1,6 @@
 import { decodeGtfsRealtimeBuffer } from '$lib/server/gtfs';
 import type { ProviderCapability, TransitProvider } from '../domain/provider';
 import type { ProviderResult, SubwayDeparture, TransitAlert, TransitMode } from '../domain/types';
-import { MockSubwayProvider } from './MockSubwayProvider';
 
 export const MTA_SUBWAY_BDFM_URL =
 	'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm';
@@ -11,13 +10,11 @@ export const MTA_SUBWAY_BDFM_URL =
  *
  * Fetches real-time GTFS-RT Protobuf feed from MTA for F/M subway lines.
  * Filters for Roosevelt Island Station (Stop ID B29N / B29S).
- * Falls back to MockSubwayProvider on network error.
  */
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
 	readonly name = 'MTA Subway Live (F/M Trains)';
 	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
-	private fallback = new MockSubwayProvider();
 
 	async getDepartures(): Promise<ProviderResult<SubwayDeparture>> {
 		try {
@@ -80,10 +77,6 @@ export class LiveSubwayProvider implements TransitProvider {
 				}
 			}
 
-			if (departures.length === 0) {
-				return this.fallback.getDepartures();
-			}
-
 			return {
 				data: departures.sort(
 					(a, b) =>
@@ -93,12 +86,21 @@ export class LiveSubwayProvider implements TransitProvider {
 				fetchedAt: new Date().toISOString(),
 				isCached: false,
 			};
-		} catch (_err) {
-			return this.fallback.getDepartures();
+		} catch (err) {
+			return {
+				data: [],
+				fetchedAt: new Date().toISOString(),
+				isCached: false,
+				error: err instanceof Error ? err.message : String(err),
+			};
 		}
 	}
 
 	async getAlerts(): Promise<ProviderResult<TransitAlert>> {
-		return this.fallback.getAlerts();
+		return {
+			data: [],
+			fetchedAt: new Date().toISOString(),
+			isCached: false,
+		};
 	}
 }

@@ -1,6 +1,5 @@
 import type { ProviderCapability, TransitProvider } from '../domain/provider';
 import type { BikeStation, ProviderResult, TransitAlert, TransitMode } from '../domain/types';
-import { MockCitiBikeProvider } from './MockCitiBikeProvider';
 
 export const CITIBIKE_STATUS_URL = 'https://gbfs.citibikenyc.com/gbfs/en/station_status.json';
 export const CITIBIKE_INFO_URL = 'https://gbfs.citibikenyc.com/gbfs/en/station_information.json';
@@ -41,7 +40,6 @@ export class LiveCitiBikeProvider implements TransitProvider {
 	readonly mode: TransitMode = 'citibike';
 	readonly name = 'Citi Bike Live GBFS Feed';
 	readonly capabilities = new Set<ProviderCapability>(['bike_stations', 'alerts']);
-	private fallback = new MockCitiBikeProvider();
 
 	async getBikeStations(): Promise<ProviderResult<BikeStation>> {
 		try {
@@ -105,21 +103,26 @@ export class LiveCitiBikeProvider implements TransitProvider {
 				});
 			}
 
-			if (stations.length === 0) {
-				return this.fallback.getBikeStations();
-			}
-
 			return {
 				data: stations,
 				fetchedAt: new Date().toISOString(),
 				isCached: false,
 			};
-		} catch (_err) {
-			return this.fallback.getBikeStations();
+		} catch (err) {
+			return {
+				data: [],
+				fetchedAt: new Date().toISOString(),
+				isCached: false,
+				error: err instanceof Error ? err.message : String(err),
+			};
 		}
 	}
 
 	async getAlerts(): Promise<ProviderResult<TransitAlert>> {
-		return this.fallback.getAlerts();
+		return {
+			data: [],
+			fetchedAt: new Date().toISOString(),
+			isCached: false,
+		};
 	}
 }
