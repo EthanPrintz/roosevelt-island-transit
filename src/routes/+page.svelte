@@ -106,6 +106,40 @@ function generateDockSlots(station: BikeStation): DockSlotType[] {
 	return slots;
 }
 
+function getTramHeadwayStatus(now: Date = new Date()): {
+	label: string;
+	isPeak: boolean;
+	isClosed: boolean;
+} {
+	const nyString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+	const nyDate = new Date(nyString);
+	const dayOfWeek = nyDate.getDay();
+	const timeInMins = nyDate.getHours() * 60 + nyDate.getMinutes();
+
+	const isFridayOrSaturday = dayOfWeek === 5 || dayOfWeek === 6;
+	const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+	const isClosedOvernight = isFridayOrSaturday
+		? timeInMins >= 210 && timeInMins < 360
+		: timeInMins >= 120 && timeInMins < 360;
+
+	if (isClosedOvernight) {
+		return { label: 'Overnight Closed', isPeak: false, isClosed: true };
+	}
+
+	const isRushHour =
+		isWeekday &&
+		((timeInMins >= 420 && timeInMins < 600) || (timeInMins >= 870 && timeInMins < 1140));
+
+	if (isRushHour) {
+		return { label: 'Rush Hour (7.5m Frequency)', isPeak: true, isClosed: false };
+	}
+
+	return { label: 'Off-Peak (15m Frequency)', isPeak: false, isClosed: false };
+}
+
+let tramStatus = $derived(getTramHeadwayStatus(new Date()));
+
 let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
 let manhattanSubways = $derived(subwayDepartures.filter((d) => d.direction === 'manhattan_bound'));
 let queensSubways = $derived(subwayDepartures.filter((d) => d.direction === 'queens_bound'));
@@ -385,7 +419,10 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<HugeiconsIcon icon={CableCarIcon} size={15} class="text-rose-500" />
 				<span>Tramway</span>
 			</h2>
-			<span class="text-[10px] font-mono text-text-muted">7.5m Peak • 15m Off-Peak</span>
+			<div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-[10px] font-mono font-bold text-rose-500">
+				<span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+				<span>{tramStatus.label}</span>
+			</div>
 		</div>
 
 		{#if tramAlerts.length > 0}
