@@ -98,7 +98,9 @@ let vehiclePositions = $derived.by(() => {
 						<div class="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border shadow-md {borderAccent} backdrop-blur-md">
 							<HugeiconsIcon icon={FlashIcon} size={10} />
 							<span>#{v.vehicleId}</span>
-							<HugeiconsIcon icon={isNorth ? ArrowUp01Icon : ArrowDown01Icon} size={10} />
+							{#key isNorth}
+								<HugeiconsIcon icon={isNorth ? ArrowUp01Icon : ArrowDown01Icon} size={10} />
+							{/key}
 						</div>
 						<!-- Pointer Dot on Track Line -->
 						<div class="w-2 h-2 rounded-full bg-white border border-primary shadow-xs mt-1.5"></div>

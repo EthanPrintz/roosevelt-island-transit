@@ -19,7 +19,9 @@ const modes: { mode: ThemeMode; label: string; icon: any }[] = [
 			aria-label="{label} theme"
 			title="{label} theme"
 		>
-			<HugeiconsIcon icon={icon} size={14} strokeWidth={2} />
+			{#key icon}
+				<HugeiconsIcon icon={icon} size={14} strokeWidth={2} />
+			{/key}
 		</button>
 	{/each}
 </div>
