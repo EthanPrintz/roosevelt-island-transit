@@ -27,6 +27,7 @@ import TimetableList from '$lib/components/TimetableList.svelte';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
 import type {
 	BikeStation,
+	BusDeparture,
 	FerryDeparture,
 	TransitAlert,
 	TransitDeparture,
@@ -197,9 +198,14 @@ let tramDepartures = $derived(departures.filter((d) => d.mode === 'tram'));
 let manhattanTrams = $derived(tramDepartures.filter((d) => d.direction === 'manhattan_bound'));
 let islandTrams = $derived(tramDepartures.filter((d) => d.direction === 'queens_bound'));
 
+let q102Departures = $derived(departures.filter((d) => d.mode === 'q102_bus'));
+let astoriaQ102 = $derived(q102Departures.filter((d) => d.direction === 'queens_bound'));
+let colerQ102 = $derived(q102Departures.filter((d) => d.direction === 'northbound'));
+
 let subwayAlerts = $derived(alerts.filter((a) => a.mode === 'subway'));
 let tramAlerts = $derived(alerts.filter((a) => a.mode === 'tram'));
 let ferryAlerts = $derived(alerts.filter((a) => a.mode === 'ferry'));
+let q102Alerts = $derived(alerts.filter((a) => a.mode === 'q102_bus'));
 let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 
 let totalEbikes = $derived(stations.reduce((sum, s) => sum + (s.bikesAvailable.ebike || 0), 0));
@@ -437,6 +443,83 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							departures={northboundFerries.slice(1)}
 							accentColor="cyan"
 							badgeTextFn={(dep) => (dep as any).vesselName}
+						/>
+					{/if}
+				{/if}
+			</div>
+		</div>
+	</div>
+
+	<!-- Section: MTA Q102 Bus -->
+	<div class="space-y-2.5">
+		<ModeSectionHeader
+			title="MTA Q102 Bus"
+			icon={Train01Icon}
+			iconBgClass="bg-blue-500/10 text-blue-500"
+			badgeText="Astoria - Roosevelt Island Loop"
+			alerts={q102Alerts}
+		/>
+
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<!-- Astoria-Bound Column -->
+			<div class="panel-card space-y-3">
+				<DirectionHeader
+					title="Astoria-Bound"
+					subtitle="27 Ave via RI Bridge"
+				/>
+
+				{#if astoriaQ102.length === 0}
+					<div class="p-3 text-center text-xs text-text-muted">
+						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Astoria-bound Q102 buses.'}
+					</div>
+				{:else}
+					{@const nextBus = astoriaQ102[0] as BusDeparture}
+
+					<HeroDepartureCard
+						departure={nextBus}
+						accentColor="blue"
+						statusText={nextBus.isRealtime ? 'En Route' : 'Scheduled'}
+						statusIcon={nextBus.isRealtime ? FlashIcon : Clock01Icon}
+						subDetails={nextBus.nextStopName ? (nextBus.vehicleId ? `Bus #${nextBus.vehicleId} • ${nextBus.nextStopName}` : nextBus.nextStopName) : (nextBus.vehicleId ? `Bus #${nextBus.vehicleId}` : 'Main St Stop')}
+					/>
+
+					{#if astoriaQ102.length > 1}
+						<TimetableList
+							departures={astoriaQ102.slice(1)}
+							accentColor="blue"
+							badgeTextFn={(dep) => (dep as BusDeparture).nextStopName || ((dep as BusDeparture).vehicleId ? `Bus #${(dep as BusDeparture).vehicleId}` : undefined)}
+						/>
+					{/if}
+				{/if}
+			</div>
+
+			<!-- Coler Hospital Column -->
+			<div class="panel-card space-y-3">
+				<DirectionHeader
+					title="Coler Hospital-Bound"
+					subtitle="Southtown & North Loop"
+				/>
+
+				{#if colerQ102.length === 0}
+					<div class="p-3 text-center text-xs text-text-muted">
+						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Coler-bound Q102 buses.'}
+					</div>
+				{:else}
+					{@const nextBus = colerQ102[0] as BusDeparture}
+
+					<HeroDepartureCard
+						departure={nextBus}
+						accentColor="blue"
+						statusText={nextBus.isRealtime ? 'En Route' : 'Scheduled'}
+						statusIcon={nextBus.isRealtime ? FlashIcon : Clock01Icon}
+						subDetails={nextBus.nextStopName ? (nextBus.vehicleId ? `Bus #${nextBus.vehicleId} • ${nextBus.nextStopName}` : nextBus.nextStopName) : (nextBus.vehicleId ? `Bus #${nextBus.vehicleId}` : 'Main St Stop')}
+					/>
+
+					{#if colerQ102.length > 1}
+						<TimetableList
+							departures={colerQ102.slice(1)}
+							accentColor="blue"
+							badgeTextFn={(dep) => (dep as BusDeparture).nextStopName || ((dep as BusDeparture).vehicleId ? `Bus #${(dep as BusDeparture).vehicleId}` : undefined)}
 						/>
 					{/if}
 				{/if}

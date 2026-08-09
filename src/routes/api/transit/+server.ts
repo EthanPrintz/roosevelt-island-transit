@@ -3,6 +3,7 @@ import { serverCache } from '$lib/server/cache';
 import {
 	LiveCitiBikeProvider,
 	LiveFerryProvider,
+	LiveQ102Provider,
 	LiveSubwayProvider,
 	LiveTramProvider,
 	TransitAggregator,
@@ -13,6 +14,7 @@ const aggregator = new TransitAggregator();
 aggregator.registerProvider(new LiveSubwayProvider());
 aggregator.registerProvider(new LiveTramProvider());
 aggregator.registerProvider(new LiveFerryProvider());
+aggregator.registerProvider(new LiveQ102Provider());
 aggregator.registerProvider(new LiveCitiBikeProvider());
 
 export const GET: RequestHandler = async ({ url }) => {
