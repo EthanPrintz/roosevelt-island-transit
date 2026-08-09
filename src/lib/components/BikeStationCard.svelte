@@ -38,7 +38,6 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 	<div class="flex items-start justify-between gap-2">
 		<div>
 			<h3 class="font-bold text-sm text-text-main">{station.name}</h3>
-			<div class="text-xs text-text-muted font-mono">Roosevelt Island Station</div>
 		</div>
 
 		<div class="text-right shrink-0">
