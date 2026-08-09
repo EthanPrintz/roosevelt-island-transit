@@ -104,17 +104,16 @@ let octagonDepartures = $derived(
 );
 </script>
 
-{#snippet stopNode(nodeTitle: string, nodeSubtitle: string, departures: TransitDeparture[], emptyMsg: string)}
+{#snippet stopNode(nodeTitle: string, departures: TransitDeparture[], emptyMsg: string)}
 	{@const nextDep = departures[0] as BusDeparture | undefined}
 	{@const followUps = departures.slice(1, 5)}
 
 	<div class="space-y-2.5">
-		<div class="px-0.5">
-			<h4 class="text-xs font-extrabold text-text-main">{nodeTitle}</h4>
-			{#if nodeSubtitle}
-				<p class="text-[11px] font-mono text-text-muted">{nodeSubtitle}</p>
-			{/if}
-		</div>
+		{#if nodeTitle}
+			<div class="px-0.5">
+				<h4 class="text-xs font-extrabold text-text-main">{nodeTitle}</h4>
+			</div>
+		{/if}
 
 		{#if departures.length === 0}
 			<div class="text-center text-xs text-text-muted italic py-5 border border-dashed border-border-default/60 rounded-xl">
@@ -168,7 +167,7 @@ let octagonDepartures = $derived(
 				</div>
 			{/if}
 
-			<!-- Follow-Up Timetable List -->
+			<!-- Follow-Up Timetable List (Clean De-noised Rows) -->
 			{#if followUps.length > 0}
 				<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
 					{#each followUps as dep (dep.id)}
@@ -180,11 +179,14 @@ let octagonDepartures = $derived(
 									<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
 										Bus #{b.vehicleId}
 									</span>
+								{:else}
+									<span class="px-1.5 py-0.5 rounded-full bg-bg-surface/60 border border-border-default/50 font-mono text-[9px] text-text-muted shrink-0 font-medium">
+										{b.routeId === 'RED_BUS' ? 'Red Bus' : 'Q102'}
+									</span>
 								{/if}
-								<span class="font-medium text-text-main truncate text-xs">{b.headsign}</span>
 							</div>
 
-							<div class="flex items-center gap-2.5 font-mono shrink-0">
+							<div class="flex items-center gap-3 font-mono shrink-0">
 								<span class="text-text-muted text-[10px]">{formatRelativeTime(t)}</span>
 								<span class="font-bold text-text-main text-[11px]">{formatClockTime(t)}</span>
 								{#if b.isRealtime}
@@ -211,22 +213,11 @@ let octagonDepartures = $derived(
 	<div class="panel-card p-4 space-y-3">
 		<div class="border-b border-border-default/40 pb-2">
 			<h3 class="text-sm font-black tracking-tight text-text-main">Subway Plaza</h3>
-			<p class="text-xs text-text-muted font-medium">Main Roosevelt Island Transit Hub</p>
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-			{@render stopNode(
-				northboundTitle,
-				northboundSubtitle,
-				subwayPlazaNorth,
-				emptyMessageNorth,
-			)}
-			{@render stopNode(
-				southboundTitle,
-				southboundSubtitle,
-				subwayPlazaSouth,
-				emptyMessageSouth,
-			)}
+			{@render stopNode(northboundTitle, subwayPlazaNorth, emptyMessageNorth)}
+			{@render stopNode(southboundTitle, subwayPlazaSouth, emptyMessageSouth)}
 		</div>
 	</div>
 
@@ -236,11 +227,9 @@ let octagonDepartures = $derived(
 		<div class="panel-card p-4 space-y-3">
 			<div class="border-b border-border-default/40 pb-2">
 				<h3 class="text-sm font-black tracking-tight text-text-main">Southtown / Tech</h3>
-				<p class="text-xs text-text-muted font-medium">South Roosevelt Island Loop</p>
 			</div>
 			{@render stopNode(
-				'Coler Hospital & Loop-Bound',
-				'Southbound via Main St',
+				'',
 				southtownDepartures,
 				'No upcoming Southtown / Tech departures.',
 			)}
@@ -250,11 +239,9 @@ let octagonDepartures = $derived(
 		<div class="panel-card p-4 space-y-3">
 			<div class="border-b border-border-default/40 pb-2">
 				<h3 class="text-sm font-black tracking-tight text-text-main">Octagon / Coler</h3>
-				<p class="text-xs text-text-muted font-medium">North Roosevelt Island Loop</p>
 			</div>
 			{@render stopNode(
-				'Coler Hospital & Loop-Bound',
-				'Northbound via Main St',
+				'',
 				octagonDepartures,
 				'No upcoming Octagon / Coler departures.',
 			)}
