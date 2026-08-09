@@ -33,7 +33,7 @@ const borderAccent = $derived(
 	<div class="relative py-2 px-1">
 		<!-- Track Line -->
 		<div class="h-1.5 w-full bg-bg-elevated rounded-full overflow-hidden flex items-center relative">
-			<div class="h-full w-full bg-gradient-to-r from-cyan-500/20 via-primary/30 to-purple-500/20"></div>
+			<div class="h-full w-full bg-linear-to-r from-cyan-500/20 via-primary/30 to-purple-500/20"></div>
 		</div>
 
 		<!-- Stop Anchor Points -->
@@ -63,7 +63,7 @@ const borderAccent = $derived(
 							• {v.direction === 'northbound' ? '↑ North' : '↓ South'}
 						</span>
 						{#if v.nextStopName}
-							<span class="text-[10px] text-text-muted italic truncate max-w-[130px]">
+							<span class="text-[10px] text-text-muted italic truncate max-w-32.5">
 								({v.nextStopName})
 							</span>
 						{/if}
