@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { type GtfsDataset, GtfsStaticStore } from './gtfs-static';
+import { type GtfsDataset, GtfsStaticStore, getLocalDateComponents } from './gtfs-static';
 
-describe('GtfsStaticStore', () => {
+describe('GtfsStaticStore & Timezone Helpers', () => {
+	it('extracts local NYC date components regardless of UTC date rollover', () => {
+		// Sunday 9:00 PM EDT (UTC is Monday 1:00 AM)
+		const sundayNightEdT = new Date('2026-08-09T21:00:00-04:00');
+		const components = getLocalDateComponents(sundayNightEdT);
+
+		expect(components.dateStr).toBe('20260809');
+		expect(components.dayOfWeek).toBe(0); // Sunday
+	});
+
 	it('evaluates active service days according to calendar.txt', () => {
 		const store = new GtfsStaticStore();
 
@@ -64,7 +73,6 @@ describe('GtfsStaticStore', () => {
 
 	it('queries scheduled departures within the specified time window', () => {
 		const store = new GtfsStaticStore();
-		// Mock store dataset injection for testing
 		const dataset: GtfsDataset = {
 			trips: new Map([
 				['trip-1', { routeId: 'F', serviceId: '1', headsign: 'Jamaica', directionId: 1 }],
@@ -103,8 +111,7 @@ describe('GtfsStaticStore', () => {
 		// @ts-expect-error accessing private property for unit testing
 		store.datasets.set('test-subway', dataset);
 
-		const mondayNoon = new Date('2026-08-10T12:00:00Z'); // Monday 12:00
-		mondayNoon.setHours(12, 0, 0, 0);
+		const mondayNoon = new Date('2026-08-10T12:00:00-04:00'); // Monday 12:00
 
 		const departures = store.getScheduledDepartures('test-subway', 'B06', mondayNoon, 60);
 		expect(departures.length).toBe(2);

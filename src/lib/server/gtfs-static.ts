@@ -63,6 +63,48 @@ function parseCsv(content: string): string[][] {
 	return results;
 }
 
+/**
+ * Extracts local date components in the NYC timezone (America/New_York)
+ * to prevent UTC date rollover bugs during evening hours.
+ */
+export function getLocalDateComponents(date: Date, timezone = 'America/New_York') {
+	const formatter = new Intl.DateTimeFormat('en-US', {
+		timeZone: timezone,
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		weekday: 'short',
+	});
+
+	const parts = formatter.formatToParts(date);
+	let year = '';
+	let month = '';
+	let day = '';
+	let weekdayStr = '';
+
+	for (const part of parts) {
+		if (part.type === 'year') year = part.value;
+		if (part.type === 'month') month = part.value;
+		if (part.type === 'day') day = part.value;
+		if (part.type === 'weekday') weekdayStr = part.value;
+	}
+
+	const dateStr = `${year}${month}${day}`;
+
+	const dayMap: Record<string, number> = {
+		Sun: 0,
+		Mon: 1,
+		Tue: 2,
+		Wed: 3,
+		Thu: 4,
+		Fri: 5,
+		Sat: 6,
+	};
+	const dayOfWeek = dayMap[weekdayStr] ?? date.getDay();
+
+	return { dateStr, dayOfWeek, year: Number(year), month: Number(month) - 1, day: Number(day) };
+}
+
 export class GtfsStaticStore {
 	private datasets = new Map<string, GtfsDataset>();
 
@@ -205,7 +247,6 @@ export class GtfsStaticStore {
 					const serviceId = row[serviceIdx];
 					if (!serviceId) continue;
 
-					// JS getDay(): 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
 					const days: number[] = [];
 					if (row[sunIdx] === '1') days.push(0);
 					if (row[monIdx] === '1') days.push(1);
@@ -257,8 +298,7 @@ export class GtfsStaticStore {
 	}
 
 	isServiceActive(dataset: GtfsDataset, serviceId: string, date: Date): boolean {
-		const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
-		const dayOfWeek = date.getDay();
+		const { dateStr, dayOfWeek } = getLocalDateComponents(date);
 
 		// Check calendar_dates exception first
 		const exceptions = dataset.calendarDates.get(serviceId);
@@ -288,8 +328,8 @@ export class GtfsStaticStore {
 		if (!dataset) return [];
 
 		const nowMs = date.getTime();
-		const startOfDay = new Date(date);
-		startOfDay.setHours(0, 0, 0, 0);
+		const { year, month, day } = getLocalDateComponents(date);
+		const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
 
 		const results: ScheduledDeparture[] = [];
 
@@ -310,7 +350,7 @@ export class GtfsStaticStore {
 				const m = Number.parseInt(mStr, 10);
 				const s = Number.parseInt(sStr || '0', 10);
 
-				const scheduledDate = new Date(startOfDay);
+				const scheduledDate = new Date(startOfDay.getTime());
 				scheduledDate.setHours(h, m, s, 0);
 
 				const diffMs = scheduledDate.getTime() - nowMs;
