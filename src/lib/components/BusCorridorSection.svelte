@@ -104,15 +104,27 @@ let subwayPlazaSouth = $derived(
 	),
 );
 
-let southtownDepartures = $derived(
+let southtownNorth = $derived(
 	filterStop(
-		southboundDepartures,
-		['southtown', 'cornell', 'tech', '10 river', 'motorgate'],
+		northboundDepartures,
+		['southtown', 'cornell', 'tech', '10 river', 'motorgate', 'school'],
 		false,
 	),
 );
 
-let octagonDepartures = $derived(
+let southtownSouth = $derived(
+	filterStop(
+		southboundDepartures,
+		['southtown', 'cornell', 'tech', '10 river', 'motorgate', 'school'],
+		false,
+	),
+);
+
+let octagonNorth = $derived(
+	filterStop(northboundDepartures, ['octagon', 'coler', 'east rd', '546 main'], false),
+);
+
+let octagonSouth = $derived(
 	filterStop(southboundDepartures, ['octagon', 'coler', 'east rd', '546 main'], false),
 );
 </script>
@@ -152,7 +164,7 @@ let octagonDepartures = $derived(
 						</span>
 					</div>
 
-					<!-- Middle Row: Destination Title (Left) & Large Clock Time (Right) -->
+					<!-- Middle Row: Clean Destination Title (Left) & Large Clock Time (Right) -->
 					<div class="flex items-baseline justify-between gap-2 pt-0.5">
 						<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
 							<span class="truncate">{nextDep.headsign}</span>
@@ -222,7 +234,7 @@ let octagonDepartures = $derived(
 		<VehicleCorridorTracker {vehicles} {accentColor} />
 	{/if}
 
-	<!-- 1. Top Double-Wide Card: Subway Plaza (2 Columns for Both Directions) -->
+	<!-- 1. Subway Plaza -->
 	<div class="panel-card p-4 space-y-3">
 		<div class="border-b border-border-default/40 pb-2">
 			<h3 class="text-sm font-black tracking-tight text-text-main">Subway Plaza</h3>
@@ -234,30 +246,27 @@ let octagonDepartures = $derived(
 		</div>
 	</div>
 
-	<!-- 2. Bottom 2 Single-Wide Cards: Octagon/Coler & Southtown/Tech in Chronological Order -->
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-		<!-- Octagon / Coler Card (First stop on Coler loop) -->
-		<div class="panel-card p-4 space-y-3">
-			<div class="border-b border-border-default/40 pb-2">
-				<h3 class="text-sm font-black tracking-tight text-text-main">Octagon / Coler</h3>
-			</div>
-			{@render stopNode(
-				'',
-				octagonDepartures,
-				'No upcoming Octagon / Coler departures.',
-			)}
+	<!-- 2. Southtown / Tech -->
+	<div class="panel-card p-4 space-y-3">
+		<div class="border-b border-border-default/40 pb-2">
+			<h3 class="text-sm font-black tracking-tight text-text-main">Southtown / Tech</h3>
 		</div>
 
-		<!-- Southtown / Tech Card (Second stop on Coler loop) -->
-		<div class="panel-card p-4 space-y-3">
-			<div class="border-b border-border-default/40 pb-2">
-				<h3 class="text-sm font-black tracking-tight text-text-main">Southtown / Tech</h3>
-			</div>
-			{@render stopNode(
-				'',
-				southtownDepartures,
-				'No upcoming Southtown / Tech departures.',
-			)}
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+			{@render stopNode(northboundTitle, southtownNorth, emptyMessageNorth)}
+			{@render stopNode(southboundTitle, southtownSouth, emptyMessageSouth)}
+		</div>
+	</div>
+
+	<!-- 3. Octagon / Coler -->
+	<div class="panel-card p-4 space-y-3">
+		<div class="border-b border-border-default/40 pb-2">
+			<h3 class="text-sm font-black tracking-tight text-text-main">Octagon / Coler</h3>
+		</div>
+
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+			{@render stopNode(northboundTitle, octagonNorth, emptyMessageNorth)}
+			{@render stopNode(southboundTitle, octagonSouth, emptyMessageSouth)}
 		</div>
 	</div>
 </div>

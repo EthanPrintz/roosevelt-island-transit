@@ -43,11 +43,16 @@ export class LiveQ102Provider implements TransitProvider {
 				await gtfsStaticStore.loadDataset('q102_bus', MTA_QUEENS_BUS_STATIC_URL);
 
 				const stopDefs = [
+					// Coler Hospital-Bound (Direction 0)
 					{ id: '450151', name: 'Subway Plaza', isOff: false },
-					{ id: '450142', name: 'Subway Plaza', isOff: false },
 					{ id: '450152', name: 'Octagon / Coler', isOff: false },
 					{ id: '450150', name: 'Octagon / Coler', isOff: false },
 					{ id: '450141', name: 'Southtown / Tech', isOff: false },
+
+					// Astoria-Bound (Direction 1)
+					{ id: '450142', name: 'Subway Plaza', isOff: false },
+					{ id: '450069', name: 'Octagon / Coler', isOff: false },
+					{ id: '450074', name: 'Southtown / Tech', isOff: false },
 				];
 
 				for (const def of stopDefs) {
