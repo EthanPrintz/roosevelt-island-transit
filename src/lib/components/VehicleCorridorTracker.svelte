@@ -1,5 +1,5 @@
 <script lang="ts">
-import { FlashIcon } from '@hugeicons/core-free-icons';
+import { ArrowDown01Icon, ArrowUp01Icon, FlashIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type { LiveVehiclePosition } from '$lib/transit/domain/types';
 
@@ -89,6 +89,7 @@ let vehiclePositions = $derived.by(() => {
 			<div class="absolute inset-x-6 top-0 bottom-6 pointer-events-none">
 				{#each vehicles as v (v.id)}
 					{@const pos = vehiclePositions.get(v.id) ?? 50}
+					{@const isNorth = v.direction === 'northbound' || v.direction === 'queens_bound'}
 					<div
 						class="absolute top-1 -translate-x-1/2 flex flex-col items-center pointer-events-auto transition-all duration-500 z-10"
 						style="left: {pos}%;"
@@ -97,7 +98,7 @@ let vehiclePositions = $derived.by(() => {
 						<div class="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border shadow-md {borderAccent} backdrop-blur-md">
 							<HugeiconsIcon icon={FlashIcon} size={10} />
 							<span>#{v.vehicleId}</span>
-							<span class="text-[9px] font-extrabold">{v.direction === 'northbound' || v.direction === 'queens_bound' ? '↑' : '↓'}</span>
+							<HugeiconsIcon icon={isNorth ? ArrowUp01Icon : ArrowDown01Icon} size={10} />
 						</div>
 						<!-- Pointer Dot on Track Line -->
 						<div class="w-2 h-2 rounded-full bg-white border border-primary shadow-xs mt-1.5"></div>

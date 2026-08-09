@@ -91,11 +91,7 @@ let activeSouthSubtitle = $derived(
 				const b = dep as BusDeparture;
 				const veh = b.vehicleId ? `Bus #${b.vehicleId}` : 'Bus';
 				const prox = b.nextStopName ? ` • ${b.nextStopName}` : '';
-				return `${veh}${prox} • 📍 ${currentStopLabel}`;
-			}}
-			badgeTextFn={(dep) => {
-				const b = dep as BusDeparture;
-				return b.nextStopName ? `${b.nextStopName}` : currentStopLabel;
+				return `${veh}${prox}`;
 			}}
 		/>
 
@@ -109,11 +105,7 @@ let activeSouthSubtitle = $derived(
 				const b = dep as BusDeparture;
 				const veh = b.vehicleId ? `Bus #${b.vehicleId}` : 'Bus';
 				const prox = b.nextStopName ? ` • ${b.nextStopName}` : '';
-				return `${veh}${prox} • 📍 ${currentStopLabel}`;
-			}}
-			badgeTextFn={(dep) => {
-				const b = dep as BusDeparture;
-				return b.nextStopName ? `${b.nextStopName}` : currentStopLabel;
+				return `${veh}${prox}`;
 			}}
 		/>
 	</div>
