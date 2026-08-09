@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ArrowDown01Icon, ArrowUp01Icon, FlashIcon } from '@hugeicons/core-free-icons';
+import { ArrowDown01Icon, ArrowUp01Icon, LiveStreaming02Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type { LiveVehiclePosition } from '$lib/transit/domain/types';
 
@@ -96,7 +96,7 @@ let vehiclePositions = $derived.by(() => {
 					>
 						<!-- Bus Badge Floating Above Track -->
 						<div class="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border shadow-md {borderAccent} backdrop-blur-md">
-							<HugeiconsIcon icon={FlashIcon} size={10} />
+							<HugeiconsIcon icon={LiveStreaming02Icon} size={10} />
 							<span>#{v.vehicleId}</span>
 							<HugeiconsIcon icon={isNorth ? ArrowUp01Icon : ArrowDown01Icon} size={10} />
 						</div>

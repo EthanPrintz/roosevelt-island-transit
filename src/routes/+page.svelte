@@ -122,8 +122,6 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				departures={manhattanSubways}
 				accentColor="orange"
 				emptyMessage="No upcoming Manhattan-bound Subway trains."
-				statusTextFn={(dep) => (dep.isRealtime ? 'Live' : 'Scheduled')}
-				statusIconFn={(dep) => (dep.isRealtime ? FlashIcon : undefined)}
 				lineBadgeTextFn={(dep) => (dep as SubwayDeparture).routeId}
 				subDetailsFn={(dep) =>
 					(dep as SubwayDeparture).originStartTime
@@ -137,8 +135,6 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				departures={queensSubways}
 				accentColor="orange"
 				emptyMessage="No upcoming Queens-bound Subway trains."
-				statusTextFn={(dep) => (dep.isRealtime ? 'Live' : 'Scheduled')}
-				statusIconFn={(dep) => (dep.isRealtime ? FlashIcon : undefined)}
 				lineBadgeTextFn={(dep) => (dep as SubwayDeparture).routeId}
 				subDetailsFn={(dep) =>
 					(dep as SubwayDeparture).originStartTime

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { FlashIcon, SparklesIcon } from '@hugeicons/core-free-icons';
+import { LiveStreaming02Icon, SparklesIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type { TransitDeparture } from '$lib/transit/domain/types';
 import { formatRelativeTime } from '$lib/utils/time-format';
@@ -56,7 +56,7 @@ let activeIconColor = $derived(iconColors[accentColor] || iconColors.orange);
 				<span class="text-text-muted text-[10px]">{relTime}</span>
 				<span class="font-bold text-text-main text-[11px]">{absTime}</span>
 				{#if dep.isRealtime}
-					<HugeiconsIcon icon={FlashIcon} size={10} class={activeIconColor} />
+					<HugeiconsIcon icon={LiveStreaming02Icon} size={10} class={activeIconColor} />
 				{/if}
 			</div>
 		</div>

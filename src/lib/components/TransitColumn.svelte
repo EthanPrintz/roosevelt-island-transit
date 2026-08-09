@@ -1,5 +1,4 @@
 <script lang="ts">
-import { Clock01Icon, FlashIcon } from '@hugeicons/core-free-icons';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
 import type { TransitDeparture } from '$lib/transit/domain/types';
 import DirectionHeader from './DirectionHeader.svelte';
@@ -51,8 +50,8 @@ let {
 		<HeroDepartureCard
 			departure={heroDep}
 			{accentColor}
-			statusText={statusTextFn ? statusTextFn(heroDep) : (heroDep.isRealtime ? 'En Route' : 'Scheduled')}
-			statusIcon={statusIconFn ? statusIconFn(heroDep) : (heroDep.isRealtime ? FlashIcon : Clock01Icon)}
+			statusText={statusTextFn ? statusTextFn(heroDep) : undefined}
+			statusIcon={statusIconFn ? statusIconFn(heroDep) : undefined}
 			statusClass={statusClassFn ? statusClassFn(heroDep) : undefined}
 			subDetails={subDetailsFn ? subDetailsFn(heroDep) : undefined}
 		/>

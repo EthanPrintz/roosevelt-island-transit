@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Clock01Icon, FlashIcon } from '@hugeicons/core-free-icons';
+import { Clock01Icon, LiveStreaming02Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type {
 	BusDeparture,
@@ -211,7 +211,7 @@ let octagonSouth = $derived(
 								<span class="text-text-muted text-[10px]">{formatRelativeTime(t)}</span>
 								<span class="font-bold text-text-main text-[11px]">{formatClockTime(t)}</span>
 								{#if b.isRealtime}
-									<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
+									<HugeiconsIcon icon={LiveStreaming02Icon} size={10} class={styles.iconColor} />
 								{:else}
 									<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
 								{/if}
