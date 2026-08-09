@@ -79,8 +79,17 @@ export class LiveFerryProvider implements TransitProvider {
 						const speedKnots = Math.round(rawSpeedMps * 1.94384); // m/s to knots
 
 						let status: 'IN_TRANSIT_TO' | 'INCOMING_AT' | 'STOPPED_AT' = 'IN_TRANSIT_TO';
-						if (v.currentStatus === 'STOPPED_AT') status = 'STOPPED_AT';
-						else if (v.currentStatus === 'INCOMING_AT') status = 'INCOMING_AT';
+						const rawStatus = v.currentStatus as unknown;
+						if (
+							rawStatus === 'STOPPED_AT' ||
+							rawStatus === 2 ||
+							rawStatus === '2' ||
+							speedKnots <= 1
+						) {
+							status = 'STOPPED_AT';
+						} else if (rawStatus === 'INCOMING_AT' || rawStatus === 1 || rawStatus === '1') {
+							status = 'INCOMING_AT';
+						}
 
 						const telemetry: VesselTelemetry = {
 							vesselLabel: label,

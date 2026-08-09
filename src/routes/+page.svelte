@@ -83,14 +83,25 @@ function getRelativeTimeLabel(isoString: string): string {
 }
 
 function getFerryBadge(ferry: FerryDeparture) {
-	if (ferry.vesselStatus === 'STOPPED_AT') {
+	const isStopped =
+		ferry.vesselStatus === 'STOPPED_AT' ||
+		(ferry.vesselStatus as unknown) === 2 ||
+		(ferry.vesselStatus as unknown) === '2' ||
+		(ferry.speedKnots !== undefined && ferry.speedKnots <= 1);
+
+	const isIncoming =
+		ferry.vesselStatus === 'INCOMING_AT' ||
+		(ferry.vesselStatus as unknown) === 1 ||
+		(ferry.vesselStatus as unknown) === '1';
+
+	if (isStopped) {
 		return {
 			label: 'Docked',
 			icon: AnchorIcon,
 			class: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400',
 		};
 	}
-	if (ferry.vesselStatus === 'INCOMING_AT') {
+	if (isIncoming) {
 		return {
 			label: 'Approaching',
 			icon: Navigation01Icon,
