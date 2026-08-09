@@ -100,20 +100,20 @@ function getFerryBadge(ferry: FerryDeparture) {
 		return {
 			label: 'Docked',
 			icon: AnchorIcon,
-			class: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400',
+			class: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30',
 		};
 	}
 	if (isIncoming) {
 		return {
 			label: 'Approaching',
 			icon: Navigation01Icon,
-			class: 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
+			class: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30',
 		};
 	}
 	return {
 		label: 'En Route',
 		icon: BoatIcon,
-		class: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400',
+		class: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30',
 	};
 }
 
