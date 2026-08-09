@@ -20,7 +20,6 @@ let { children }: { children: Snippet } = $props();
 				</div>
 				<div class="flex items-center gap-2">
 					<span class="font-extrabold tracking-tight">Roosevelt Island Transit</span>
-					<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse hidden sm:inline-block"></span>
 				</div>
 			</a>
 

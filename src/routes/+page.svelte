@@ -24,13 +24,6 @@ import { formatRelativeTime } from '$lib/utils/time-format';
 let departures = $state<TransitDeparture[]>([]);
 let alerts = $state<TransitAlert[]>([]);
 let stations = $state<BikeStation[]>([]);
-let subwayRouteFilter = $state<'ALL' | 'F' | 'M'>('ALL');
-
-const lineFilterOptions: SegmentOption<'ALL' | 'F' | 'M'>[] = [
-	{ value: 'ALL', label: 'All' },
-	{ value: 'F', label: 'F', bullet: 'F', bulletColor: 'bg-orange-500 text-white' },
-	{ value: 'M', label: 'M', bullet: 'M', bulletColor: 'bg-orange-500 text-white' },
-];
 
 const windowOptions: SegmentOption<number>[] = [
 	{ value: 120, label: '2h' },
@@ -113,11 +106,7 @@ function generateDockSlots(station: BikeStation): DockSlotType[] {
 	return slots;
 }
 
-let subwayDepartures = $derived(
-	departures
-		.filter((d) => d.mode === 'subway')
-		.filter((d) => (subwayRouteFilter === 'ALL' ? true : d.routeId === subwayRouteFilter)),
-);
+let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
 let manhattanSubways = $derived(subwayDepartures.filter((d) => d.direction === 'manhattan_bound'));
 let queensSubways = $derived(subwayDepartures.filter((d) => d.direction === 'queens_bound'));
 
@@ -156,14 +145,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<span>Subway</span>
 			</h2>
 
-			<!-- Unified Subway Controls Cluster (Line Toggle + Hour Lookahead Selector) -->
-			<div class="flex items-center gap-2 shrink-0">
-				<SegmentedControl
-					options={lineFilterOptions}
-					value={subwayRouteFilter}
-					onSelect={(val) => (subwayRouteFilter = val)}
-				/>
-
+			<!-- Lookahead Hour Selector -->
+			<div class="shrink-0">
 				<SegmentedControl
 					options={windowOptions}
 					value={transitSettings.selectedWindow}
