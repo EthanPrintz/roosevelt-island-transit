@@ -46,20 +46,28 @@ let {
 
 let selectedStop = $state<IslandStopNode>('subway_plaza');
 
+let currentStopLabel = $derived(
+	selectedStop === 'north_island'
+		? 'Octagon / Coler Stop'
+		: selectedStop === 'south_island'
+			? 'Southtown / Tech Stop'
+			: 'Subway Plaza Stop',
+);
+
 let activeNorthSubtitle = $derived(
 	selectedStop === 'north_island'
-		? `${northboundSubtitle} • North Stop`
+		? `${northboundSubtitle} @ Octagon / Coler`
 		: selectedStop === 'south_island'
-			? `${northboundSubtitle} • South Stop`
-			: northboundSubtitle,
+			? `${northboundSubtitle} @ Southtown / Tech`
+			: `${northboundSubtitle} @ Subway Plaza`,
 );
 
 let activeSouthSubtitle = $derived(
 	selectedStop === 'north_island'
-		? `${southboundSubtitle} • Coler Terminal`
+		? `${southboundSubtitle} @ Coler Terminal`
 		: selectedStop === 'south_island'
-			? `${southboundSubtitle} • Southtown Loop`
-			: southboundSubtitle,
+			? `${southboundSubtitle} @ Southtown Loop`
+			: `${southboundSubtitle} @ Subway Plaza`,
 );
 </script>
 
@@ -81,17 +89,13 @@ let activeSouthSubtitle = $derived(
 			emptyMessage={emptyMessageNorth}
 			subDetailsFn={(dep) => {
 				const b = dep as BusDeparture;
-				return b.nextStopName
-					? b.vehicleId
-						? `Bus #${b.vehicleId} • ${b.nextStopName}`
-						: b.nextStopName
-					: b.vehicleId
-						? `Bus #${b.vehicleId}`
-						: 'Main St Corridor';
+				const veh = b.vehicleId ? `Bus #${b.vehicleId}` : 'Bus';
+				const prox = b.nextStopName ? ` • ${b.nextStopName}` : '';
+				return `${veh}${prox} • 📍 ${currentStopLabel}`;
 			}}
 			badgeTextFn={(dep) => {
 				const b = dep as BusDeparture;
-				return b.nextStopName || (b.vehicleId ? `Bus #${b.vehicleId}` : undefined);
+				return b.nextStopName ? `${b.nextStopName}` : currentStopLabel;
 			}}
 		/>
 
@@ -103,17 +107,13 @@ let activeSouthSubtitle = $derived(
 			emptyMessage={emptyMessageSouth}
 			subDetailsFn={(dep) => {
 				const b = dep as BusDeparture;
-				return b.nextStopName
-					? b.vehicleId
-						? `Bus #${b.vehicleId} • ${b.nextStopName}`
-						: b.nextStopName
-					: b.vehicleId
-						? `Bus #${b.vehicleId}`
-						: 'Main St Corridor';
+				const veh = b.vehicleId ? `Bus #${b.vehicleId}` : 'Bus';
+				const prox = b.nextStopName ? ` • ${b.nextStopName}` : '';
+				return `${veh}${prox} • 📍 ${currentStopLabel}`;
 			}}
 			badgeTextFn={(dep) => {
 				const b = dep as BusDeparture;
-				return b.nextStopName || (b.vehicleId ? `Bus #${b.vehicleId}` : undefined);
+				return b.nextStopName ? `${b.nextStopName}` : currentStopLabel;
 			}}
 		/>
 	</div>

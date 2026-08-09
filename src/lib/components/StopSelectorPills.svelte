@@ -24,9 +24,9 @@ const stops: { id: IslandStopNode; label: string; sub: string }[] = [
 		<button
 			type="button"
 			onclick={() => onSelectStop(stop.id)}
-			class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer {isSelected
-				? 'bg-primary text-white shadow-2xs font-semibold'
-				: 'text-text-muted hover:text-text-main hover:bg-bg-elevated/50'}"
+			class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer {isSelected
+				? 'bg-text-main text-bg-base shadow-xs'
+				: 'text-text-muted hover:text-text-main hover:bg-bg-elevated/60'}"
 		>
 			<HugeiconsIcon icon={Location01Icon} size={11} />
 			<span>{stop.label}</span>
