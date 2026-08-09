@@ -12,8 +12,7 @@ import { suppressGhostSchedules } from '../utils/suppression';
 
 export const MTA_BUS_SIRI_VM_URL =
 	'https://bustime-classic.mta.info/api/siri/vehicle-monitoring.json';
-export const MTA_QUEENS_BUS_STATIC_URL =
-	'http://web.mta.info/developers/data/bus/google_transit_queens.zip';
+export const MTA_QUEENS_BUS_STATIC_URL = 'http://rrgtfsfeeds.s3.amazonaws.com/gtfs_busco.zip';
 
 /**
  * LiveQ102Provider
@@ -30,19 +29,28 @@ export class LiveQ102Provider implements TransitProvider {
 	async getDepartures(options?: DepartureOptions): Promise<ProviderResult<BusDeparture>> {
 		try {
 			const now = new Date();
-			const windowMinutes = options?.windowMinutes ?? 120;
+			const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+			const defaultWindow = Math.max(240, Math.ceil((endOfDay.getTime() - now.getTime()) / 60000));
+			const windowMinutes = options?.windowMinutes ?? defaultWindow;
 			const apiKey = env.MTA_BUS_TIME_API_KEY || '3fff4736-ddbb-443a-baab-c66a72bdc4c1';
 
-			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Q102 stops
+			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Q102 stops (450151 & 450142)
 			let staticDepartures: ScheduledDeparture[] = [];
 			try {
 				await gtfsStaticStore.loadDataset('q102_bus', MTA_QUEENS_BUS_STATIC_URL);
-				staticDepartures = gtfsStaticStore.getScheduledDepartures(
+				const depsColer = gtfsStaticStore.getScheduledDepartures(
 					'q102_bus',
-					'503239',
+					'450151',
 					now,
 					windowMinutes,
 				);
+				const depsAstoria = gtfsStaticStore.getScheduledDepartures(
+					'q102_bus',
+					'450142',
+					now,
+					windowMinutes,
+				);
+				staticDepartures = [...depsColer, ...depsAstoria];
 			} catch (staticErr) {
 				console.warn(
 					'GTFS static store unavailable for Q102, relying on SIRI live feed',

@@ -1,0 +1,2 @@
+feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version,feed_contact_url
+MTA New York City Transit,https://www.mta.info/,EN,20260628,20260905,"gtfs_busco_20260611T155311Z",https://groups.google.com/forum/#!forum/mtadeveloperresources
