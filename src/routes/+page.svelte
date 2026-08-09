@@ -1,5 +1,5 @@
 <script lang="ts">
-import { CableCarIcon, FerryBoatIcon, Train01Icon } from '@hugeicons/core-free-icons';
+import { Bus01Icon, CableCarIcon, FerryBoatIcon, Train01Icon } from '@hugeicons/core-free-icons';
 import BusCorridorSection from '$lib/components/BusCorridorSection.svelte';
 import CitiBikeSection from '$lib/components/CitiBikeSection.svelte';
 import ModeSectionHeader from '$lib/components/ModeSectionHeader.svelte';
@@ -235,7 +235,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 	<!-- Section 4: City Bus -->
 	<BusCorridorSection
 		title="City Bus"
-		icon={Train01Icon}
+		icon={Bus01Icon}
 		iconBgClass="bg-blue-500/10 text-blue-500"
 		accentColor="blue"
 		showRadar={false}
@@ -254,7 +254,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 	<!-- Section 5: Red Bus -->
 	<BusCorridorSection
 		title="Red Bus"
-		icon={Train01Icon}
+		icon={Bus01Icon}
 		iconBgClass="bg-rose-600/10 text-rose-600 dark:text-rose-400"
 		accentColor="rose"
 		northboundDepartures={northboundRedBus}

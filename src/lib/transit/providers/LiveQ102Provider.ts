@@ -15,6 +15,28 @@ const MTA_BUS_SIRI_VM_URL = 'https://bustime.mta.info/api/siri/vehicle-monitorin
 const MTA_QUEENS_BUS_STATIC_URL =
 	'https://mta-gtfs-static-proxy.ethan-4df.workers.dev/?url=https://developers.mta.info/static-files/busco/google_transit_queens.zip';
 
+function normalizeQ102StopName(rawName: string): string {
+	const name = (rawName || '').toLowerCase();
+	if (
+		name.includes('school') ||
+		name.includes('octagon') ||
+		name.includes('coler') ||
+		name.includes('east rd') ||
+		name.includes('post office')
+	) {
+		return 'Octagon / Coler';
+	}
+	if (
+		name.includes('546 main') ||
+		name.includes('chapel') ||
+		name.includes('10 river') ||
+		name.includes('good shepherd')
+	) {
+		return 'Good Shepherd Plaza';
+	}
+	return 'Subway Plaza';
+}
+
 export class LiveQ102Provider implements TransitProvider {
 	readonly mode: TransitMode = 'q102_bus';
 	readonly name = 'MTA Q102 Bus';
@@ -38,13 +60,13 @@ export class LiveQ102Provider implements TransitProvider {
 
 				const stopDefs = [
 					// Coler Hospital-Bound (Direction 0)
-					{ id: '450151', name: 'Subway / Southtown', isOff: false },
+					{ id: '450151', name: 'Subway Plaza', isOff: false },
 					{ id: '450152', name: 'Octagon / Coler', isOff: false },
 					{ id: '450150', name: 'Octagon / Coler', isOff: false },
 					{ id: '450141', name: 'Good Shepherd Plaza', isOff: false },
 
 					// Astoria-Bound (Direction 1)
-					{ id: '450142', name: 'Subway / Southtown', isOff: false },
+					{ id: '450142', name: 'Subway Plaza', isOff: false },
 					{ id: '450069', name: 'Good Shepherd Plaza', isOff: false },
 					{ id: '450074', name: 'Octagon / Coler', isOff: false },
 				];
@@ -122,7 +144,7 @@ export class LiveQ102Provider implements TransitProvider {
 								? `${call.NumberOfStopsAway} stops away`
 								: undefined);
 
-						const liveStopName = call?.StopPointName?.[0] || 'Subway / Southtown';
+						const liveStopName = normalizeQ102StopName(call?.StopPointName?.[0] || '');
 
 						departures.push({
 							id: `q102-live-${vehicleId || Math.random().toString(36).substring(2, 8)}`,
@@ -174,7 +196,7 @@ export class LiveQ102Provider implements TransitProvider {
 					scheduledTime: stat.scheduledTime,
 					isRealtime: false,
 					status: 'normal',
-					stopName: stat.stopName || 'Subway / Southtown',
+					stopName: stat.stopName || 'Subway Plaza',
 					stopId: stat.stopId,
 					isOffIsland: stat.isOffIsland,
 				});
