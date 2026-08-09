@@ -10,21 +10,10 @@ interface Props {
 	statusText: string;
 	statusIcon?: any;
 	statusClass?: string;
-	lineBadgeText?: string;
-	lineBadgeClass?: string;
-	secondaryDetails?: string;
+	subDetails?: string;
 }
 
-let {
-	departure,
-	accentColor,
-	statusText,
-	statusIcon,
-	statusClass,
-	lineBadgeText,
-	lineBadgeClass,
-	secondaryDetails,
-}: Props = $props();
+let { departure, accentColor, statusText, statusIcon, statusClass, subDetails }: Props = $props();
 
 const accentStyles = {
 	orange: {
@@ -68,8 +57,8 @@ let relativeLabel = $derived(
 );
 </script>
 
-<div class="p-3 rounded-xl border space-y-1.5 relative overflow-hidden shadow-xs {styles.container}">
-	<!-- Top Bar: Standardized Status Pill (Top-Left) + Relative Countdown (Top-Right) -->
+<div class="p-3 rounded-xl border space-y-2 relative overflow-hidden shadow-xs {styles.container}">
+	<!-- Top Row: Standardized Status Pill (Left) & Relative Countdown (Right) -->
 	<div class="flex items-center justify-between text-xs">
 		<div class="flex items-center gap-1.5 flex-wrap">
 			<span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[9px] font-bold uppercase {statusClass || styles.badgeDefault}">
@@ -97,33 +86,27 @@ let relativeLabel = $derived(
 		</span>
 	</div>
 
-	<!-- Bottom Section: Line Badge + Destination Title + Secondary Details | Clock Time -->
-	<div class="flex items-baseline justify-between pt-0.5 gap-2">
-		<div class="min-w-0 flex-1">
-			<div class="text-sm font-extrabold text-text-main leading-tight truncate flex items-center gap-1.5">
-				{#if lineBadgeText}
-					<span class={lineBadgeClass || 'bullet-subway text-[9px] shrink-0'}>
-						{lineBadgeText}
-					</span>
-				{/if}
-				<span class="truncate">{departure.headsign}</span>
-			</div>
-			{#if secondaryDetails}
-				<div class="text-[10px] text-text-muted mt-0.5 font-mono truncate">
-					{secondaryDetails}
-				</div>
+	<!-- Middle Row: Clean Destination Title & Large Clock Time -->
+	<div class="flex items-baseline justify-between gap-2 pt-0.5">
+		<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
+			{departure.headsign}
+		</div>
+
+		<div class="font-mono text-lg font-black text-text-main leading-none shrink-0">
+			{timeString}
+		</div>
+	</div>
+
+	<!-- Bottom Row: Mono Sub-Details Line (Left) & Optional Muted Scheduled Fallback (Right) -->
+	<div class="flex items-center justify-between text-[10px] font-mono text-text-muted pt-0.5">
+		<div class="truncate min-w-0 flex-1">
+			{#if subDetails}
+				<span>{subDetails}</span>
 			{/if}
 		</div>
 
-		<div class="text-right shrink-0">
-			<div class="font-mono text-lg font-black text-text-main leading-none">
-				{timeString}
-			</div>
-			{#if !departure.isRealtime}
-				<div class="mt-1">
-					<span class="text-[9px] text-text-muted font-mono">Scheduled</span>
-				</div>
-			{/if}
-		</div>
+		{#if !departure.isRealtime}
+			<span class="shrink-0 ml-2">Scheduled</span>
+		{/if}
 	</div>
 </div>
