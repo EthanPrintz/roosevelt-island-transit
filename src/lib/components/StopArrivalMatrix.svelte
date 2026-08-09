@@ -1,0 +1,130 @@
+<script lang="ts">
+import { Clock01Icon, FlashIcon, Globe02Icon, Location01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/svelte';
+import type { BusDeparture, TransitDeparture } from '$lib/transit/domain/types';
+import { formatClockTime, formatRelativeTime } from '$lib/utils/time-format';
+
+interface Props {
+	title: string;
+	subtitle: string;
+	departures: TransitDeparture[];
+	accentColor: 'blue' | 'rose';
+	emptyMessage: string;
+}
+
+let { title, subtitle, departures = [], accentColor, emptyMessage }: Props = $props();
+
+const bgHeader = $derived(
+	accentColor === 'blue'
+		? 'bg-blue-500/15 border-blue-500/30 text-blue-400'
+		: 'bg-rose-500/15 border-rose-500/30 text-rose-400',
+);
+
+// Group departures by stop location
+let groupedStops = $derived.by(() => {
+	const map = new Map<string, { name: string; isOffIsland: boolean; departures: BusDeparture[] }>();
+
+	for (const dep of departures) {
+		const b = dep as BusDeparture;
+		const name = b.stopName || 'Subway Plaza';
+		const isOff = Boolean(
+			b.isOffIsland ||
+				name.toLowerCase().includes('vernon') ||
+				name.toLowerCase().includes('astoria'),
+		);
+
+		if (!map.has(name)) {
+			map.set(name, { name, isOffIsland: isOff, departures: [] });
+		}
+		map.get(name)!.departures.push(b);
+	}
+
+	return Array.from(map.values());
+});
+</script>
+
+<div class="panel-card space-y-3 p-4">
+	<div class="flex items-center justify-between">
+		<div>
+			<h3 class="text-sm font-extrabold tracking-tight text-text-main">{title}</h3>
+			<p class="text-xs text-text-muted font-medium">{subtitle}</p>
+		</div>
+	</div>
+
+	{#if departures.length === 0}
+		<div class="text-center text-xs text-text-muted italic py-6 border border-dashed border-border-default/60 rounded-xl">
+			{emptyMessage}
+		</div>
+	{:else}
+		<div class="space-y-3">
+			{#each groupedStops as group (group.name)}
+				{@const nextDep = group.departures[0]}
+				{@const remainingCount = group.departures.length - 1}
+				
+				<div class="p-3 rounded-xl border transition-all bg-bg-surface/80 border-border-default/70 hover:border-border-default space-y-2">
+					<!-- Stop Header with On-Island vs Off-Island Badge -->
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-2">
+							{#if group.isOffIsland}
+								<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
+									<HugeiconsIcon icon={Globe02Icon} size={11} />
+									Queens / Off-Island
+								</span>
+							{:else}
+								<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border {bgHeader}">
+									<HugeiconsIcon icon={Location01Icon} size={11} />
+									Roosevelt Island
+								</span>
+							{/if}
+							<span class="text-xs font-bold text-text-main">{group.name}</span>
+						</div>
+						
+						{#if nextDep}
+							{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
+							<span class="text-xs font-mono font-extrabold text-primary">
+								{formatRelativeTime(targetTime)}
+							</span>
+						{/if}
+					</div>
+
+					<!-- Hero Prediction for this Stop Node -->
+					{#if nextDep}
+						{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
+						<div class="flex items-center justify-between text-xs font-mono pt-1 border-t border-border-default/40">
+							<div class="flex items-center gap-1.5 text-text-muted text-[11px]">
+								{#if nextDep.isRealtime}
+									<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30">
+										<HugeiconsIcon icon={FlashIcon} size={9} />
+										LIVE
+									</span>
+								{:else}
+									<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-bg-elevated text-text-muted border border-border-default">
+										<HugeiconsIcon icon={Clock01Icon} size={9} />
+										SCHED
+									</span>
+								{/if}
+								<span>{nextDep.vehicleId ? `Bus #${nextDep.vehicleId}` : nextDep.headsign}</span>
+								{#if nextDep.nextStopName}
+									<span class="italic text-[10px]">({nextDep.nextStopName})</span>
+								{/if}
+							</div>
+							<span class="font-bold text-text-main">{formatClockTime(targetTime)}</span>
+						</div>
+					{/if}
+
+					<!-- Follow-up Times for this Stop Node -->
+					{#if remainingCount > 0}
+						<div class="flex flex-wrap gap-1.5 pt-1">
+							{#each group.departures.slice(1, 4) as dep (dep.id)}
+								{@const t = dep.predictedTime || dep.scheduledTime}
+								<span class="px-2 py-0.5 rounded bg-bg-elevated/70 border border-border-default/50 text-[10px] font-mono text-text-muted">
+									{formatClockTime(t)} ({formatRelativeTime(t)})
+								</span>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			{/each}
+		</div>
+	{/if}
+</div>

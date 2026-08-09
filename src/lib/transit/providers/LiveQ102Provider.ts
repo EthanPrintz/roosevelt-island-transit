@@ -36,22 +36,33 @@ export class LiveQ102Provider implements TransitProvider {
 			const apiKey = env.MTA_BUS_TIME_API_KEY || '3fff4736-ddbb-443a-baab-c66a72bdc4c1';
 
 			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Q102 stops (450151 & 450142)
-			let staticDepartures: ScheduledDeparture[] = [];
+			const staticDepartures: Array<
+				ScheduledDeparture & { stopName: string; isOffIsland?: boolean }
+			> = [];
 			try {
 				await gtfsStaticStore.loadDataset('q102_bus', MTA_QUEENS_BUS_STATIC_URL);
-				const depsColer = gtfsStaticStore.getScheduledDepartures(
-					'q102_bus',
-					'450151',
-					now,
-					windowMinutes,
-				);
-				const depsAstoria = gtfsStaticStore.getScheduledDepartures(
-					'q102_bus',
-					'450142',
-					now,
-					windowMinutes,
-				);
-				staticDepartures = [...depsColer, ...depsAstoria];
+
+				const stopDefs = [
+					{ id: '450151', name: 'Subway Plaza', isOff: false },
+					{ id: '450142', name: 'Subway Plaza', isOff: false },
+					{ id: '404179', name: 'Octagon / Main St', isOff: false },
+					{ id: '404180', name: 'Coler Hospital', isOff: false },
+					{ id: '404185', name: 'Southtown / Tech', isOff: false },
+					{ id: '404150', name: 'Vernon Blvd (LIC)', isOff: true },
+					{ id: '404130', name: 'Astoria 27 Ave Terminal', isOff: true },
+				];
+
+				for (const def of stopDefs) {
+					const deps = gtfsStaticStore.getScheduledDepartures(
+						'q102_bus',
+						def.id,
+						now,
+						windowMinutes,
+					);
+					for (const d of deps) {
+						staticDepartures.push({ ...d, stopName: def.name, isOffIsland: def.isOff });
+					}
+				}
 			} catch (staticErr) {
 				console.warn(
 					'GTFS static store unavailable for Q102, relying on SIRI live feed',
@@ -163,7 +174,9 @@ export class LiveQ102Provider implements TransitProvider {
 					scheduledTime: stat.scheduledTime,
 					isRealtime: false,
 					status: 'normal',
-					stopName: 'Main St / Subway Stop',
+					stopName: stat.stopName || 'Subway Plaza',
+					stopId: stat.stopId,
+					isOffIsland: stat.isOffIsland,
 				});
 			}
 

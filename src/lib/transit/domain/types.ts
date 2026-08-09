@@ -117,6 +117,7 @@ export interface BusDeparture extends BaseDeparture {
 	vehicleId?: string;
 	occupancy?: VehicleOccupancy;
 	nextStopName?: string;
+	isOffIsland?: boolean;
 }
 
 /**

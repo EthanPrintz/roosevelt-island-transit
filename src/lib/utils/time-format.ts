@@ -22,3 +22,11 @@ export function formatRelativeTime(isoString: string, nowMs: number = Date.now()
 	const minLabel = remMins === 1 ? '1 min' : `${remMins} mins`;
 	return `In ${hrLabel} ${minLabel}`;
 }
+
+export function formatClockTime(isoString: string): string {
+	try {
+		return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	} catch {
+		return '--:--';
+	}
+}
