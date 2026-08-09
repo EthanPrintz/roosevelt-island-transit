@@ -195,7 +195,11 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				statusTextFn={(dep) => ((dep as any).isBoarding ? 'Boarding' : 'In Transit')}
 				statusIconFn={(dep) =>
 					(dep as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
-				subDetailsFn={(dep) => ((dep as any).cabin ? `${(dep as any).cabin} CABIN` : 'TRAM CABIN')}
+				subDetailsFn={(dep) => {
+					const c = (dep as any).cabin;
+					if (!c) return 'Tram Cabin';
+					return c.toLowerCase().includes('north') ? 'North Cabin' : 'South Cabin';
+				}}
 				badgeTextFn={(dep) => (dep as any).cabin || 'NORTH'}
 				maxTimetableItems={4}
 			/>
@@ -209,7 +213,11 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				statusTextFn={(dep) => ((dep as any).isBoarding ? 'Boarding' : 'In Transit')}
 				statusIconFn={(dep) =>
 					(dep as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
-				subDetailsFn={(dep) => ((dep as any).cabin ? `${(dep as any).cabin} CABIN` : 'TRAM CABIN')}
+				subDetailsFn={(dep) => {
+					const c = (dep as any).cabin;
+					if (!c) return 'Tram Cabin';
+					return c.toLowerCase().includes('north') ? 'North Cabin' : 'South Cabin';
+				}}
 				badgeTextFn={(dep) => (dep as any).cabin || 'NORTH'}
 				maxTimetableItems={4}
 			/>
