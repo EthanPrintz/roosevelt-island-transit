@@ -9,7 +9,7 @@ export class MockRedBusProvider implements TransitProvider {
 
 	async getDepartures(): Promise<ProviderResult<BusDeparture>> {
 		return {
-			data: fixtureData.departures as BusDeparture[],
+			data: [],
 			fetchedAt: new Date().toISOString(),
 			isCached: false,
 		};

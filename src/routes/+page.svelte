@@ -251,8 +251,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if manhattanSubways.length === 0}
-					<div class="p-3 text-center text-xs text-text-muted">
-						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Manhattan trains.'}
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading live arrivals...' : 'No upcoming Manhattan-bound Subway trains.'}
 					</div>
 				{:else}
 					<HeroDepartureCard
@@ -281,8 +281,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if queensSubways.length === 0}
-					<div class="p-3 text-center text-xs text-text-muted">
-						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Queens trains.'}
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading live arrivals...' : 'No upcoming Queens-bound Subway trains.'}
 					</div>
 				{:else}
 					<HeroDepartureCard
@@ -323,7 +323,9 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if manhattanTrams.length === 0}
-					<p class="text-xs text-text-muted italic py-3 text-center">No upcoming tram departures scheduled.</p>
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading live departures...' : 'No upcoming Manhattan-bound Tram departures.'}
+					</div>
 				{:else}
 					<HeroDepartureCard
 						departure={manhattanTrams[0]}
@@ -351,7 +353,9 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if islandTrams.length === 0}
-					<p class="text-xs text-text-muted italic py-3 text-center">No upcoming tram departures scheduled.</p>
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading live departures...' : 'No upcoming Island-bound Tram departures.'}
+					</div>
 				{:else}
 					<HeroDepartureCard
 						departure={islandTrams[0]}
@@ -391,8 +395,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if southboundFerries.length === 0}
-					<div class="p-3 text-center text-xs text-text-muted">
-						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Southbound ferries.'}
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading live departures...' : 'No upcoming Southbound Ferries.'}
 					</div>
 				{:else}
 					{@const nextFerry = southboundFerries[0]}
@@ -425,8 +429,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if northboundFerries.length === 0}
-					<div class="p-3 text-center text-xs text-text-muted">
-						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Northbound ferries.'}
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading live departures...' : 'No upcoming Northbound Ferries.'}
 					</div>
 				{:else}
 					{@const nextFerry = northboundFerries[0]}
@@ -471,8 +475,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if astoriaQ102.length === 0}
-					<div class="p-3 text-center text-xs text-text-muted">
-						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Astoria-bound Q102 buses.'}
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading live predictions...' : 'No upcoming Astoria-bound City Buses (Q102).'}
 					</div>
 				{:else}
 					{@const nextBus = astoriaQ102[0] as BusDeparture}
@@ -503,8 +507,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if colerQ102.length === 0}
-					<div class="p-3 text-center text-xs text-text-muted">
-						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Coler-bound Q102 buses.'}
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading live predictions...' : 'No upcoming Coler-bound City Buses (Q102).'}
 					</div>
 				{:else}
 					{@const nextBus = colerQ102[0] as BusDeparture}
@@ -547,8 +551,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if northboundRedBus.length === 0}
-					<div class="p-3 text-center text-xs text-text-muted">
-						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Northbound Red Buses.'}
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading shuttle status...' : 'No live Red Bus tracking data available.'}
 					</div>
 				{:else}
 					{@const nextBus = northboundRedBus[0] as BusDeparture}
@@ -578,8 +582,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 
 				{#if southboundRedBus.length === 0}
-					<div class="p-3 text-center text-xs text-text-muted">
-						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Southbound Red Buses.'}
+					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
+						{transitSettings.isLoading ? 'Loading shuttle status...' : 'No live Red Bus tracking data available.'}
 					</div>
 				{:else}
 					{@const nextBus = southboundRedBus[0] as BusDeparture}
@@ -643,8 +647,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		</ModeSectionHeader>
 
 		{#if stations.length === 0}
-			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
-				{transitSettings.isLoading ? 'Loading...' : 'No Citi Bike status available.'}
+			<div class="p-6 rounded-xl bg-bg-surface/50 border border-border-default/50 text-center text-xs text-text-muted">
+				{transitSettings.isLoading ? 'Loading live station availability...' : 'No live Citi Bike station status available.'}
 			</div>
 		{:else}
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
