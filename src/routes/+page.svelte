@@ -132,14 +132,12 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 </svelte:head>
 
 <div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
-	<!-- Unified Header Card -->
+	<!-- Unified Dashboard Stream Header -->
 	<header class="p-5 sm:p-6 rounded-2xl bg-bg-surface border border-border-default shadow-xs space-y-4">
-		<!-- Top Bar: Title & Primary Controls -->
+		<!-- Top Bar: Stream Scope & Primary Controls -->
 		<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
 			<div class="space-y-1">
-				<div>
-					<h1 class="text-xl sm:text-2xl font-black text-text-main tracking-tight">Roosevelt Island Transit Core</h1>
-				</div>
+				<h1 class="text-xl sm:text-2xl font-black text-text-main tracking-tight">Live Arrival & Telemetry Stream</h1>
 				<p class="text-xs text-text-muted">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare streams with live telemetry.</p>
 			</div>
 
