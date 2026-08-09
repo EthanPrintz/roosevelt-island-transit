@@ -51,8 +51,8 @@ export class LiveQ102Provider implements TransitProvider {
 
 					// Astoria-Bound (Direction 1)
 					{ id: '450142', name: 'Subway Plaza', isOff: false },
-					{ id: '450069', name: 'Octagon / Coler', isOff: false },
-					{ id: '450074', name: 'Southtown / Tech', isOff: false },
+					{ id: '450069', name: 'Southtown / Tech', isOff: false },
+					{ id: '450074', name: 'Octagon / Coler', isOff: false },
 				];
 
 				for (const def of stopDefs) {
