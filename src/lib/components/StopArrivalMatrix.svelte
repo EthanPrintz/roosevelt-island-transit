@@ -138,7 +138,7 @@ let groupedStops = $derived.by(() => {
 
 					<!-- Follow-up Departures Timetable -->
 					{#if followUps.length > 0}
-						<div class="space-y-1 pt-1 border-t border-border-default/40">
+						<div class="space-y-1 pt-0.5">
 							<div class="text-[10px] font-mono font-bold text-text-muted px-1 uppercase tracking-wider">
 								Upcoming Schedule
 							</div>
