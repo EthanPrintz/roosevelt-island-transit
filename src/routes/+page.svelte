@@ -150,38 +150,55 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 	<!-- Section: Subway -->
 	<div class="space-y-2.5">
-		<div class="flex items-center justify-between">
+		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
 			<h2 class="section-title">
 				<HugeiconsIcon icon={Train01Icon} size={15} class="text-orange-500" />
 				<span>Subway</span>
 			</h2>
 
-			<!-- Route Filter Toggle -->
-			<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs shrink-0">
-				<button
-					onclick={() => (subwayRouteFilter = 'ALL')}
-					class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {subwayRouteFilter === 'ALL'
-						? 'bg-primary text-primary-fg shadow-xs'
-						: 'text-text-muted hover:text-text-main'}"
-				>
-					All
-				</button>
-				<button
-					onclick={() => (subwayRouteFilter = 'F')}
-					class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'F'
-						? 'bg-orange-500 text-white shadow-xs'
-						: 'text-text-muted hover:text-text-main'}"
-				>
-					<span class="bullet-subway text-[9px]">F</span>
-				</button>
-				<button
-					onclick={() => (subwayRouteFilter = 'M')}
-					class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'M'
-						? 'bg-orange-500 text-white shadow-xs'
-						: 'text-text-muted hover:text-text-main'}"
-				>
-					<span class="bullet-subway text-[9px]">M</span>
-				</button>
+			<!-- Unified Subway Controls Cluster (Line Toggle + Hour Lookahead Selector) -->
+			<div class="flex items-center gap-2 shrink-0">
+				<!-- Route Filter Toggle -->
+				<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs shrink-0 gap-0.5">
+					<button
+						onclick={() => (subwayRouteFilter = 'ALL')}
+						class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {subwayRouteFilter === 'ALL'
+							? 'bg-primary text-primary-fg shadow-xs'
+							: 'text-text-muted hover:text-text-main'}"
+					>
+						All
+					</button>
+					<button
+						onclick={() => (subwayRouteFilter = 'F')}
+						class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'F'
+							? 'bg-orange-500 text-white shadow-xs'
+							: 'text-text-muted hover:text-text-main'}"
+					>
+						<span class="bullet-subway text-[9px]">F</span>
+					</button>
+					<button
+						onclick={() => (subwayRouteFilter = 'M')}
+						class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'M'
+							? 'bg-orange-500 text-white shadow-xs'
+							: 'text-text-muted hover:text-text-main'}"
+					>
+						<span class="bullet-subway text-[9px]">M</span>
+					</button>
+				</div>
+
+				<!-- Hour Lookahead Selector -->
+				<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs shrink-0 gap-0.5">
+					{#each [120, 240, 360, 480] as win}
+						<button
+							onclick={() => transitSettings.setWindow(win)}
+							class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {transitSettings.selectedWindow === win
+								? 'bg-primary text-primary-fg shadow-xs'
+								: 'text-text-muted hover:text-text-main'}"
+						>
+							{win / 60}h
+						</button>
+					{/each}
+				</div>
 			</div>
 		</div>
 

@@ -32,10 +32,12 @@ export class LiveFerryProvider implements TransitProvider {
 	readonly name = 'NYC Ferry Live (Astoria Line)';
 	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
 
-	async getDepartures(options?: DepartureOptions): Promise<ProviderResult<FerryDeparture>> {
+	async getDepartures(_options?: DepartureOptions): Promise<ProviderResult<FerryDeparture>> {
 		try {
 			const now = new Date();
-			const windowMinutes = options?.windowMinutes ?? 240; // Default 4 hours lookahead
+			// Ferry shows all remaining trips for today (from now until end of day)
+			const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+			const windowMinutes = Math.max(60, Math.ceil((endOfDay.getTime() - now.getTime()) / 60000));
 
 			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Landing (25)
 			let staticDepartures: ScheduledDeparture[] = [];

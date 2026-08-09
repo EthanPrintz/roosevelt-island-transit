@@ -10,7 +10,7 @@ let { children }: { children: Snippet } = $props();
 </script>
 
 <div class="min-h-screen flex flex-col bg-bg-base text-text-main font-sans selection:bg-primary selection:text-primary-fg">
-	<!-- Top Application Navigation Bar with Standardized Unified Toolbar -->
+	<!-- Top Application Navigation Bar -->
 	<header class="sticky top-0 z-50 backdrop-blur-md bg-bg-surface/80 border-b border-border-subtle transition-colors">
 		<div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
 			<!-- Logo / Brand with Live Status Indicator -->
@@ -24,24 +24,8 @@ let { children }: { children: Snippet } = $props();
 				</div>
 			</a>
 
-			<!-- Standardized Single-Surface Control Toolbar -->
+			<!-- Top Header Action Toolbar -->
 			<div class="h-9 px-2 rounded-full border border-border-default bg-bg-surface flex items-center gap-2 shadow-2xs">
-				<!-- Window Selector Segment -->
-				<div class="flex items-center gap-0.5">
-					{#each [120, 240, 360, 480] as win}
-						<button
-							onclick={() => transitSettings.setWindow(win)}
-							class="h-7 px-2 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center {transitSettings.selectedWindow === win
-								? 'bg-primary text-primary-fg shadow-2xs'
-								: 'text-text-muted hover:text-text-main hover:bg-bg-elevated/60'}"
-						>
-							{win / 60}h
-						</button>
-					{/each}
-				</div>
-
-				<div class="h-4 w-px bg-border-subtle"></div>
-
 				<!-- Sync Action Button -->
 				<button
 					onclick={() => transitSettings.triggerRefresh()}
@@ -54,8 +38,8 @@ let { children }: { children: Snippet } = $props();
 				</button>
 
 				{#if transitSettings.fetchedAt}
-					<div class="h-4 w-px bg-border-subtle hidden lg:block"></div>
-					<div class="h-7 px-1.5 text-[10px] font-mono text-text-muted hidden lg:flex items-center gap-1">
+					<div class="h-4 w-px bg-border-subtle hidden sm:block"></div>
+					<div class="h-7 px-1.5 text-[10px] font-mono text-text-muted hidden sm:flex items-center gap-1">
 						<HugeiconsIcon icon={Clock01Icon} size={11} />
 						<span>{new Date(transitSettings.fetchedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
 					</div>
