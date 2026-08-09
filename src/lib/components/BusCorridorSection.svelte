@@ -66,6 +66,15 @@ const accentStyles = {
 
 let styles = $derived(accentStyles[accentColor] || accentStyles.blue);
 
+function cleanHeadsign(headsign: string): string {
+	if (!headsign) return 'Roosevelt Island';
+	return headsign
+		.replace(/ via RI Bridge/i, '')
+		.replace(/Roosevelt Island - /i, '')
+		.replace(/ Express/i, '')
+		.trim();
+}
+
 function filterStop(
 	deps: TransitDeparture[],
 	keywords: string[],
@@ -127,7 +136,7 @@ let octagonDepartures = $derived(
 				{@const subDetails = nextDep.vehicleId ? `Bus #${nextDep.vehicleId}${nextDep.nextStopName ? ` • (${nextDep.nextStopName})` : ''}` : undefined}
 
 				<div class="p-3.5 rounded-xl border space-y-2 relative overflow-hidden shadow-2xs {styles.heroContainer}">
-					<!-- Top Row: Status Pill & Relative Countdown -->
+					<!-- Top Row: Status Pill (Left) & Relative Countdown (Right) -->
 					<div class="flex items-center justify-between text-xs">
 						<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {styles.badgeDefault}">
 							<HugeiconsIcon icon={statusIcon} size={10} />
@@ -139,9 +148,12 @@ let octagonDepartures = $derived(
 						</span>
 					</div>
 
-					<!-- Middle Row: Destination Title & Large Clock Time -->
+					<!-- Middle Row: Route Badge + Destination Title (Left) & Large Clock Time (Right) -->
 					<div class="flex items-baseline justify-between gap-2 pt-0.5">
-						<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
+						<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1 flex items-center gap-1.5">
+							<span class="px-1.5 py-0.5 rounded-md font-mono text-[9px] font-bold uppercase {styles.badgeDefault}">
+								{nextDep.routeId === 'RED_BUS' ? 'Red Bus' : 'Q102'}
+							</span>
 							<span class="truncate">{nextDep.headsign}</span>
 						</div>
 
@@ -150,47 +162,47 @@ let octagonDepartures = $derived(
 						</div>
 					</div>
 
-					<!-- Bottom Row: Sub details -->
-					{#if subDetails || !nextDep.isRealtime}
-						<div class="flex items-center justify-between text-[10px] font-mono text-text-muted pt-0.5">
-							<div class="truncate min-w-0 flex-1">
-								{#if subDetails}
-									<span>{subDetails}</span>
-								{/if}
-							</div>
-
-							{#if !nextDep.isRealtime}
-								<span class="shrink-0 ml-2">Scheduled</span>
+					<!-- Bottom Row: Sub Details (Left) & Scheduled Fallback (Right) -->
+					<div class="flex items-center justify-between text-[10px] font-mono text-text-muted pt-0.5">
+						<div class="truncate min-w-0 flex-1">
+							{#if subDetails}
+								<span>{subDetails}</span>
+							{:else}
+								<span>{nextDep.routeName || 'Bus Departure'}</span>
 							{/if}
 						</div>
-					{/if}
+
+						{#if !nextDep.isRealtime}
+							<span class="shrink-0 ml-2">Scheduled</span>
+						{/if}
+					</div>
 				</div>
 			{/if}
 
-			<!-- Follow-Up Timetable List (Clean De-noised Rows) -->
+			<!-- Follow-Up Timetable List matching standard TimetableList.svelte structure -->
 			{#if followUps.length > 0}
 				<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
 					{#each followUps as dep (dep.id)}
 						{@const t = dep.predictedTime || dep.scheduledTime}
 						{@const b = dep as BusDeparture}
+						{@const shortHeadsign = cleanHeadsign(b.headsign)}
 						<div class="p-2.5 flex items-center justify-between text-xs gap-2 hover:bg-bg-surface/50 transition-colors">
+							<!-- Left Side: Route Pill + Destination Headsign -->
 							<div class="flex items-center gap-2 min-w-0 flex-1">
-								{#if b.vehicleId}
-									<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
-										Bus #{b.vehicleId}
-									</span>
-								{:else}
-									<span class="px-1.5 py-0.5 rounded-full bg-bg-surface/60 border border-border-default/50 font-mono text-[9px] text-text-muted shrink-0 font-medium">
-										{b.routeId === 'RED_BUS' ? 'Red Bus' : 'Q102'}
-									</span>
-								{/if}
+								<span class="px-1.5 py-0.5 rounded bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
+									{b.vehicleId ? `Bus #${b.vehicleId}` : b.routeId === 'RED_BUS' ? 'Red Bus' : 'Q102'}
+								</span>
+								<span class="font-medium text-text-main truncate text-xs">{shortHeadsign}</span>
 							</div>
 
-							<div class="flex items-center gap-3 font-mono shrink-0">
+							<!-- Right Side: Relative Countdown + Clock Time + Live Flash / Sched Icon -->
+							<div class="flex items-center gap-2.5 font-mono shrink-0">
 								<span class="text-text-muted text-[10px]">{formatRelativeTime(t)}</span>
 								<span class="font-bold text-text-main text-[11px]">{formatClockTime(t)}</span>
 								{#if b.isRealtime}
 									<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
+								{:else}
+									<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
 								{/if}
 							</div>
 						</div>
