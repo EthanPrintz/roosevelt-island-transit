@@ -91,7 +91,7 @@ let subwayPlazaNorth = $derived(
 	filterStop(
 		northboundDepartures,
 		['subway', 'tramway', 'plaza', 'roosevelt island station'],
-		true,
+		false,
 	),
 );
 
@@ -99,7 +99,7 @@ let subwayPlazaSouth = $derived(
 	filterStop(
 		southboundDepartures,
 		['subway', 'tramway', 'plaza', 'roosevelt island station'],
-		true,
+		false,
 	),
 );
 
