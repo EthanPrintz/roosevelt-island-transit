@@ -107,7 +107,7 @@ function getFerryBadge(ferry: FerryDeparture) {
 		return {
 			label: 'Approaching',
 			icon: Navigation01Icon,
-			class: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30',
+			class: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30',
 		};
 	}
 	return {
@@ -321,7 +321,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						accentColor="rose"
 						statusText={(manhattanTrams[0] as any).isBoarding ? 'Boarding' : 'In Transit'}
 						statusIcon={(manhattanTrams[0] as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
-						statusClass={(manhattanTrams[0] as any).isBoarding ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'}
 						subDetails={(manhattanTrams[0] as any).cabin || 'Tram Cabin'}
 					/>
 
@@ -350,7 +349,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						accentColor="rose"
 						statusText={(islandTrams[0] as any).isBoarding ? 'Boarding' : 'In Transit'}
 						statusIcon={(islandTrams[0] as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
-						statusClass={(islandTrams[0] as any).isBoarding ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'}
 						subDetails={(islandTrams[0] as any).cabin || 'Tram Cabin'}
 					/>
 
