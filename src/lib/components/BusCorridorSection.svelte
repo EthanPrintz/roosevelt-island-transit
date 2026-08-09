@@ -202,7 +202,7 @@ let octagonSouth = $derived(
 						<div class="p-2.5 flex items-center justify-between text-xs gap-2 hover:bg-bg-surface/50 transition-colors">
 							<!-- Left Side: Route Pill + Destination Headsign -->
 							<div class="flex items-center gap-2 min-w-0 flex-1">
-								<span class="px-1.5 py-0.5 rounded bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
+								<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
 									{b.vehicleId ? `Bus #${b.vehicleId}` : b.routeId === 'RED_BUS' ? 'Red Bus' : 'Q102'}
 								</span>
 								<span class="font-medium text-text-main truncate text-xs">{shortHeadsign}</span>
