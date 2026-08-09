@@ -45,6 +45,22 @@ let {
 }: Props = $props();
 
 let selectedStop = $state<IslandStopNode>('subway_plaza');
+
+let activeNorthSubtitle = $derived(
+	selectedStop === 'north_island'
+		? `${northboundSubtitle} • North Stop`
+		: selectedStop === 'south_island'
+			? `${northboundSubtitle} • South Stop`
+			: northboundSubtitle,
+);
+
+let activeSouthSubtitle = $derived(
+	selectedStop === 'north_island'
+		? `${southboundSubtitle} • Coler Terminal`
+		: selectedStop === 'south_island'
+			? `${southboundSubtitle} • Southtown Loop`
+			: southboundSubtitle,
+);
 </script>
 
 <div class="space-y-2.5">
@@ -59,7 +75,7 @@ let selectedStop = $state<IslandStopNode>('subway_plaza');
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<TransitColumn
 			title={northboundTitle}
-			subtitle={northboundSubtitle}
+			subtitle={activeNorthSubtitle}
 			departures={northboundDepartures}
 			{accentColor}
 			emptyMessage={emptyMessageNorth}
@@ -81,7 +97,7 @@ let selectedStop = $state<IslandStopNode>('subway_plaza');
 
 		<TransitColumn
 			title={southboundTitle}
-			subtitle={southboundSubtitle}
+			subtitle={activeSouthSubtitle}
 			departures={southboundDepartures}
 			{accentColor}
 			emptyMessage={emptyMessageSouth}
