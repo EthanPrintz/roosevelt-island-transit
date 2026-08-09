@@ -10,8 +10,6 @@ export const NYC_FERRY_VEHICLE_POS_URL =
 	'https://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/vehicleposition';
 export const NYC_FERRY_STATIC_GTFS_URL =
 	'http://nycferry.connexionz.net/rtt/public/resource/gtfs.zip';
-export const FERRY_ACTIVE_HORIZON_MINUTES = 20;
-
 interface VesselTelemetry {
 	vesselLabel?: string;
 	vesselId?: string;
@@ -26,7 +24,7 @@ interface VesselTelemetry {
  *
  * Hybrid GTFS engine that combines static NYC Ferry schedules (stop ID 25)
  * with live real-time GTFS-RT Protobuf trip updates and vehicle telemetry from Connexionz.
- * Features Smart Active Horizon Suppression (20m) to eliminate ghost ferry entries.
+ * Features Dynamic Active Horizon Suppression to eliminate ghost ferry entries.
  */
 export class LiveFerryProvider implements TransitProvider {
 	readonly mode: TransitMode = 'ferry';

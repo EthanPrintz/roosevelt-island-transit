@@ -14,14 +14,12 @@ export const MTA_BDFM_FEED_URL =
 	'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm';
 export const MTA_STATIC_GTFS_URL =
 	'https://web.mta.info/developers/data/nyct/subway/google_transit.zip';
-export const SUBWAY_ACTIVE_HORIZON_MINUTES = 30;
-
 /**
  * LiveSubwayProvider
  *
  * Hybrid GTFS engine that combines static MTA Subway schedules (stop ID B06)
  * with live real-time GTFS-RT Protobuf updates from MTA BDFM feed.
- * Features Smart Active Horizon Suppression (30m) to eliminate ghost timetable entries.
+ * Features Dynamic Active Horizon Suppression to eliminate ghost timetable entries.
  */
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
