@@ -217,14 +217,17 @@ export class LiveFerryProvider implements TransitProvider {
 				});
 			}
 
-			// 5. Smart Active Horizon Suppression Engine
+			// 5. Smart Active Horizon Suppression Engine & Stale Trip Filtering
 			const filteredDepartures = departures.filter((dep) => {
+				const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
+				const diffMins = (arrivalMs - now.getTime()) / 60000;
+
+				// Discard any past departures that left more than 2 minutes ago
+				if (diffMins < -2) return false;
+
 				if (dep.isRealtime) return true;
 
 				if (liveUpdates.size > 0) {
-					const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
-					const diffMins = (arrivalMs - now.getTime()) / 60000;
-
 					// Suppress un-tracked static entries arriving within active 20-minute horizon
 					if (diffMins <= FERRY_ACTIVE_HORIZON_MINUTES) {
 						return false;

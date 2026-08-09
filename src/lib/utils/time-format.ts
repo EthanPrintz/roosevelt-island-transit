@@ -6,6 +6,7 @@ export function formatRelativeTime(isoString: string, nowMs: number = Date.now()
 	const diffMs = new Date(isoString).getTime() - nowMs;
 	const mins = Math.round(diffMs / 60000);
 
+	if (mins < -2) return 'Departed';
 	if (mins <= 0) return 'Arriving Now';
 	if (mins === 1) return 'In 1 min';
 	if (mins < 60) return `In ${mins} mins`;

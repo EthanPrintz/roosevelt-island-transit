@@ -205,14 +205,17 @@ export class LiveSubwayProvider implements TransitProvider {
 				});
 			}
 
-			// 5. Smart Active Horizon & Proximity Shift Suppression Engine
+			// 5. Smart Active Horizon & Proximity Shift Suppression Engine & Stale Trip Filtering
 			const filteredDepartures = departures.filter((dep) => {
+				const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
+				const diffMins = (arrivalMs - now.getTime()) / 60000;
+
+				// Discard any past departures that left more than 2 minutes ago
+				if (diffMins < -2) return false;
+
 				if (dep.isRealtime) return true; // Always keep live tracked departures
 
 				if (liveUpdates.size > 0) {
-					const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
-					const diffMins = (arrivalMs - now.getTime()) / 60000;
-
 					// Suppress un-tracked static entries arriving within the active 30-minute horizon
 					if (diffMins <= SUBWAY_ACTIVE_HORIZON_MINUTES) {
 						return false;

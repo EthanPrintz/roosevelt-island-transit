@@ -6,7 +6,8 @@ describe('formatRelativeTime', () => {
 
 	it('handles arriving now or past departures', () => {
 		expect(formatRelativeTime('2026-08-09T12:00:00.000Z', now)).toBe('Arriving Now');
-		expect(formatRelativeTime('2026-08-09T11:58:00.000Z', now)).toBe('Arriving Now');
+		expect(formatRelativeTime('2026-08-09T11:59:00.000Z', now)).toBe('Arriving Now');
+		expect(formatRelativeTime('2026-08-09T11:50:00.000Z', now)).toBe('Departed');
 	});
 
 	it('handles single minute departure', () => {
