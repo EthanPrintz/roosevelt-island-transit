@@ -234,7 +234,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<HeroDepartureCard
 						departure={manhattanSubways[0]}
 						accentColor="orange"
-						statusText={manhattanSubways[0].isRealtime ? 'Live RT' : 'Scheduled'}
+						statusText={manhattanSubways[0].isRealtime ? 'Live' : 'Scheduled'}
 						statusIcon={manhattanSubways[0].isRealtime ? FlashIcon : undefined}
 						lineBadgeText={manhattanSubways[0].routeId}
 						secondaryDetails={manhattanSubways[0].originStartTime ? `Dispatched: ${manhattanSubways[0].originStartTime}` : undefined}
@@ -264,7 +264,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<HeroDepartureCard
 						departure={queensSubways[0]}
 						accentColor="orange"
-						statusText={queensSubways[0].isRealtime ? 'Live RT' : 'Scheduled'}
+						statusText={queensSubways[0].isRealtime ? 'Live' : 'Scheduled'}
 						statusIcon={queensSubways[0].isRealtime ? FlashIcon : undefined}
 						lineBadgeText={queensSubways[0].routeId}
 						secondaryDetails={queensSubways[0].originStartTime ? `Dispatched: ${queensSubways[0].originStartTime}` : undefined}

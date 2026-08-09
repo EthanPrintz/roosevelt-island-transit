@@ -119,16 +119,11 @@ let relativeLabel = $derived(
 			<div class="font-mono text-lg font-black text-text-main leading-none">
 				{timeString}
 			</div>
-			<div class="mt-1">
-				{#if departure.isRealtime}
-					<span class="inline-flex items-center gap-0.5 text-[9px] font-bold {styles.iconColor}">
-						<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
-						<span>Live GTFS-RT</span>
-					</span>
-				{:else}
+			{#if !departure.isRealtime}
+				<div class="mt-1">
 					<span class="text-[9px] text-text-muted font-mono">Scheduled</span>
-				{/if}
-			</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 </div>
