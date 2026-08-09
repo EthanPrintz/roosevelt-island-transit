@@ -8,27 +8,28 @@ import {
 	FerryBoatIcon,
 	FlashIcon,
 	Navigation01Icon,
-	RefreshIcon,
 	SparklesIcon,
 	SquareIcon,
 	Train01Icon,
 	Wrench01Icon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
+import { transitSettings } from '$lib/state/transit-settings.svelte';
 import type { BikeStation, TransitAlert, TransitDeparture } from '$lib/transit/domain/types';
 
 let departures = $state<TransitDeparture[]>([]);
 let alerts = $state<TransitAlert[]>([]);
 let stations = $state<BikeStation[]>([]);
-let isCached = $state<boolean>(false);
-let fetchedAt = $state<string>('');
-let isLoading = $state<boolean>(true);
-let selectedWindow = $state<number>(240); // Default 4 hours lookahead
 let subwayRouteFilter = $state<'ALL' | 'F' | 'M'>('ALL');
 
 $effect(() => {
+	// Reactively reload whenever selectedWindow changes or triggerRefresh is incremented
+	const _win = transitSettings.selectedWindow;
+	const _trig = transitSettings.refreshTrigger;
 	loadLiveData();
+});
 
+$effect(() => {
 	// Auto-refresh every 15 seconds (matching server cache TTL)
 	const interval = setInterval(() => {
 		loadLiveData();
@@ -41,26 +42,20 @@ $effect(() => {
 
 async function loadLiveData() {
 	try {
-		isLoading = true;
-		const res = await fetch(`/api/transit?window=${selectedWindow}`);
+		transitSettings.isLoading = true;
+		const res = await fetch(`/api/transit?window=${transitSettings.selectedWindow}`);
 		if (res.ok) {
 			const json = await res.json();
 			departures = json.departures || [];
 			alerts = json.alerts || [];
 			stations = json.stations || [];
-			isCached = json.isCached || false;
-			fetchedAt = json.fetchedAt || '';
+			transitSettings.fetchedAt = json.fetchedAt || '';
 		}
 	} catch (_err) {
 		// Catch network error
 	} finally {
-		isLoading = false;
+		transitSettings.isLoading = false;
 	}
-}
-
-function changeWindow(newWindow: number) {
-	selectedWindow = newWindow;
-	loadLiveData();
 }
 
 function getRelativeTimeLabel(isoString: string): string {
@@ -130,42 +125,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 </svelte:head>
 
 <div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
-	<!-- Minimal Control Bar -->
-	<header class="p-3.5 rounded-2xl bg-bg-surface border border-border-default shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-		<h1 class="text-sm font-extrabold text-text-main tracking-tight uppercase">Live Arrivals</h1>
-
-		<div class="flex items-center gap-2 shrink-0">
-			<!-- Lookahead Window Selector -->
-			<div class="flex items-center rounded-xl bg-bg-elevated/60 border border-border-default/80 p-1 text-xs">
-				{#each [120, 240, 360, 480] as win}
-					<button
-						onclick={() => changeWindow(win)}
-						class="px-2 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {selectedWindow === win
-							? 'bg-primary text-primary-fg shadow-xs'
-							: 'text-text-muted hover:text-text-main'}"
-					>
-						{win / 60}h
-					</button>
-				{/each}
-			</div>
-
-			<button
-				onclick={loadLiveData}
-				disabled={isLoading}
-				class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-primary text-primary-fg text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
-			>
-				<HugeiconsIcon icon={RefreshIcon} size={12} class={isLoading ? 'animate-spin' : ''} />
-				<span>{isLoading ? 'Refreshing...' : 'Refresh'}</span>
-			</button>
-
-			{#if fetchedAt}
-				<span class="font-mono text-[10px] text-text-muted hidden md:inline-block">
-					{new Date(fetchedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-				</span>
-			{/if}
-		</div>
-	</header>
-
 	<!-- Active System Alerts -->
 	{#if alerts.length > 0}
 		<div class="space-y-2">
@@ -241,7 +200,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 				{#if manhattanSubways.length === 0}
 					<div class="p-3 text-center text-xs text-text-muted">
-						{isLoading ? 'Loading...' : 'No upcoming Manhattan trains.'}
+						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Manhattan trains.'}
 					</div>
 				{:else}
 					<!-- HERO CARD: Next Manhattan-Bound Train -->
@@ -344,7 +303,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 				{#if queensSubways.length === 0}
 					<div class="p-3 text-center text-xs text-text-muted">
-						{isLoading ? 'Loading...' : 'No upcoming Queens trains.'}
+						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Queens trains.'}
 					</div>
 				{:else}
 					<!-- HERO CARD: Next Queens-Bound Train -->
@@ -453,7 +412,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 				{#if southboundFerries.length === 0}
 					<div class="p-3 text-center text-xs text-text-muted">
-						{isLoading ? 'Loading...' : 'No upcoming Southbound ferries.'}
+						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Southbound ferries.'}
 					</div>
 				{:else}
 					<!-- HERO CARD: Next Southbound Ferry -->
@@ -549,7 +508,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 				{#if northboundFerries.length === 0}
 					<div class="p-3 text-center text-xs text-text-muted">
-						{isLoading ? 'Loading...' : 'No upcoming Northbound ferries.'}
+						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Northbound ferries.'}
 					</div>
 				{:else}
 					<!-- HERO CARD: Next Northbound Ferry -->
@@ -680,7 +639,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 		{#if stations.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
-				{isLoading ? 'Loading...' : 'No Citi Bike status available.'}
+				{transitSettings.isLoading ? 'Loading...' : 'No Citi Bike status available.'}
 			</div>
 		{:else}
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-3">

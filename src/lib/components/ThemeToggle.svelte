@@ -10,16 +10,16 @@ const modes: { mode: ThemeMode; label: string; icon: any }[] = [
 ];
 </script>
 
-<div class="inline-flex items-center p-1 rounded-xl bg-bg-surface border border-border-default shadow-xs transition-colors">
+<div class="inline-flex items-center p-0.5 rounded-xl bg-bg-elevated/70 border border-border-default/80">
 	{#each modes as { mode, label, icon }}
 		<button
 			type="button"
 			onclick={() => themeState.setMode(mode)}
-			class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer {themeState.currentMode === mode ? 'bg-primary text-primary-fg shadow-xs font-semibold' : 'text-text-muted hover:text-text-main hover:bg-bg-elevated'}"
+			class="p-1.5 rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center {themeState.currentMode === mode ? 'bg-primary text-primary-fg shadow-xs' : 'text-text-muted hover:text-text-main hover:bg-bg-surface/50'}"
 			aria-label="{label} theme"
+			title="{label} theme"
 		>
-			<HugeiconsIcon icon={icon} size={15} strokeWidth={2} />
-			<span>{label}</span>
+			<HugeiconsIcon icon={icon} size={14} strokeWidth={2} />
 		</button>
 	{/each}
 </div>
