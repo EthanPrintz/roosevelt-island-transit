@@ -45,11 +45,9 @@ export class LiveQ102Provider implements TransitProvider {
 				const stopDefs = [
 					{ id: '450151', name: 'Subway Plaza', isOff: false },
 					{ id: '450142', name: 'Subway Plaza', isOff: false },
-					{ id: '450152', name: 'Coler Hospital', isOff: false },
-					{ id: '450150', name: 'Octagon / Main St', isOff: false },
+					{ id: '450152', name: 'Octagon / Coler', isOff: false },
+					{ id: '450150', name: 'Octagon / Coler', isOff: false },
 					{ id: '450141', name: 'Southtown / Tech', isOff: false },
-					{ id: '505487', name: 'Vernon Blvd (LIC)', isOff: true },
-					{ id: '505495', name: 'Vernon Blvd (LIC)', isOff: true },
 				];
 
 				for (const def of stopDefs) {

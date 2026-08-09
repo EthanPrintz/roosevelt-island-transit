@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Clock01Icon, FlashIcon, Globe02Icon, Location01Icon } from '@hugeicons/core-free-icons';
+import { Clock01Icon, FlashIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type { BusDeparture, TransitDeparture } from '$lib/transit/domain/types';
 import { formatClockTime, formatRelativeTime } from '$lib/utils/time-format';
@@ -21,7 +21,6 @@ const accentStyles = {
 		timeText: 'text-blue-600 dark:text-blue-400',
 		iconColor: 'text-blue-500',
 		badgeDefault: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30',
-		stopBadge: 'bg-blue-500/15 border-blue-500/30 text-blue-400',
 	},
 	rose: {
 		heroContainer:
@@ -29,7 +28,6 @@ const accentStyles = {
 		timeText: 'text-rose-600 dark:text-rose-400',
 		iconColor: 'text-rose-500',
 		badgeDefault: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30',
-		stopBadge: 'bg-rose-500/15 border-rose-500/30 text-rose-400',
 	},
 };
 
@@ -53,13 +51,15 @@ function normalizeStopName(raw: string): { name: string; isOffIsland: boolean } 
 	return { name: 'Subway Plaza', isOffIsland: false };
 }
 
-// Group departures by canonical stop location
+// Group departures by canonical stop location (On-Island only)
 let groupedStops = $derived.by(() => {
 	const map = new Map<string, { name: string; isOffIsland: boolean; departures: BusDeparture[] }>();
 
 	for (const dep of departures) {
 		const b = dep as BusDeparture;
 		const norm = normalizeStopName(b.stopName || 'Subway Plaza');
+		if (norm.isOffIsland) continue;
+
 		const key = norm.name;
 
 		if (!map.has(key)) {
@@ -91,20 +91,7 @@ let groupedStops = $derived.by(() => {
 				<div class="panel-card space-y-3 p-4">
 					<!-- Stop Card Header -->
 					<div class="flex items-center justify-between">
-						<div class="flex items-center gap-2">
-							{#if group.isOffIsland}
-								<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
-									<HugeiconsIcon icon={Globe02Icon} size={11} />
-									Queens / Off-Island
-								</span>
-							{:else}
-								<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border {styles.stopBadge}">
-									<HugeiconsIcon icon={Location01Icon} size={11} />
-									Roosevelt Island
-								</span>
-							{/if}
-							<span class="text-xs font-extrabold text-text-main">{group.name}</span>
-						</div>
+						<span class="text-xs font-extrabold text-text-main">{group.name}</span>
 					</div>
 
 					<!-- Hero Departure Card matching standard HeroDepartureCard.svelte design -->
