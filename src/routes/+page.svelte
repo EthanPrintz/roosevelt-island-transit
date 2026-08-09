@@ -236,7 +236,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						accentColor="orange"
 						statusText={manhattanSubways[0].isRealtime ? 'Live' : 'Scheduled'}
 						statusIcon={manhattanSubways[0].isRealtime ? FlashIcon : undefined}
-						subDetails={manhattanSubways[0].originStartTime ? `${manhattanSubways[0].routeId} Train • Dispatched: ${manhattanSubways[0].originStartTime}` : `${manhattanSubways[0].routeId} Train`}
+						lineBadgeText={manhattanSubways[0].routeId}
+						subDetails={manhattanSubways[0].originStartTime ? `Dispatched: ${manhattanSubways[0].originStartTime}` : undefined}
 					/>
 
 					{#if manhattanSubways.length > 1}
@@ -265,7 +266,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						accentColor="orange"
 						statusText={queensSubways[0].isRealtime ? 'Live' : 'Scheduled'}
 						statusIcon={queensSubways[0].isRealtime ? FlashIcon : undefined}
-						subDetails={queensSubways[0].originStartTime ? `${queensSubways[0].routeId} Train • Dispatched: ${queensSubways[0].originStartTime}` : `${queensSubways[0].routeId} Train`}
+						lineBadgeText={queensSubways[0].routeId}
+						subDetails={queensSubways[0].originStartTime ? `Dispatched: ${queensSubways[0].originStartTime}` : undefined}
 					/>
 
 					{#if queensSubways.length > 1}

@@ -10,10 +10,21 @@ interface Props {
 	statusText: string;
 	statusIcon?: any;
 	statusClass?: string;
+	lineBadgeText?: string;
+	lineBadgeClass?: string;
 	subDetails?: string;
 }
 
-let { departure, accentColor, statusText, statusIcon, statusClass, subDetails }: Props = $props();
+let {
+	departure,
+	accentColor,
+	statusText,
+	statusIcon,
+	statusClass,
+	lineBadgeText,
+	lineBadgeClass,
+	subDetails,
+}: Props = $props();
 
 const accentStyles = {
 	orange: {
@@ -88,8 +99,13 @@ let relativeLabel = $derived(
 
 	<!-- Middle Row: Clean Destination Title & Large Clock Time -->
 	<div class="flex items-baseline justify-between gap-2 pt-0.5">
-		<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
-			{departure.headsign}
+		<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1 flex items-center gap-1.5">
+			{#if lineBadgeText}
+				<span class={lineBadgeClass || 'bullet-subway text-[9px] shrink-0'}>
+					{lineBadgeText}
+				</span>
+			{/if}
+			<span class="truncate">{departure.headsign}</span>
 		</div>
 
 		<div class="font-mono text-lg font-black text-text-main leading-none shrink-0">
