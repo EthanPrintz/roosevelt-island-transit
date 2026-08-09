@@ -2,6 +2,7 @@ import { decodeGtfsRealtimeBuffer } from '$lib/server/gtfs';
 import { gtfsStaticStore, type ScheduledDeparture } from '$lib/server/gtfs-static';
 import type { DepartureOptions, ProviderCapability, TransitProvider } from '../domain/provider';
 import type { FerryDeparture, ProviderResult, TransitAlert, TransitMode } from '../domain/types';
+import { suppressGhostSchedules } from '../utils/suppression';
 
 export const NYC_FERRY_TRIP_UPDATE_URL =
 	'https://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/tripupdate';
@@ -226,43 +227,7 @@ export class LiveFerryProvider implements TransitProvider {
 			}
 
 			// 5. Dynamic Active Horizon Suppression Engine & Stale Trip Filtering
-			let maxRealtimeMsSouthbound = 0;
-			let maxRealtimeMsNorthbound = 0;
-
-			for (const dep of departures) {
-				if (!dep.isRealtime) continue;
-				const timeMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
-				if (dep.direction === 'southbound') {
-					if (timeMs > maxRealtimeMsSouthbound) maxRealtimeMsSouthbound = timeMs;
-				} else {
-					if (timeMs > maxRealtimeMsNorthbound) maxRealtimeMsNorthbound = timeMs;
-				}
-			}
-
-			const filteredDepartures = departures.filter((dep) => {
-				const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
-				const diffMins = (arrivalMs - now.getTime()) / 60000;
-
-				// Discard any past departures that left more than 2 minutes ago
-				if (diffMins < -2) return false;
-
-				if (dep.isRealtime) return true;
-
-				const maxLiveMs =
-					dep.direction === 'southbound' ? maxRealtimeMsSouthbound : maxRealtimeMsNorthbound;
-
-				// Dynamic Active Horizon Suppression: Suppress any static timetable entry
-				// scheduled earlier than or at the furthest live tracked departure in that direction
-				if (maxLiveMs > 0 && arrivalMs <= maxLiveMs) {
-					return false;
-				}
-
-				if (liveUpdates.size > 0 && diffMins <= FERRY_ACTIVE_HORIZON_MINUTES) {
-					return false;
-				}
-
-				return true;
-			});
+			const filteredDepartures = suppressGhostSchedules(departures);
 
 			return {
 				data: filteredDepartures.sort(

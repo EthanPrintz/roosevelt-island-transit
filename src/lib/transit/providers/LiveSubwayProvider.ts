@@ -8,6 +8,7 @@ import type {
 	TransitAlert,
 	TransitMode,
 } from '../domain/types';
+import { suppressGhostSchedules } from '../utils/suppression';
 
 export const MTA_BDFM_FEED_URL =
 	'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm';
@@ -208,58 +209,7 @@ export class LiveSubwayProvider implements TransitProvider {
 			}
 
 			// 5. Dynamic Active Horizon & Proximity Shift Suppression Engine & Stale Trip Filtering
-			let maxRealtimeMsQueensBound = 0;
-			let maxRealtimeMsManhattanBound = 0;
-
-			for (const dep of departures) {
-				if (!dep.isRealtime) continue;
-				const timeMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
-				if (dep.direction === 'queens_bound') {
-					if (timeMs > maxRealtimeMsQueensBound) maxRealtimeMsQueensBound = timeMs;
-				} else {
-					if (timeMs > maxRealtimeMsManhattanBound) maxRealtimeMsManhattanBound = timeMs;
-				}
-			}
-
-			const filteredDepartures = departures.filter((dep) => {
-				const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
-				const diffMins = (arrivalMs - now.getTime()) / 60000;
-
-				// Discard any past departures that left more than 2 minutes ago
-				if (diffMins < -2) return false;
-
-				if (dep.isRealtime) return true; // Always keep live tracked departures
-
-				const maxLiveMs =
-					dep.direction === 'queens_bound' ? maxRealtimeMsQueensBound : maxRealtimeMsManhattanBound;
-
-				// Dynamic Active Horizon Suppression: Suppress any static timetable entry
-				// scheduled earlier than or at the furthest live tracked departure in that direction
-				if (maxLiveMs > 0 && arrivalMs <= maxLiveMs) {
-					return false;
-				}
-
-				// Fallback horizon suppression: suppress static entries within 30 minutes if live updates exist
-				if (liveUpdates.size > 0 && diffMins <= SUBWAY_ACTIVE_HORIZON_MINUTES) {
-					return false;
-				}
-
-				// Proximity suppression: suppress static entry if a live RT trip exists within ±7 mins on the same track
-				if (liveUpdates.size > 0) {
-					for (const rtTrip of liveUpdates.values()) {
-						const rtTimeMs = new Date(rtTrip.time).getTime();
-						const timeDiffMins = Math.abs(arrivalMs - rtTimeMs) / 60000;
-						const sameTrack =
-							(dep.track === 'Uptown' && rtTrip.track === 'Uptown') ||
-							(dep.track === 'Downtown' && rtTrip.track === 'Downtown');
-						if (sameTrack && timeDiffMins <= 7) {
-							return false;
-						}
-					}
-				}
-
-				return true;
-			});
+			const filteredDepartures = suppressGhostSchedules(departures);
 
 			return {
 				data: filteredDepartures.sort(
