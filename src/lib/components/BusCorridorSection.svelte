@@ -147,7 +147,8 @@ let octagonSouth = $derived(
 			{#if nextDep}
 				{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
 				{@const pill = resolveHeroStatusPill(nextDep, accentColor)}
-				{@const subDetails = nextDep.vehicleId ? `Bus #${nextDep.vehicleId}${nextDep.nextStopName ? ` • (${nextDep.nextStopName})` : ''}` : undefined}
+				{@const cleanNextStop = nextDep.nextStopName && !/approaching|at stop|at_stop/i.test(nextDep.nextStopName) ? ` • ${nextDep.nextStopName}` : ''}
+				{@const subDetails = nextDep.vehicleId ? `Bus #${nextDep.vehicleId}${cleanNextStop}` : undefined}
 
 				<div class="p-3.5 rounded-xl border space-y-2 relative overflow-hidden shadow-2xs {styles.heroContainer}">
 					<!-- Top Row: Standardized Status Pill (Left) & Relative Countdown (Right) -->
