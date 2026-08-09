@@ -13,13 +13,14 @@ export const MTA_BDFM_FEED_URL =
 	'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm';
 export const MTA_STATIC_GTFS_URL =
 	'https://web.mta.info/developers/data/nyct/subway/google_transit.zip';
+export const SUBWAY_ACTIVE_HORIZON_MINUTES = 30;
 
 /**
  * LiveSubwayProvider
  *
  * Hybrid GTFS engine that combines static MTA Subway schedules (stop ID B06)
  * with live real-time GTFS-RT Protobuf updates from MTA BDFM feed.
- * Dynamically preserves F Train vs M Train route IDs and names.
+ * Features Smart Active Horizon Suppression (30m) to eliminate ghost timetable entries.
  */
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
@@ -204,8 +205,37 @@ export class LiveSubwayProvider implements TransitProvider {
 				});
 			}
 
+			// 5. Smart Active Horizon & Proximity Shift Suppression Engine
+			const filteredDepartures = departures.filter((dep) => {
+				if (dep.isRealtime) return true; // Always keep live tracked departures
+
+				if (liveUpdates.size > 0) {
+					const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
+					const diffMins = (arrivalMs - now.getTime()) / 60000;
+
+					// Suppress un-tracked static entries arriving within the active 30-minute horizon
+					if (diffMins <= SUBWAY_ACTIVE_HORIZON_MINUTES) {
+						return false;
+					}
+
+					// Proximity suppression: suppress static entry if a live RT trip exists within ±7 mins on the same track
+					for (const rtTrip of liveUpdates.values()) {
+						const rtTimeMs = new Date(rtTrip.time).getTime();
+						const timeDiffMins = Math.abs(arrivalMs - rtTimeMs) / 60000;
+						const sameTrack =
+							(dep.track === 'Uptown' && rtTrip.track === 'Uptown') ||
+							(dep.track === 'Downtown' && rtTrip.track === 'Downtown');
+						if (sameTrack && timeDiffMins <= 7) {
+							return false;
+						}
+					}
+				}
+
+				return true;
+			});
+
 			return {
-				data: departures.sort(
+				data: filteredDepartures.sort(
 					(a, b) =>
 						new Date(a.predictedTime || a.scheduledTime).getTime() -
 						new Date(b.predictedTime || b.scheduledTime).getTime(),
