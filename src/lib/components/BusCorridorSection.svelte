@@ -121,8 +121,10 @@ let octagonSouth = $derived(
 </script>
 
 {#snippet stopNode(nodeTitle: string, departures: TransitDeparture[], emptyMsg: string)}
-	{@const nextDep = departures[0] as BusDeparture | undefined}
-	{@const followUps = departures.slice(1, 5)}
+	{@const liveHeroIndex = departures.findIndex((d) => d.isRealtime)}
+	{@const heroIndex = liveHeroIndex !== -1 && liveHeroIndex <= 2 ? liveHeroIndex : 0}
+	{@const nextDep = departures[heroIndex] as BusDeparture | undefined}
+	{@const followUps = departures.filter((_, idx) => idx !== heroIndex).slice(0, 4)}
 
 	<div class="space-y-2.5">
 		{#if nodeTitle}

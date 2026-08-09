@@ -46,7 +46,10 @@ let {
 			{transitSettings.isLoading ? 'Loading live departures...' : emptyMessage}
 		</div>
 	{:else}
-		{@const heroDep = departures[0]}
+		{@const liveHeroIndex = departures.findIndex((d) => d.isRealtime)}
+		{@const heroIndex = liveHeroIndex !== -1 && liveHeroIndex <= 2 ? liveHeroIndex : 0}
+		{@const heroDep = departures[heroIndex]}
+		{@const timetableDeps = departures.filter((_, idx) => idx !== heroIndex).slice(0, maxTimetableItems ?? 5)}
 		<HeroDepartureCard
 			departure={heroDep}
 			{accentColor}
@@ -56,9 +59,9 @@ let {
 			subDetails={subDetailsFn ? subDetailsFn(heroDep) : undefined}
 		/>
 
-		{#if departures.length > 1}
+		{#if timetableDeps.length > 0}
 			<TimetableList
-				departures={maxTimetableItems ? departures.slice(1, maxTimetableItems + 1) : departures.slice(1)}
+				departures={timetableDeps}
 				{accentColor}
 				{badgeTextFn}
 			/>
