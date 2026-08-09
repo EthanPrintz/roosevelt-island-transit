@@ -7,14 +7,24 @@ import { formatRelativeTime } from '$lib/utils/time-format';
 interface Props {
 	departure: TransitDeparture;
 	accentColor: 'orange' | 'rose' | 'cyan' | 'blue';
-	badgeText?: string;
-	badgeIcon?: any;
-	badgeClass?: string;
+	statusText: string;
+	statusIcon?: any;
+	statusClass?: string;
+	lineBadgeText?: string;
+	lineBadgeClass?: string;
 	secondaryDetails?: string;
 }
 
-let { departure, accentColor, badgeText, badgeIcon, badgeClass, secondaryDetails }: Props =
-	$props();
+let {
+	departure,
+	accentColor,
+	statusText,
+	statusIcon,
+	statusClass,
+	lineBadgeText,
+	lineBadgeClass,
+	secondaryDetails,
+}: Props = $props();
 
 const accentStyles = {
 	orange: {
@@ -59,17 +69,15 @@ let relativeLabel = $derived(
 </script>
 
 <div class="p-3 rounded-xl border space-y-1.5 relative overflow-hidden shadow-xs {styles.container}">
-	<!-- Top Bar: Status Badges + Relative Countdown -->
+	<!-- Top Bar: Standardized Status Pill (Top-Left) + Relative Countdown (Top-Right) -->
 	<div class="flex items-center justify-between text-xs">
 		<div class="flex items-center gap-1.5 flex-wrap">
-			{#if badgeText}
-				<span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[9px] font-bold uppercase {badgeClass || styles.badgeDefault}">
-					{#if badgeIcon}
-						<HugeiconsIcon icon={badgeIcon} size={10} />
-					{/if}
-					<span>{badgeText}</span>
-				</span>
-			{/if}
+			<span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[9px] font-bold uppercase {statusClass || styles.badgeDefault}">
+				{#if statusIcon}
+					<HugeiconsIcon icon={statusIcon} size={10} />
+				{/if}
+				<span>{statusText}</span>
+			</span>
 
 			{#if departure.scheduleRelationship === 'ADDED'}
 				<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono text-[9px] uppercase font-bold">
@@ -89,11 +97,16 @@ let relativeLabel = $derived(
 		</span>
 	</div>
 
-	<!-- Bottom Section: Destination / Subtitle + Clock Time -->
+	<!-- Bottom Section: Line Badge + Destination Title + Secondary Details | Clock Time -->
 	<div class="flex items-baseline justify-between pt-0.5 gap-2">
 		<div class="min-w-0 flex-1">
-			<div class="text-sm font-extrabold text-text-main leading-tight truncate">
-				{departure.headsign}
+			<div class="text-sm font-extrabold text-text-main leading-tight truncate flex items-center gap-1.5">
+				{#if lineBadgeText}
+					<span class={lineBadgeClass || 'bullet-subway text-[9px] shrink-0'}>
+						{lineBadgeText}
+					</span>
+				{/if}
+				<span class="truncate">{departure.headsign}</span>
 			</div>
 			{#if secondaryDetails}
 				<div class="text-[10px] text-text-muted mt-0.5 font-mono truncate">

@@ -234,7 +234,9 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<HeroDepartureCard
 						departure={manhattanSubways[0]}
 						accentColor="orange"
-						badgeText={manhattanSubways[0].routeId}
+						statusText={manhattanSubways[0].isRealtime ? 'Live RT' : 'Scheduled'}
+						statusIcon={manhattanSubways[0].isRealtime ? FlashIcon : undefined}
+						lineBadgeText={manhattanSubways[0].routeId}
 						secondaryDetails={manhattanSubways[0].originStartTime ? `Dispatched: ${manhattanSubways[0].originStartTime}` : undefined}
 					/>
 
@@ -262,7 +264,9 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<HeroDepartureCard
 						departure={queensSubways[0]}
 						accentColor="orange"
-						badgeText={queensSubways[0].routeId}
+						statusText={queensSubways[0].isRealtime ? 'Live RT' : 'Scheduled'}
+						statusIcon={queensSubways[0].isRealtime ? FlashIcon : undefined}
+						lineBadgeText={queensSubways[0].routeId}
 						secondaryDetails={queensSubways[0].originStartTime ? `Dispatched: ${queensSubways[0].originStartTime}` : undefined}
 					/>
 
@@ -302,9 +306,10 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<HeroDepartureCard
 						departure={manhattanTrams[0]}
 						accentColor="rose"
-						badgeText={(manhattanTrams[0] as any).cabin || 'Tram Cabin'}
-						badgeClass="bg-rose-500/10 text-rose-500 font-mono text-[10px] font-bold"
-						secondaryDetails={(manhattanTrams[0] as any).isBoarding ? 'Boarding at Roosevelt Island Terminal' : 'Manhattan Direct'}
+						statusText={(manhattanTrams[0] as any).isBoarding ? 'Boarding' : 'In Transit'}
+						statusClass={(manhattanTrams[0] as any).isBoarding ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20'}
+						lineBadgeText={(manhattanTrams[0] as any).cabin || 'Tram'}
+						lineBadgeClass="px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-500 font-mono text-[9px] font-bold shrink-0"
 					/>
 
 					{#if manhattanTrams.length > 1}
@@ -330,9 +335,10 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<HeroDepartureCard
 						departure={islandTrams[0]}
 						accentColor="rose"
-						badgeText={(islandTrams[0] as any).cabin || 'Tram Cabin'}
-						badgeClass="bg-rose-500/10 text-rose-500 font-mono text-[10px] font-bold"
-						secondaryDetails={(islandTrams[0] as any).isBoarding ? 'Boarding at Manhattan 59th St' : 'Island Direct'}
+						statusText={(islandTrams[0] as any).isBoarding ? 'Boarding' : 'In Transit'}
+						statusClass={(islandTrams[0] as any).isBoarding ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20'}
+						lineBadgeText={(islandTrams[0] as any).cabin || 'Tram'}
+						lineBadgeClass="px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-500 font-mono text-[9px] font-bold shrink-0"
 					/>
 
 					{#if islandTrams.length > 1}
@@ -375,9 +381,9 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<HeroDepartureCard
 						departure={nextFerry}
 						accentColor="cyan"
-						badgeText={ferryBadge.label}
-						badgeIcon={ferryBadge.icon}
-						badgeClass={ferryBadge.class}
+						statusText={ferryBadge.label}
+						statusIcon={ferryBadge.icon}
+						statusClass={ferryBadge.class}
 						secondaryDetails={nextFerry.vesselName ? (nextFerry.speedKnots ? `${nextFerry.vesselName} • ${nextFerry.speedKnots} kts` : nextFerry.vesselName) : undefined}
 					/>
 
@@ -409,9 +415,9 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<HeroDepartureCard
 						departure={nextFerry}
 						accentColor="cyan"
-						badgeText={ferryBadge.label}
-						badgeIcon={ferryBadge.icon}
-						badgeClass={ferryBadge.class}
+						statusText={ferryBadge.label}
+						statusIcon={ferryBadge.icon}
+						statusClass={ferryBadge.class}
 						secondaryDetails={nextFerry.vesselName ? (nextFerry.speedKnots ? `${nextFerry.vesselName} • ${nextFerry.speedKnots} kts` : nextFerry.vesselName) : undefined}
 					/>
 
