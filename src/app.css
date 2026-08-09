@@ -19,10 +19,10 @@
 	--color-neutral-900: oklch(0.21 0.006 285.885);
 	--color-neutral-950: oklch(0.14 0.004 285.823);
 
-	/* Mode Specific Accent Tokens */
 	--color-subway: oklch(0.65 0.22 41.5);
-	--color-ferry: oklch(0.65 0.17 235);
-	--color-bike: oklch(0.52 0.22 260);
+	--color-tram: oklch(0.6 0.22 15);
+	--color-ferry: oklch(0.68 0.17 200);
+	--color-bike: oklch(0.48 0.24 275);
 
 	/* Semantic tokens */
 	--color-bg-base: var(--bg-base);

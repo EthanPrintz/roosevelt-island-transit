@@ -554,7 +554,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<div class="space-y-2.5">
 		<div class="flex items-center justify-between">
 			<h2 class="section-title">
-				<HugeiconsIcon icon={FerryBoatIcon} size={15} class="text-sky-500" />
+				<HugeiconsIcon icon={FerryBoatIcon} size={15} class="text-cyan-500" />
 				<span>Ferry</span>
 			</h2>
 		</div>
@@ -587,11 +587,11 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				{:else}
 					<!-- HERO CARD: Next Southbound Ferry -->
 					{@const nextFerry = southboundFerries[0]}
-					<div class="p-3 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
+					<div class="p-3 rounded-xl bg-linear-to-br from-cyan-500/10 via-bg-surface to-bg-surface border border-cyan-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
 							<div class="flex items-center gap-1.5">
 								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono text-[9px] uppercase font-bold">
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-[9px] uppercase font-bold">
 										<HugeiconsIcon icon={AnchorIcon} size={10} />
 										<span>Docked</span>
 									</span>
@@ -601,13 +601,13 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 										<span>Approaching</span>
 									</span>
 								{:else if nextFerry.vesselStatus === 'IN_TRANSIT_TO'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono text-[9px] uppercase font-bold">
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-[9px] uppercase font-bold">
 										<HugeiconsIcon icon={BoatIcon} size={10} />
 										<span>En Route</span>
 									</span>
 								{/if}
 							</div>
-							<span class="font-mono text-xs font-bold text-sky-600 dark:text-sky-400">
+							<span class="font-mono text-xs font-bold text-cyan-600 dark:text-cyan-400">
 								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
 							</span>
 						</div>
@@ -620,7 +620,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 											<span>{nextFerry.vesselName}</span>
 										{/if}
 										{#if nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0}
-											<span>• <strong class="text-sky-600 dark:text-sky-400">{nextFerry.speedKnots} kts</strong></span>
+											<span>• <strong class="text-cyan-600 dark:text-cyan-400">{nextFerry.speedKnots} kts</strong></span>
 										{/if}
 									</div>
 								{/if}
@@ -630,7 +630,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextFerry.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-sky-500">
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-cyan-500">
 										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
@@ -659,7 +659,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 										</span>
 										{#if ferry.isRealtime}
 											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-sky-500" />
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-cyan-500" />
 											</span>
 										{/if}
 									</div>
@@ -683,11 +683,11 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				{:else}
 					<!-- HERO CARD: Next Northbound Ferry -->
 					{@const nextFerry = northboundFerries[0]}
-					<div class="p-3 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
+					<div class="p-3 rounded-xl bg-linear-to-br from-cyan-500/10 via-bg-surface to-bg-surface border border-cyan-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
 							<div class="flex items-center gap-1.5">
 								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono text-[9px] uppercase font-bold">
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-[9px] uppercase font-bold">
 										<HugeiconsIcon icon={AnchorIcon} size={10} />
 										<span>Docked</span>
 									</span>
@@ -697,13 +697,13 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 										<span>Approaching</span>
 									</span>
 								{:else if nextFerry.vesselStatus === 'IN_TRANSIT_TO'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono text-[9px] uppercase font-bold">
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-[9px] uppercase font-bold">
 										<HugeiconsIcon icon={BoatIcon} size={10} />
 										<span>En Route</span>
 									</span>
 								{/if}
 							</div>
-							<span class="font-mono text-xs font-bold text-sky-600 dark:text-sky-400">
+							<span class="font-mono text-xs font-bold text-cyan-600 dark:text-cyan-400">
 								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
 							</span>
 						</div>
@@ -716,7 +716,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 											<span>{nextFerry.vesselName}</span>
 										{/if}
 										{#if nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0}
-											<span>• <strong class="text-sky-600 dark:text-sky-400">{nextFerry.speedKnots} kts</strong></span>
+											<span>• <strong class="text-cyan-600 dark:text-cyan-400">{nextFerry.speedKnots} kts</strong></span>
 										{/if}
 									</div>
 								{/if}
@@ -726,7 +726,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextFerry.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-sky-500">
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-cyan-500">
 										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
@@ -755,7 +755,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 										</span>
 										{#if ferry.isRealtime}
 											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-sky-500" />
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-cyan-500" />
 											</span>
 										{/if}
 									</div>
@@ -772,20 +772,20 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<div class="space-y-2.5">
 		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
 			<h2 class="section-title">
-				<HugeiconsIcon icon={Bicycle01Icon} size={15} class="text-blue-600 dark:text-blue-400" />
+				<HugeiconsIcon icon={Bicycle01Icon} size={15} class="text-indigo-600 dark:text-indigo-400" />
 				<span>Citi Bike</span>
 			</h2>
 
 			<!-- Legend Bar -->
 			<div class="flex flex-wrap items-center gap-3 text-[10px] font-medium text-text-muted bg-bg-surface px-3 py-1 rounded-xl border border-border-default shadow-2xs">
 				<div class="flex items-center gap-1.5">
-					<span class="w-3 h-3 rounded bg-sky-500 flex items-center justify-center text-white shadow-2xs">
+					<span class="w-3 h-3 rounded bg-cyan-500 flex items-center justify-center text-white shadow-2xs">
 						<HugeiconsIcon icon={FlashIcon} size={8} />
 					</span>
 					<span>E-Bike ({totalEbikes})</span>
 				</div>
 				<div class="flex items-center gap-1.5">
-					<span class="w-3 h-3 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs">
+					<span class="w-3 h-3 rounded bg-indigo-600 text-white flex items-center justify-center shadow-2xs">
 						<HugeiconsIcon icon={Bicycle01Icon} size={8} />
 					</span>
 					<span>Classic ({totalClassicBikes})</span>
@@ -835,8 +835,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 								<div>
 									<h3 class="font-bold text-xs text-text-main leading-tight">{station.name}</h3>
 									<div class="text-[11px] text-text-muted mt-0.5 flex flex-wrap items-center gap-1.5">
-										<strong class="text-blue-600 dark:text-blue-400 font-mono font-bold">{station.bikesAvailable.total} bikes</strong>
-										<span class="inline-flex items-center gap-0.5 font-mono text-sky-600 dark:text-sky-400">
+										<strong class="text-indigo-600 dark:text-indigo-400 font-mono font-bold">{station.bikesAvailable.total} bikes</strong>
+										<span class="inline-flex items-center gap-0.5 font-mono text-cyan-600 dark:text-cyan-400">
 											<HugeiconsIcon icon={FlashIcon} size={11} />
 											<span>{station.bikesAvailable.ebike}</span>
 										</span>
@@ -856,7 +856,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 									{#each slots as slot, i}
 										{#if slot === 'ebike'}
 											<div
-												class="w-3.5 h-3.5 rounded bg-sky-500 flex items-center justify-center text-white shadow-2xs"
+												class="w-3.5 h-3.5 rounded bg-cyan-500 flex items-center justify-center text-white shadow-2xs"
 												title="Slot #{i + 1}: E-Bike"
 											>
 												<HugeiconsIcon icon={FlashIcon} size={9} />
