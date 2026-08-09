@@ -15,7 +15,9 @@ import {
 	Wrench01Icon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
+import BikeStationCard from '$lib/components/BikeStationCard.svelte';
 import DirectionHeader from '$lib/components/DirectionHeader.svelte';
+import ModeSectionHeader from '$lib/components/ModeSectionHeader.svelte';
 import SegmentedControl from '$lib/components/SegmentedControl.svelte';
 import type { SegmentOption } from '$lib/components/segmented-control.types';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
@@ -174,35 +176,18 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 	<!-- Section: Subway -->
 	<div class="space-y-2.5">
-		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-			<h2 class="section-title">
-				<HugeiconsIcon icon={Train01Icon} size={15} class="text-orange-500" />
-				<span>Subway</span>
-			</h2>
-
-			<!-- Lookahead Hour Selector -->
-			<div class="shrink-0">
-				<SegmentedControl
-					options={windowOptions}
-					value={transitSettings.selectedWindow}
-					onSelect={(val) => transitSettings.setWindow(val)}
-				/>
-			</div>
-		</div>
-
-		{#if subwayAlerts.length > 0}
-			<div class="space-y-2">
-				{#each subwayAlerts as alert (alert.id)}
-					<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
-						<HugeiconsIcon icon={Alert02Icon} size={16} class="shrink-0 mt-0.5" />
-						<div class="space-y-0.5">
-							<strong class="font-bold text-text-main">{alert.title}</strong>
-							<p class="text-text-muted text-[11px] leading-relaxed">{alert.description}</p>
-						</div>
-					</div>
-				{/each}
-			</div>
-		{/if}
+		<ModeSectionHeader
+			title="MTA Subway"
+			icon={Train01Icon}
+			iconBgClass="bg-orange-500/10 text-orange-500"
+			alerts={subwayAlerts}
+		>
+			<SegmentedControl
+				options={windowOptions}
+				value={transitSettings.selectedWindow}
+				onSelect={(val) => transitSettings.setWindow(val)}
+			/>
+		</ModeSectionHeader>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Manhattan-Bound Column -->
@@ -405,30 +390,14 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 	<!-- Section: Tramway -->
 	<div class="space-y-2.5">
-		<div class="flex items-center justify-between">
-			<h2 class="section-title">
-				<HugeiconsIcon icon={CableCarIcon} size={15} class="text-rose-500" />
-				<span>Tramway</span>
-			</h2>
-			<div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-[10px] font-mono font-bold text-rose-500">
-				<span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-				<span>{tramStatus.label}</span>
-			</div>
-		</div>
-
-		{#if tramAlerts.length > 0}
-			<div class="space-y-2">
-				{#each tramAlerts as alert (alert.id)}
-					<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
-						<HugeiconsIcon icon={Alert02Icon} size={16} class="shrink-0 mt-0.5" />
-						<div class="space-y-0.5">
-							<strong class="font-bold text-text-main">{alert.title}</strong>
-							<p class="text-text-muted text-[11px] leading-relaxed">{alert.description}</p>
-						</div>
-					</div>
-				{/each}
-			</div>
-		{/if}
+		<ModeSectionHeader
+			title="RI Tramway"
+			icon={CableCarIcon}
+			iconBgClass="bg-rose-500/10 text-rose-500"
+			badgeText={tramStatus.label}
+			badgeClass="bg-rose-500/10 text-rose-500 border-rose-500/20"
+			alerts={tramAlerts}
+		/>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 			<!-- Direction: Manhattan-Bound (59th St) -->
@@ -555,26 +524,12 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 	<!-- Section: Ferry -->
 	<div class="space-y-2.5">
-		<div class="flex items-center justify-between">
-			<h2 class="section-title">
-				<HugeiconsIcon icon={FerryBoatIcon} size={15} class="text-cyan-500" />
-				<span>Ferry</span>
-			</h2>
-		</div>
-
-		{#if ferryAlerts.length > 0}
-			<div class="space-y-2">
-				{#each ferryAlerts as alert (alert.id)}
-					<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
-						<HugeiconsIcon icon={Alert02Icon} size={16} class="shrink-0 mt-0.5" />
-						<div class="space-y-0.5">
-							<strong class="font-bold text-text-main">{alert.title}</strong>
-							<p class="text-text-muted text-[11px] leading-relaxed">{alert.description}</p>
-						</div>
-					</div>
-				{/each}
-			</div>
-		{/if}
+		<ModeSectionHeader
+			title="NYC Ferry"
+			icon={FerryBoatIcon}
+			iconBgClass="bg-cyan-500/10 text-cyan-500"
+			alerts={ferryAlerts}
+		/>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Southbound Column -->
@@ -775,22 +730,22 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 	<!-- Section: Citi Bike -->
 	<div class="space-y-2.5">
-		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-			<h2 class="section-title">
-				<HugeiconsIcon icon={Bicycle01Icon} size={15} class="text-blue-600 dark:text-blue-400" />
-				<span>Citi Bike</span>
-			</h2>
-
+		<ModeSectionHeader
+			title="Citi Bike"
+			icon={Bicycle01Icon}
+			iconBgClass="bg-blue-600/10 text-blue-600 dark:text-blue-400"
+			alerts={citibikeAlerts}
+		>
 			<!-- Legend Bar -->
 			<div class="flex flex-wrap items-center gap-3 text-[10px] font-medium text-text-muted bg-bg-surface px-3 py-1 rounded-xl border border-border-default shadow-2xs">
 				<div class="flex items-center gap-1.5">
-					<span class="w-3 h-3 rounded bg-cyan-500 flex items-center justify-center text-white shadow-2xs">
+					<span class="w-3 h-3 rounded bg-blue-600 text-white flex items-center justify-center shadow-2xs">
 						<HugeiconsIcon icon={FlashIcon} size={8} />
 					</span>
 					<span>E-Bike ({totalEbikes})</span>
 				</div>
 				<div class="flex items-center gap-1.5">
-					<span class="w-3 h-3 rounded bg-blue-600 text-white flex items-center justify-center shadow-2xs">
+					<span class="w-3 h-3 rounded bg-text-main text-bg-base flex items-center justify-center shadow-2xs">
 						<HugeiconsIcon icon={Bicycle01Icon} size={8} />
 					</span>
 					<span>Classic ({totalClassicBikes})</span>
@@ -810,21 +765,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<span>Open Dock ({totalOpenDocks})</span>
 				</div>
 			</div>
-		</div>
-
-		{#if citibikeAlerts.length > 0}
-			<div class="space-y-2">
-				{#each citibikeAlerts as alert (alert.id)}
-					<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
-						<HugeiconsIcon icon={Alert02Icon} size={16} class="shrink-0 mt-0.5" />
-						<div class="space-y-0.5">
-							<strong class="font-bold text-text-main">{alert.title}</strong>
-							<p class="text-text-muted text-[11px] leading-relaxed">{alert.description}</p>
-						</div>
-					</div>
-				{/each}
-			</div>
-		{/if}
+		</ModeSectionHeader>
 
 		{#if stations.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
@@ -833,73 +774,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		{:else}
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 				{#each stations as station (station.id)}
-					{@const slots = generateDockSlots(station)}
-					<div class="panel-card flex flex-col justify-between">
-						<div>
-							<div class="flex items-start justify-between gap-2">
-								<div>
-									<h3 class="font-bold text-xs text-text-main leading-tight">{station.name}</h3>
-									<div class="text-[11px] text-text-muted mt-0.5 flex flex-wrap items-center gap-1.5">
-										<strong class="text-blue-600 dark:text-blue-400 font-mono font-bold">{station.bikesAvailable.total} bikes</strong>
-										<span class="inline-flex items-center gap-0.5 font-mono text-cyan-600 dark:text-cyan-400">
-											<HugeiconsIcon icon={FlashIcon} size={11} />
-											<span>{station.bikesAvailable.ebike}</span>
-										</span>
-										<span class="inline-flex items-center gap-0.5 font-mono text-text-main">
-											<HugeiconsIcon icon={Bicycle01Icon} size={11} />
-											<span>{station.bikesAvailable.classic}</span>
-										</span>
-										<span>•</span>
-										<strong class="text-text-main font-mono">{station.docksAvailable} docks</strong>
-									</div>
-								</div>
-							</div>
-
-							<!-- Visual Dock Slot Grid -->
-							<div class="mt-2.5 pt-2.5 border-t border-border-subtle/80">
-								<div class="flex flex-wrap gap-1">
-									{#each slots as slot, i}
-										{#if slot === 'ebike'}
-											<div
-												class="w-3.5 h-3.5 rounded bg-cyan-500 flex items-center justify-center text-white shadow-2xs"
-												title="Slot #{i + 1}: E-Bike"
-											>
-												<HugeiconsIcon icon={FlashIcon} size={9} />
-											</div>
-										{:else if slot === 'classic'}
-											<div
-												class="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs"
-												title="Slot #{i + 1}: Classic Bike"
-											>
-												<HugeiconsIcon icon={Bicycle01Icon} size={9} />
-											</div>
-										{:else if slot === 'broken_bike'}
-											<div
-												class="w-3.5 h-3.5 rounded bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 shadow-2xs"
-												title="Slot #{i + 1}: Broken Bike"
-											>
-												<HugeiconsIcon icon={Wrench01Icon} size={8} />
-											</div>
-										{:else if slot === 'disabled_dock'}
-											<div
-												class="w-3.5 h-3.5 rounded bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-500"
-												title="Slot #{i + 1}: Disabled Dock"
-											>
-												<HugeiconsIcon icon={AlertCircleIcon} size={8} />
-											</div>
-										{:else}
-											<div
-												class="w-3.5 h-3.5 rounded bg-bg-elevated/60 border border-border-default/80 flex items-center justify-center text-text-muted/40"
-												title="Slot #{i + 1}: Open Dock"
-											>
-												<HugeiconsIcon icon={SquareIcon} size={7} />
-											</div>
-										{/if}
-									{/each}
-								</div>
-							</div>
-						</div>
-					</div>
+					<BikeStationCard {station} />
 				{/each}
 			</div>
 		{/if}
