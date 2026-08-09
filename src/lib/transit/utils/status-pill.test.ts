@@ -1,9 +1,9 @@
 import {
 	AnchorIcon,
 	ArrowRightToLineIcon,
+	CheckmarkCircle01Icon,
 	Clock01Icon,
-	LiveStreaming02Icon,
-	SquareArrowRightIcon,
+	FlashIcon,
 } from '@hugeicons/core-free-icons';
 import { describe, expect, it } from 'vitest';
 import type { FerryDeparture, TramDeparture, TransitDeparture } from '../domain/types';
@@ -29,7 +29,7 @@ describe('resolveHeroStatusPill', () => {
 
 		const result = resolveHeroStatusPill(tram, 'rose');
 		expect(result.label).toBe('Boarding');
-		expect(result.icon).toBe(SquareArrowRightIcon);
+		expect(result.icon).toBe(CheckmarkCircle01Icon);
 		expect(result.pillClass).toContain('bg-rose-500/15');
 	});
 
@@ -95,7 +95,7 @@ describe('resolveHeroStatusPill', () => {
 
 		const result = resolveHeroStatusPill(bus, 'blue');
 		expect(result.label).toBe('Live');
-		expect(result.icon).toBe(LiveStreaming02Icon);
+		expect(result.icon).toBe(FlashIcon);
 		expect(result.pillClass).toContain('bg-blue-500/15');
 	});
 
