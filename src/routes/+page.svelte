@@ -1,5 +1,5 @@
 <script lang="ts">
-import { CableCarIcon, FerryBoatIcon, FlashIcon, Train01Icon } from '@hugeicons/core-free-icons';
+import { CableCarIcon, FerryBoatIcon, Train01Icon } from '@hugeicons/core-free-icons';
 import BusCorridorSection from '$lib/components/BusCorridorSection.svelte';
 import CitiBikeSection from '$lib/components/CitiBikeSection.svelte';
 import ModeSectionHeader from '$lib/components/ModeSectionHeader.svelte';
