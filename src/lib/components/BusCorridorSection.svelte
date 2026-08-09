@@ -204,8 +204,8 @@ let octagonSouth = $derived(
 									<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
 								{/if}
 
-								<span class="font-mono font-extrabold text-text-main text-[11px]">{relTime}</span>
-								<span class="font-mono text-[10px] text-text-muted">{absTime}</span>
+								<span class="font-mono text-text-muted text-[10px]">{relTime} •</span>
+								<span class="font-mono font-extrabold text-text-main text-[11px]">{absTime}</span>
 
 								{#if b.vehicleId}
 									<span class="px-1 py-0.2 rounded bg-bg-surface text-[9px] font-mono font-bold text-text-muted border border-border-default/70 shrink-0">
