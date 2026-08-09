@@ -58,7 +58,7 @@ export function resolveHeroStatusPill(
 			}
 			if (f.speedKnots > 10) {
 				return {
-					label: 'En Route',
+					label: 'Live',
 					icon: FlashIcon,
 					pillClass: defaultClass,
 				};
@@ -85,7 +85,7 @@ export function resolveHeroStatusPill(
 		}
 
 		return {
-			label: 'En Route',
+			label: 'Live',
 			icon: FlashIcon,
 			pillClass: defaultClass,
 		};

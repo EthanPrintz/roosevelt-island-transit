@@ -72,7 +72,7 @@ describe('resolveHeroStatusPill', () => {
 		};
 
 		const result = resolveHeroStatusPill(bus, 'blue');
-		expect(result.label).toBe('En Route');
+		expect(result.label).toBe('Live');
 		expect(result.icon).toBe(FlashIcon);
 		expect(result.pillClass).toContain('bg-blue-500/15');
 	});
