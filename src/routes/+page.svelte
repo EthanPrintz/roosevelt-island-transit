@@ -62,6 +62,35 @@ function getRelativeTimeLabel(isoString: string): string {
 	return `In ${mins} mins`;
 }
 
+type DockSlotType = 'ebike' | 'classic' | 'empty' | 'disabled';
+
+function generateDockSlots(station: BikeStation): DockSlotType[] {
+	const slots: DockSlotType[] = [];
+
+	const ebikeCount = station.bikesAvailable.ebike || 0;
+	for (let i = 0; i < ebikeCount; i++) {
+		slots.push('ebike');
+	}
+
+	const classicCount = station.bikesAvailable.classic || 0;
+	for (let i = 0; i < classicCount; i++) {
+		slots.push('classic');
+	}
+
+	const disabledDocks = station.disabledDocks || 0;
+	for (let i = 0; i < disabledDocks; i++) {
+		slots.push('disabled');
+	}
+
+	const totalCapacity = Math.max(station.capacity, slots.length);
+	const remaining = Math.max(0, totalCapacity - slots.length);
+	for (let i = 0; i < remaining; i++) {
+		slots.push('empty');
+	}
+
+	return slots;
+}
+
 let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
 let manhattanSubways = $derived(subwayDepartures.filter((d) => d.direction === 'manhattan_bound'));
 let queensSubways = $derived(subwayDepartures.filter((d) => d.direction === 'queens_bound'));
@@ -69,6 +98,12 @@ let queensSubways = $derived(subwayDepartures.filter((d) => d.direction === 'que
 let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 let southboundFerries = $derived(ferryDepartures.filter((d) => d.direction === 'southbound'));
 let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === 'northbound'));
+
+let totalEbikes = $derived(stations.reduce((sum, s) => sum + (s.bikesAvailable.ebike || 0), 0));
+let totalClassicBikes = $derived(
+	stations.reduce((sum, s) => sum + (s.bikesAvailable.classic || 0), 0),
+);
+let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailable || 0), 0));
 </script>
 
 <svelte:head>
@@ -559,38 +594,97 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 		</div>
 	</div>
 
-	<!-- Dedicated Section: 🚲 Citi Bike Docks -->
-	<div class="space-y-2">
-		<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
-			<span>🚲</span>
-			Citi Bike Docks — {stations.length} Active Stations
-		</h2>
+	<!-- Dedicated Section: 🚲 Citi Bike Visual Dock-Grid Matrix -->
+	<div class="space-y-3">
+		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
+				<span>🚲</span>
+				Citi Bike Docks — Visual Matrix ({stations.length} Active Stations)
+			</h2>
+
+			<!-- Legend Bar -->
+			<div class="flex flex-wrap items-center gap-3 text-[10px] font-medium text-text-muted bg-bg-surface px-3 py-1.5 rounded-xl border border-border-default shadow-2xs">
+				<div class="flex items-center gap-1.5">
+					<span class="w-3 h-3 rounded bg-sky-500 flex items-center justify-center text-[8px] font-black text-white shadow-2xs">⚡</span>
+					<span>E-Bike ({totalEbikes})</span>
+				</div>
+				<div class="flex items-center gap-1.5">
+					<span class="w-3 h-3 rounded bg-primary shadow-2xs"></span>
+					<span>Classic Bike ({totalClassicBikes})</span>
+				</div>
+				<div class="flex items-center gap-1.5">
+					<span class="w-3 h-3 rounded bg-bg-elevated/60 border border-border-default"></span>
+					<span>Open Dock ({totalOpenDocks})</span>
+				</div>
+				<div class="flex items-center gap-1.5">
+					<span class="w-3 h-3 rounded bg-amber-500/20 border border-amber-500/40"></span>
+					<span>Disabled Dock</span>
+				</div>
+			</div>
+		</div>
 
 		{#if stations.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
 				{isLoading ? 'Loading GBFS stations...' : 'No Citi Bike station status available.'}
 			</div>
 		{:else}
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 				{#each stations as station (station.id)}
-					<div class="p-3.5 rounded-xl bg-bg-surface border border-border-default text-xs space-y-2">
-						<div class="flex items-center justify-between">
-							<span class="font-bold text-text-main">{station.name}</span>
-							<div class="flex items-center gap-1.5">
-								{#if station.disabledBikes || station.disabledDocks}
-									<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono font-bold text-[9px]" title="Hardware maintenance">
-										🔧 {station.disabledDocks || 0} Bad Docks
-									</span>
-								{/if}
-								<span class="px-2 py-0.5 rounded-md bg-bg-elevated font-mono font-bold text-[10px]">
+					{@const slots = generateDockSlots(station)}
+					<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3 flex flex-col justify-between">
+						<div>
+							<div class="flex items-start justify-between gap-2">
+								<div>
+									<h3 class="font-bold text-sm text-text-main leading-tight">{station.name}</h3>
+									<div class="text-[11px] text-text-muted mt-0.5">
+										<strong class="text-text-main font-mono">{station.bikesAvailable.total}</strong> bikes / <strong class="text-text-main font-mono">{station.docksAvailable}</strong> open docks
+									</div>
+								</div>
+								<span class="px-2 py-0.5 rounded-md bg-bg-elevated font-mono font-bold text-[10px] shrink-0">
 									{Math.round((station.bikesAvailable.total / station.capacity) * 100)}% Full
 								</span>
 							</div>
+
+							<!-- Visual Dock Slot Grid -->
+							<div class="mt-3.5 pt-3 border-t border-border-subtle/80">
+								<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted mb-2">
+									Dock Slot State Matrix ({slots.length} Slots)
+								</div>
+								<div class="flex flex-wrap gap-1.5">
+									{#each slots as slot, i}
+										{#if slot === 'ebike'}
+											<div
+												class="w-4 h-4 rounded bg-sky-500 flex items-center justify-center text-[9px] font-black text-white shadow-2xs"
+												title="Slot #{i + 1}: ⚡ E-Bike Available"
+											>
+												⚡
+											</div>
+										{:else if slot === 'classic'}
+											<div
+												class="w-4 h-4 rounded bg-primary shadow-2xs"
+												title="Slot #{i + 1}: 🚲 Classic Bike Available"
+											></div>
+										{:else if slot === 'disabled'}
+											<div
+												class="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/40"
+												title="Slot #{i + 1}: 🔧 Disabled Hardware Slot"
+											></div>
+										{:else}
+											<div
+												class="w-4 h-4 rounded bg-bg-elevated/60 border border-border-default/80"
+												title="Slot #{i + 1}: 🅿️ Open Dock Slot"
+											></div>
+										{/if}
+									{/each}
+								</div>
+							</div>
 						</div>
-						<div class="flex items-center justify-between text-text-muted text-[11px]">
-							<span>Bikes: <strong class="text-primary font-mono">{station.bikesAvailable.total}</strong> ({station.bikesAvailable.ebike} e-bikes)</span>
-							<span>Docks: <strong class="text-text-main font-mono">{station.docksAvailable}</strong></span>
-						</div>
+
+						{#if station.disabledBikes || station.disabledDocks}
+							<div class="text-[10px] text-amber-600 dark:text-amber-400 font-mono bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+								🔧 Maintenance: {station.disabledBikes || 0} bad bikes, {station.disabledDocks || 0} bad docks
+							</div>
+						{/if}
 					</div>
 				{/each}
 			</div>
