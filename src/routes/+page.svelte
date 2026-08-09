@@ -149,7 +149,7 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 				{:else}
 					<!-- HERO CARD: Next Manhattan-Bound Train -->
 					{@const nextTrain = manhattanSubways[0]}
-					<div class="p-4 rounded-xl bg-gradient-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
+					<div class="p-4 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
 							<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
 								NEXT TRAIN
@@ -223,7 +223,7 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 				{:else}
 					<!-- HERO CARD: Next Queens-Bound Train -->
 					{@const nextTrain = queensSubways[0]}
-					<div class="p-4 rounded-xl bg-gradient-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
+					<div class="p-4 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
 							<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
 								NEXT TRAIN
@@ -309,7 +309,7 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 				{:else}
 					<!-- HERO CARD: Next Southbound Ferry -->
 					{@const nextFerry = southboundFerries[0]}
-					<div class="p-4 rounded-xl bg-gradient-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
+					<div class="p-4 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
 							<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
 								NEXT FERRY
@@ -388,7 +388,7 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 				{:else}
 					<!-- HERO CARD: Next Northbound Ferry -->
 					{@const nextFerry = northboundFerries[0]}
-					<div class="p-4 rounded-xl bg-gradient-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
+					<div class="p-4 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
 							<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
 								NEXT FERRY
