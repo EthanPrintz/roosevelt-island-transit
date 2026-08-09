@@ -4,12 +4,11 @@ import type { Snippet } from 'svelte';
 interface Props {
 	title: string;
 	subtitle?: string;
-	dotColorClass?: string;
 	badges?: Array<{ text: string; bgClass?: string }>;
 	children?: Snippet;
 }
 
-let { title, subtitle, dotColorClass, badges = [], children }: Props = $props();
+let { title, subtitle, badges = [], children }: Props = $props();
 </script>
 
 <div class="flex items-center justify-between border-b border-border-subtle/80 pb-2.5 mb-3">
@@ -20,8 +19,6 @@ let { title, subtitle, dotColorClass, badges = [], children }: Props = $props();
 					<span class={badge.bgClass || 'bullet-subway text-[9px]'}>{badge.text}</span>
 				{/each}
 			</div>
-		{:else if dotColorClass}
-			<span class="w-2 h-2 rounded-full {dotColorClass} shrink-0"></span>
 		{/if}
 
 		<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">

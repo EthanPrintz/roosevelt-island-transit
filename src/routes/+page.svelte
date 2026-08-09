@@ -444,7 +444,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<DirectionHeader
 					title="Manhattan-Bound"
 					subtitle="59th St & 2nd Ave"
-					dotColorClass="bg-rose-500"
 				/>
 
 				{#if manhattanTrams.length === 0}
@@ -483,7 +482,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							{#each manhattanTrams.slice(1, 5) as dep (dep.id)}
 								<div class="flex items-center justify-between text-xs py-1 px-2 rounded-lg hover:bg-bg-surface/50 transition-colors">
 									<div class="flex items-center gap-2">
-										<span class="w-1.5 h-1.5 rounded-full bg-rose-500/60"></span>
 										<span class="text-text-muted font-mono text-[11px]">{dep.cabin || 'Tram'}</span>
 									</div>
 									<div class="flex items-center gap-3">
@@ -506,7 +504,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<DirectionHeader
 					title="Island-Bound"
 					subtitle="Roosevelt Island Station"
-					dotColorClass="bg-rose-500"
 				/>
 
 				{#if islandTrams.length === 0}
@@ -545,7 +542,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							{#each islandTrams.slice(1, 5) as dep (dep.id)}
 								<div class="flex items-center justify-between text-xs py-1 px-2 rounded-lg hover:bg-bg-surface/50 transition-colors">
 									<div class="flex items-center gap-2">
-										<span class="w-1.5 h-1.5 rounded-full bg-rose-500/60"></span>
 										<span class="text-text-muted font-mono text-[11px]">{dep.cabin || 'Tram'}</span>
 									</div>
 									<div class="flex items-center gap-3">
@@ -594,7 +590,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<DirectionHeader
 					title="Southbound"
 					subtitle="Wall St / Pier 11"
-					dotColorClass="bg-cyan-500"
 				/>
 
 				{#if southboundFerries.length === 0}
@@ -692,7 +687,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<DirectionHeader
 					title="Northbound"
 					subtitle="East 90th St / UES"
-					dotColorClass="bg-cyan-500"
 				/>
 
 				{#if northboundFerries.length === 0}
