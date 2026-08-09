@@ -1,5 +1,5 @@
 import { env } from '$env/dynamic/private';
-import { gtfsStaticStore, type ScheduledDeparture } from '$lib/server/gtfs-static';
+import { gtfsStaticStore } from '$lib/server/gtfs-static';
 import type { DepartureOptions, ProviderCapability, TransitProvider } from '../domain/provider';
 import type {
 	BusDeparture,
@@ -11,47 +11,41 @@ import type {
 } from '../domain/types';
 import { suppressGhostSchedules } from '../utils/suppression';
 
-export const MTA_BUS_SIRI_VM_URL =
-	'https://bustime-classic.mta.info/api/siri/vehicle-monitoring.json';
-export const MTA_QUEENS_BUS_STATIC_URL = 'http://rrgtfsfeeds.s3.amazonaws.com/gtfs_busco.zip';
+const MTA_BUS_SIRI_VM_URL = 'https://bustime.mta.info/api/siri/vehicle-monitoring.json';
+const MTA_QUEENS_BUS_STATIC_URL =
+	'https://mta-gtfs-static-proxy.ethan-4df.workers.dev/?url=https://developers.mta.info/static-files/busco/google_transit_queens.zip';
 
-/**
- * LiveQ102Provider
- *
- * Hybrid transit provider for MTA Q102 Bus serving Roosevelt Island & Astoria.
- * Combines live SIRI VehicleMonitoring API queries with GTFS static Queens Bus schedules.
- * Features Dynamic Active Horizon Suppression to eliminate ghost timetable entries.
- */
 export class LiveQ102Provider implements TransitProvider {
 	readonly mode: TransitMode = 'q102_bus';
 	readonly name = 'MTA Q102 Bus';
 	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
 
 	async getDepartures(options?: DepartureOptions): Promise<ProviderResult<BusDeparture>> {
+		const windowMinutes = options?.windowMinutes ?? 120;
 		try {
-			const now = new Date();
-			const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-			const defaultWindow = Math.max(240, Math.ceil((endOfDay.getTime() - now.getTime()) / 60000));
-			const windowMinutes = options?.windowMinutes ?? defaultWindow;
 			const apiKey = env.MTA_BUS_TIME_API_KEY || '3fff4736-ddbb-443a-baab-c66a72bdc4c1';
+			const now = new Date();
 
-			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Q102 stops (450151 & 450142)
+			// 1. Fetch GTFS Static schedule baseline
 			const staticDepartures: Array<
-				ScheduledDeparture & { stopName: string; isOffIsland?: boolean }
+				import('$lib/server/gtfs-static').ScheduledDeparture & {
+					stopName: string;
+					isOffIsland?: boolean;
+				}
 			> = [];
 			try {
 				await gtfsStaticStore.loadDataset('q102_bus', MTA_QUEENS_BUS_STATIC_URL);
 
 				const stopDefs = [
 					// Coler Hospital-Bound (Direction 0)
-					{ id: '450151', name: 'Subway Plaza', isOff: false },
+					{ id: '450151', name: 'Subway / Southtown', isOff: false },
 					{ id: '450152', name: 'Octagon / Coler', isOff: false },
 					{ id: '450150', name: 'Octagon / Coler', isOff: false },
-					{ id: '450141', name: 'Southtown / Chapel', isOff: false },
+					{ id: '450141', name: 'Good Shepherd Plaza', isOff: false },
 
 					// Astoria-Bound (Direction 1)
-					{ id: '450142', name: 'Subway Plaza', isOff: false },
-					{ id: '450069', name: 'Southtown / Chapel', isOff: false },
+					{ id: '450142', name: 'Subway / Southtown', isOff: false },
+					{ id: '450069', name: 'Good Shepherd Plaza', isOff: false },
 					{ id: '450074', name: 'Octagon / Coler', isOff: false },
 				];
 
@@ -63,7 +57,11 @@ export class LiveQ102Provider implements TransitProvider {
 						windowMinutes,
 					);
 					for (const d of deps) {
-						staticDepartures.push({ ...d, stopName: def.name, isOffIsland: def.isOff });
+						staticDepartures.push({
+							...d,
+							stopName: def.name,
+							isOffIsland: def.isOff,
+						});
 					}
 				}
 			} catch (staticErr) {
@@ -89,12 +87,9 @@ export class LiveQ102Provider implements TransitProvider {
 						const journey = act?.MonitoredVehicleJourney;
 						if (!journey) continue;
 
-						const dirRef = journey.DirectionRef || '0';
-						const isAstoriaBound =
-							dirRef === '1' ||
-							String(journey.DestinationName?.[0] || '')
-								.toLowerCase()
-								.includes('astoria');
+						const isAstoriaBound = String(journey.DestinationName?.[0] || '')
+							.toLowerCase()
+							.includes('astoria');
 						const direction = isAstoriaBound ? 'queens_bound' : 'northbound';
 						const headsign = isAstoriaBound
 							? 'Astoria - 27 Ave via RI Bridge'
@@ -127,7 +122,7 @@ export class LiveQ102Provider implements TransitProvider {
 								? `${call.NumberOfStopsAway} stops away`
 								: undefined);
 
-						const liveStopName = call?.StopPointName?.[0] || 'Subway Plaza';
+						const liveStopName = call?.StopPointName?.[0] || 'Subway / Southtown';
 
 						departures.push({
 							id: `q102-live-${vehicleId || Math.random().toString(36).substring(2, 8)}`,
@@ -179,7 +174,7 @@ export class LiveQ102Provider implements TransitProvider {
 					scheduledTime: stat.scheduledTime,
 					isRealtime: false,
 					status: 'normal',
-					stopName: stat.stopName || 'Subway Plaza',
+					stopName: stat.stopName || 'Subway / Southtown',
 					stopId: stat.stopId,
 					isOffIsland: stat.isOffIsland,
 				});
@@ -224,12 +219,9 @@ export class LiveQ102Provider implements TransitProvider {
 					const journey = act?.MonitoredVehicleJourney;
 					if (!journey) continue;
 
-					const dirRef = journey.DirectionRef || '0';
-					const isAstoriaBound =
-						dirRef === '1' ||
-						String(journey.DestinationName?.[0] || '')
-							.toLowerCase()
-							.includes('astoria');
+					const isAstoriaBound = String(journey.DestinationName?.[0] || '')
+						.toLowerCase()
+						.includes('astoria');
 
 					const vehicleId = journey.VehicleRef
 						? String(journey.VehicleRef).replace('MTABC_', '')

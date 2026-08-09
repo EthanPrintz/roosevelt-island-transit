@@ -233,10 +233,10 @@ let octagonSouth = $derived(
 		<VehicleCorridorTracker {vehicles} {accentColor} />
 	{/if}
 
-	<!-- 1. Subway Plaza -->
+	<!-- 1. Subway / Southtown -->
 	<div class="panel-card p-4 space-y-3">
 		<div class="border-b border-border-default/40 pb-2">
-			<h3 class="text-sm font-black tracking-tight text-text-main">Subway Plaza</h3>
+			<h3 class="text-sm font-black tracking-tight text-text-main">Subway / Southtown</h3>
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -245,10 +245,10 @@ let octagonSouth = $derived(
 		</div>
 	</div>
 
-	<!-- 2. Southtown / Chapel -->
-	<div class="space-y-2">
-		<div class="flex items-center justify-between">
-			<h3 class="text-sm font-black tracking-tight text-text-main">Southtown / Chapel</h3>
+	<!-- 2. Good Shepherd Plaza -->
+	<div class="panel-card p-4 space-y-3">
+		<div class="border-b border-border-default/40 pb-2">
+			<h3 class="text-sm font-black tracking-tight text-text-main">Good Shepherd Plaza</h3>
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
