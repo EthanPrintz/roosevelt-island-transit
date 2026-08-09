@@ -732,8 +732,18 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							<div class="flex items-start justify-between gap-2">
 								<div>
 									<h3 class="font-bold text-sm text-text-main leading-tight">{station.name}</h3>
-									<div class="text-[11px] text-text-muted mt-0.5">
-										<strong class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{station.bikesAvailable.total} bikes</strong> ({station.bikesAvailable.ebike}⚡, {station.bikesAvailable.classic}🚲) • <strong class="text-text-main font-mono">{station.docksAvailable} docks</strong>
+									<div class="text-[11px] text-text-muted mt-0.5 flex flex-wrap items-center gap-1.5">
+										<strong class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{station.bikesAvailable.total} bikes</strong>
+										<span class="inline-flex items-center gap-0.5 font-mono text-sky-600 dark:text-sky-400">
+											<HugeiconsIcon icon={FlashIcon} size={11} />
+											<span>{station.bikesAvailable.ebike}</span>
+										</span>
+										<span class="inline-flex items-center gap-0.5 font-mono text-text-main">
+											<HugeiconsIcon icon={Bicycle01Icon} size={11} />
+											<span>{station.bikesAvailable.classic}</span>
+										</span>
+										<span>•</span>
+										<strong class="text-text-main font-mono">{station.docksAvailable} docks</strong>
 									</div>
 								</div>
 							</div>
