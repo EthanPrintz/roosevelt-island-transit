@@ -25,6 +25,7 @@ let fetchedAt = $state<string>('');
 let isLoading = $state<boolean>(true);
 let autoRefreshSeconds = $state<number>(15);
 let selectedWindow = $state<number>(240); // Default 4 hours lookahead
+let subwayRouteFilter = $state<'ALL' | 'F' | 'M'>('ALL');
 
 $effect(() => {
 	loadLiveData();
@@ -107,7 +108,11 @@ function generateDockSlots(station: BikeStation): DockSlotType[] {
 	return slots;
 }
 
-let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
+let subwayDepartures = $derived(
+	departures
+		.filter((d) => d.mode === 'subway')
+		.filter((d) => (subwayRouteFilter === 'ALL' ? true : d.routeId === subwayRouteFilter)),
+);
 let manhattanSubways = $derived(subwayDepartures.filter((d) => d.direction === 'manhattan_bound'));
 let queensSubways = $derived(subwayDepartures.filter((d) => d.direction === 'queens_bound'));
 
@@ -198,11 +203,42 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 
 	<!-- Dedicated Section: MTA Subway (F/M Trains) Split by Direction -->
 	<div class="space-y-4">
-		<div class="flex items-center justify-between">
+		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<HugeiconsIcon icon={Train01Icon} size={16} class="text-orange-500" />
 				<span>MTA Subway (F/M Trains) — {subwayDepartures.length} Total Departures ({selectedWindow / 60}h Window)</span>
 			</h2>
+
+			<!-- Route Filter Toggle -->
+			<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs shrink-0">
+				<span class="px-2 text-[10px] font-bold text-text-muted uppercase">Line:</span>
+				<button
+					onclick={() => (subwayRouteFilter = 'ALL')}
+					class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {subwayRouteFilter === 'ALL'
+						? 'bg-primary text-white shadow-xs'
+						: 'text-text-muted hover:text-text-main'}"
+				>
+					All
+				</button>
+				<button
+					onclick={() => (subwayRouteFilter = 'F')}
+					class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'F'
+						? 'bg-orange-500 text-white shadow-xs'
+						: 'text-text-muted hover:text-text-main'}"
+				>
+					<span class="w-3.5 h-3.5 rounded-full bg-orange-500 text-white font-black text-[9px] flex items-center justify-center">F</span>
+					<span>F Train</span>
+				</button>
+				<button
+					onclick={() => (subwayRouteFilter = 'M')}
+					class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'M'
+						? 'bg-orange-500 text-white shadow-xs'
+						: 'text-text-muted hover:text-text-main'}"
+				>
+					<span class="w-3.5 h-3.5 rounded-full bg-orange-500 text-white font-black text-[9px] flex items-center justify-center">M</span>
+					<span>M Train</span>
+				</button>
+			</div>
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -210,9 +246,10 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-2">
-						<span class="px-2.5 py-0.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 font-mono font-black text-xs border border-orange-500/20">
-							F / M
-						</span>
+						<div class="flex items-center gap-1">
+							<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">F</span>
+							<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">M</span>
+						</div>
 						<h3 class="text-sm font-bold text-text-main">Downtown / Manhattan-Bound</h3>
 					</div>
 					<span class="text-[11px] font-mono text-text-muted">Track B06S</span>
@@ -230,6 +267,10 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 							<div class="flex items-center gap-2">
 								<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
 									NEXT TRAIN
+								</span>
+								<!-- NYC Subway Circular Bullet -->
+								<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">
+									{nextTrain.routeId}
 								</span>
 								{#if nextTrain.scheduleRelationship === 'ADDED'}
 									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono font-bold text-[10px] uppercase border border-purple-500/30">
@@ -249,9 +290,11 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 						</div>
 						<div class="flex items-baseline justify-between pt-1">
 							<div>
-								<div class="text-base font-extrabold text-text-main leading-tight">{nextTrain.headsign}</div>
+								<div class="text-base font-extrabold text-text-main leading-tight flex items-center gap-2">
+									<span>{nextTrain.headsign}</span>
+								</div>
 								<div class="text-[11px] text-text-muted mt-0.5">
-									Roosevelt Island Station
+									Roosevelt Island Station • {nextTrain.routeName}
 									{#if nextTrain.originStartTime}
 										• Dispatched: <span class="font-mono">{nextTrain.originStartTime}</span>
 									{/if}
@@ -281,6 +324,9 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 								{#each manhattanSubways.slice(1) as train (train.id)}
 									<div class="p-2.5 flex items-center justify-between text-xs">
 										<div class="flex items-center gap-2">
+											<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs shrink-0">
+												{train.routeId}
+											</span>
 											<span class="font-medium text-text-main">{train.headsign}</span>
 											{#if train.scheduleRelationship === 'ADDED'}
 												<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">
@@ -312,9 +358,10 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-2">
-						<span class="px-2.5 py-0.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 font-mono font-black text-xs border border-orange-500/20">
-							F / M
-						</span>
+						<div class="flex items-center gap-1">
+							<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">F</span>
+							<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">M</span>
+						</div>
 						<h3 class="text-sm font-bold text-text-main">Uptown / Queens-Bound</h3>
 					</div>
 					<span class="text-[11px] font-mono text-text-muted">Track B06N</span>
@@ -332,6 +379,10 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 							<div class="flex items-center gap-2">
 								<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
 									NEXT TRAIN
+								</span>
+								<!-- NYC Subway Circular Bullet -->
+								<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">
+									{nextTrain.routeId}
 								</span>
 								{#if nextTrain.scheduleRelationship === 'ADDED'}
 									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono font-bold text-[10px] uppercase border border-purple-500/30">
@@ -351,9 +402,11 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 						</div>
 						<div class="flex items-baseline justify-between pt-1">
 							<div>
-								<div class="text-base font-extrabold text-text-main leading-tight">{nextTrain.headsign}</div>
+								<div class="text-base font-extrabold text-text-main leading-tight flex items-center gap-2">
+									<span>{nextTrain.headsign}</span>
+								</div>
 								<div class="text-[11px] text-text-muted mt-0.5">
-									Roosevelt Island Station
+									Roosevelt Island Station • {nextTrain.routeName}
 									{#if nextTrain.originStartTime}
 										• Dispatched: <span class="font-mono">{nextTrain.originStartTime}</span>
 									{/if}
@@ -383,6 +436,9 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 								{#each queensSubways.slice(1) as train (train.id)}
 									<div class="p-2.5 flex items-center justify-between text-xs">
 										<div class="flex items-center gap-2">
+											<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs shrink-0">
+												{train.routeId}
+											</span>
 											<span class="font-medium text-text-main">{train.headsign}</span>
 											{#if train.scheduleRelationship === 'ADDED'}
 												<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">

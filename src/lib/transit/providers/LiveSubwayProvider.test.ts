@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { LiveSubwayProvider } from './LiveSubwayProvider';
 
 describe('LiveSubwayProvider', () => {
-	it('conforms to TransitProvider contract for subway mode', async () => {
+	it('conforms to TransitProvider contract for subway mode and preserves F/M route distinction', async () => {
 		const provider = new LiveSubwayProvider();
 		expect(provider.mode).toBe('subway');
 		expect(provider.capabilities.has('departures')).toBe(true);
@@ -11,7 +11,7 @@ describe('LiveSubwayProvider', () => {
 		expect(result.data).toBeDefined();
 		expect(Array.isArray(result.data)).toBe(true);
 
-		// Verify every departure adheres to SubwayDeparture schema
+		// Verify every departure adheres to SubwayDeparture schema & routeId rules
 		for (const dep of result.data) {
 			expect(dep.mode).toBe('subway');
 			expect(dep.stopName).toBe('Roosevelt Island Station');
@@ -19,6 +19,9 @@ describe('LiveSubwayProvider', () => {
 			expect(['queens_bound', 'manhattan_bound']).toContain(dep.direction);
 			expect(typeof dep.isRealtime).toBe('boolean');
 			expect(dep.scheduledTime).toBeDefined();
+
+			expect(['F', 'M']).toContain(dep.routeId);
+			expect(['F Train', 'M Train', 'F Shuttle']).toContain(dep.routeName);
 
 			if (dep.scheduleRelationship) {
 				expect(['SCHEDULED', 'ADDED', 'UNSCHEDULED', 'CANCELED', 'SKIPPED']).toContain(

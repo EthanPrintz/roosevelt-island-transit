@@ -19,7 +19,7 @@ export const MTA_STATIC_GTFS_URL =
  *
  * Hybrid GTFS engine that combines static MTA Subway schedules (stop ID B06)
  * with live real-time GTFS-RT Protobuf updates from MTA BDFM feed.
- * Includes suffix-matching deduplication and GTFS-RT NYCT trip extensions.
+ * Dynamically preserves F Train vs M Train route IDs and names.
  */
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
@@ -59,6 +59,7 @@ export class LiveSubwayProvider implements TransitProvider {
 					stopId: string;
 					scheduleRelationship: ScheduleRelationship;
 					originStartTime?: string;
+					routeId: 'F' | 'M';
 				}
 			>();
 
@@ -77,6 +78,8 @@ export class LiveSubwayProvider implements TransitProvider {
 					else if (trip.scheduleRelationship === 'UNSCHEDULED') rel = 'UNSCHEDULED';
 
 					const originStartTime = trip.startTime || undefined;
+					const rawRoute = (trip.routeId || 'F').toUpperCase();
+					const routeId: 'F' | 'M' = rawRoute === 'M' ? 'M' : 'F';
 
 					for (const update of entity.tripUpdate.stopTimeUpdate) {
 						const stopId = String(update.stopId || '').replace(/"/g, '');
@@ -95,6 +98,7 @@ export class LiveSubwayProvider implements TransitProvider {
 									stopId,
 									scheduleRelationship: rel,
 									originStartTime,
+									routeId,
 								});
 							}
 						}
@@ -132,14 +136,22 @@ export class LiveSubwayProvider implements TransitProvider {
 				const delaySec = rt ? rt.delay : 0;
 				const isNorthbound = stat.stopId.endsWith('N') || (rt ? rt.track === 'Uptown' : false);
 				const rel = rt ? rt.scheduleRelationship : 'SCHEDULED';
+				const routeId: 'F' | 'M' = (rt?.routeId || stat.routeId || 'F') === 'M' ? 'M' : 'F';
+				const routeName = routeId === 'M' ? 'M Train' : 'F Train';
 
 				departures.push({
 					id: `subway-live-${stat.tripId}-${stat.stopId}`,
 					mode: 'subway',
-					routeId: (stat.routeId as 'F' | 'M') || 'F',
-					routeName: stat.routeId === 'M' ? 'M Train' : 'F Train',
+					routeId,
+					routeName,
 					tripId: stat.tripId,
-					headsign: isNorthbound ? 'Queens / Jamaica 179 St' : 'Manhattan / Coney Island',
+					headsign: isNorthbound
+						? routeId === 'M'
+							? 'Forest Hills / 71 Av'
+							: 'Queens / Jamaica 179 St'
+						: routeId === 'M'
+							? 'Middle Village / Metropolitan Av'
+							: 'Manhattan / Coney Island',
 					destinationName: isNorthbound ? 'Queens' : 'Manhattan',
 					direction: isNorthbound ? 'queens_bound' : 'manhattan_bound',
 					scheduledTime: stat.scheduledTime,
@@ -160,14 +172,22 @@ export class LiveSubwayProvider implements TransitProvider {
 			for (const [tripId, rt] of liveUpdates.entries()) {
 				if (processedRtTripIds.has(tripId)) continue;
 				const isNorthbound = rt.track === 'Uptown';
+				const routeId: 'F' | 'M' = rt.routeId === 'M' ? 'M' : 'F';
+				const routeName = routeId === 'M' ? 'M Train' : 'F Train';
 
 				departures.push({
 					id: `subway-live-${tripId}-${rt.stopId}`,
 					mode: 'subway',
-					routeId: 'F',
-					routeName: 'F Train',
+					routeId,
+					routeName,
 					tripId,
-					headsign: isNorthbound ? 'Queens / Jamaica 179 St' : 'Manhattan / Coney Island',
+					headsign: isNorthbound
+						? routeId === 'M'
+							? 'Forest Hills / 71 Av'
+							: 'Queens / Jamaica 179 St'
+						: routeId === 'M'
+							? 'Middle Village / Metropolitan Av'
+							: 'Manhattan / Coney Island',
 					destinationName: isNorthbound ? 'Queens' : 'Manhattan',
 					direction: isNorthbound ? 'queens_bound' : 'manhattan_bound',
 					scheduledTime: rt.time,
