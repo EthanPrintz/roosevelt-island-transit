@@ -86,7 +86,7 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 				</span>
 			</div>
 			<h1 class="text-2xl font-bold text-text-main mt-1">Roosevelt Island Live Transit Feed</h1>
-			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare streams.</p>
+			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare streams with live telemetry.</p>
 		</div>
 
 		<div class="flex flex-wrap items-center gap-3">
@@ -172,9 +172,20 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 					{@const nextTrain = manhattanSubways[0]}
 					<div class="p-4 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
-							<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
-								NEXT TRAIN
-							</span>
+							<div class="flex items-center gap-2">
+								<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
+									NEXT TRAIN
+								</span>
+								{#if nextTrain.scheduleRelationship === 'ADDED'}
+									<span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono font-bold text-[10px] uppercase border border-purple-500/30">
+										✨ MTA Extra Train
+									</span>
+								{:else if nextTrain.scheduleRelationship === 'CANCELED'}
+									<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-600 dark:text-red-300 font-mono font-bold text-[10px] uppercase border border-red-500/30">
+										⚠️ Canceled
+									</span>
+								{/if}
+							</div>
 							<span class="font-mono text-xs font-bold text-orange-600 dark:text-orange-400">
 								{getRelativeTimeLabel(nextTrain.predictedTime || nextTrain.scheduledTime)}
 							</span>
@@ -182,7 +193,12 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 						<div class="flex items-baseline justify-between pt-1">
 							<div>
 								<div class="text-base font-extrabold text-text-main leading-tight">{nextTrain.headsign}</div>
-								<div class="text-[11px] text-text-muted mt-0.5">Roosevelt Island Station</div>
+								<div class="text-[11px] text-text-muted mt-0.5">
+									Roosevelt Island Station
+									{#if nextTrain.originStartTime}
+										• Dispatched: <span class="font-mono">{nextTrain.originStartTime}</span>
+									{/if}
+								</div>
 							</div>
 							<div class="text-right">
 								<div class="font-mono text-xl font-black text-text-main">
@@ -207,7 +223,12 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
 								{#each manhattanSubways.slice(1) as train (train.id)}
 									<div class="p-2.5 flex items-center justify-between text-xs">
-										<div class="font-medium text-text-main">{train.headsign}</div>
+										<div class="flex items-center gap-2">
+											<span class="font-medium text-text-main">{train.headsign}</span>
+											{#if train.scheduleRelationship === 'ADDED'}
+												<span class="px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">Extra</span>
+											{/if}
+										</div>
 										<div class="flex items-center gap-3 font-mono">
 											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
 											<span class="font-bold text-text-main">
@@ -246,9 +267,20 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 					{@const nextTrain = queensSubways[0]}
 					<div class="p-4 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
-							<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
-								NEXT TRAIN
-							</span>
+							<div class="flex items-center gap-2">
+								<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
+									NEXT TRAIN
+								</span>
+								{#if nextTrain.scheduleRelationship === 'ADDED'}
+									<span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono font-bold text-[10px] uppercase border border-purple-500/30">
+										✨ MTA Extra Train
+									</span>
+								{:else if nextTrain.scheduleRelationship === 'CANCELED'}
+									<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-600 dark:text-red-300 font-mono font-bold text-[10px] uppercase border border-red-500/30">
+										⚠️ Canceled
+									</span>
+								{/if}
+							</div>
 							<span class="font-mono text-xs font-bold text-orange-600 dark:text-orange-400">
 								{getRelativeTimeLabel(nextTrain.predictedTime || nextTrain.scheduledTime)}
 							</span>
@@ -256,7 +288,12 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 						<div class="flex items-baseline justify-between pt-1">
 							<div>
 								<div class="text-base font-extrabold text-text-main leading-tight">{nextTrain.headsign}</div>
-								<div class="text-[11px] text-text-muted mt-0.5">Roosevelt Island Station</div>
+								<div class="text-[11px] text-text-muted mt-0.5">
+									Roosevelt Island Station
+									{#if nextTrain.originStartTime}
+										• Dispatched: <span class="font-mono">{nextTrain.originStartTime}</span>
+									{/if}
+								</div>
 							</div>
 							<div class="text-right">
 								<div class="font-mono text-xl font-black text-text-main">
@@ -281,7 +318,12 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
 								{#each queensSubways.slice(1) as train (train.id)}
 									<div class="p-2.5 flex items-center justify-between text-xs">
-										<div class="font-medium text-text-main">{train.headsign}</div>
+										<div class="flex items-center gap-2">
+											<span class="font-medium text-text-main">{train.headsign}</span>
+											{#if train.scheduleRelationship === 'ADDED'}
+												<span class="px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">Extra</span>
+											{/if}
+										</div>
 										<div class="flex items-center gap-3 font-mono">
 											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
 											<span class="font-bold text-text-main">
@@ -332,9 +374,24 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 					{@const nextFerry = southboundFerries[0]}
 					<div class="p-4 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
-							<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
-								NEXT FERRY
-							</span>
+							<div class="flex items-center gap-2">
+								<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
+									NEXT FERRY
+								</span>
+								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
+									<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[10px] uppercase border border-emerald-500/30">
+										🚢 Docked
+									</span>
+								{:else if nextFerry.vesselStatus === 'INCOMING_AT'}
+									<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono font-bold text-[10px] uppercase border border-amber-500/30">
+										⚓ Approaching
+									</span>
+								{:else if nextFerry.vesselStatus === 'IN_TRANSIT_TO'}
+									<span class="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono font-bold text-[10px] uppercase border border-sky-500/30">
+										🌊 En Route
+									</span>
+								{/if}
+							</div>
 							<span class="font-mono text-xs font-bold text-sky-600 dark:text-sky-400">
 								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
 							</span>
@@ -342,10 +399,13 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 						<div class="flex items-baseline justify-between pt-1">
 							<div>
 								<div class="text-base font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
-								<div class="text-[11px] text-text-muted mt-0.5">
-									Roosevelt Island Dock
+								<div class="text-[11px] text-text-muted mt-0.5 flex flex-wrap items-center gap-1.5">
+									<span>Roosevelt Island Dock</span>
 									{#if nextFerry.vesselName}
 										• Vessel: <strong class="text-text-main font-mono">{nextFerry.vesselName}</strong>
+									{/if}
+									{#if nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0}
+										• Speed: <span class="font-mono text-sky-600 dark:text-sky-400 font-bold">{nextFerry.speedKnots} kts</span>
 									{/if}
 								</div>
 							</div>
@@ -372,7 +432,12 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
 								{#each southboundFerries.slice(1) as ferry (ferry.id)}
 									<div class="p-2.5 flex items-center justify-between text-xs">
-										<div class="font-medium text-text-main">{ferry.headsign}</div>
+										<div class="flex items-center gap-2">
+											<span class="font-medium text-text-main">{ferry.headsign}</span>
+											{#if ferry.vesselName}
+												<span class="text-[10px] font-mono text-text-muted">({ferry.vesselName})</span>
+											{/if}
+										</div>
 										<div class="flex items-center gap-3 font-mono">
 											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
 											<span class="font-bold text-text-main">
@@ -411,9 +476,24 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 					{@const nextFerry = northboundFerries[0]}
 					<div class="p-4 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
-							<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
-								NEXT FERRY
-							</span>
+							<div class="flex items-center gap-2">
+								<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
+									NEXT FERRY
+								</span>
+								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
+									<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[10px] uppercase border border-emerald-500/30">
+										🚢 Docked
+									</span>
+								{:else if nextFerry.vesselStatus === 'INCOMING_AT'}
+									<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono font-bold text-[10px] uppercase border border-amber-500/30">
+										⚓ Approaching
+									</span>
+								{:else if nextFerry.vesselStatus === 'IN_TRANSIT_TO'}
+									<span class="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono font-bold text-[10px] uppercase border border-sky-500/30">
+										🌊 En Route
+									</span>
+								{/if}
+							</div>
 							<span class="font-mono text-xs font-bold text-sky-600 dark:text-sky-400">
 								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
 							</span>
@@ -421,10 +501,13 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 						<div class="flex items-baseline justify-between pt-1">
 							<div>
 								<div class="text-base font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
-								<div class="text-[11px] text-text-muted mt-0.5">
-									Roosevelt Island Dock
+								<div class="text-[11px] text-text-muted mt-0.5 flex flex-wrap items-center gap-1.5">
+									<span>Roosevelt Island Dock</span>
 									{#if nextFerry.vesselName}
 										• Vessel: <strong class="text-text-main font-mono">{nextFerry.vesselName}</strong>
+									{/if}
+									{#if nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0}
+										• Speed: <span class="font-mono text-sky-600 dark:text-sky-400 font-bold">{nextFerry.speedKnots} kts</span>
 									{/if}
 								</div>
 							</div>
@@ -451,7 +534,12 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
 								{#each northboundFerries.slice(1) as ferry (ferry.id)}
 									<div class="p-2.5 flex items-center justify-between text-xs">
-										<div class="font-medium text-text-main">{ferry.headsign}</div>
+										<div class="flex items-center gap-2">
+											<span class="font-medium text-text-main">{ferry.headsign}</span>
+											{#if ferry.vesselName}
+												<span class="text-[10px] font-mono text-text-muted">({ferry.vesselName})</span>
+											{/if}
+										</div>
 										<div class="flex items-center gap-3 font-mono">
 											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
 											<span class="font-bold text-text-main">
@@ -488,9 +576,16 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 					<div class="p-3.5 rounded-xl bg-bg-surface border border-border-default text-xs space-y-2">
 						<div class="flex items-center justify-between">
 							<span class="font-bold text-text-main">{station.name}</span>
-							<span class="px-2 py-0.5 rounded-md bg-bg-elevated font-mono font-bold text-[10px]">
-								{Math.round((station.bikesAvailable.total / station.capacity) * 100)}% Full
-							</span>
+							<div class="flex items-center gap-1.5">
+								{#if station.disabledBikes || station.disabledDocks}
+									<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono font-bold text-[9px]" title="Hardware maintenance">
+										🔧 {station.disabledDocks || 0} Bad Docks
+									</span>
+								{/if}
+								<span class="px-2 py-0.5 rounded-md bg-bg-elevated font-mono font-bold text-[10px]">
+									{Math.round((station.bikesAvailable.total / station.capacity) * 100)}% Full
+								</span>
+							</div>
 						</div>
 						<div class="flex items-center justify-between text-text-muted text-[11px]">
 							<span>Bikes: <strong class="text-primary font-mono">{station.bikesAvailable.total}</strong> ({station.bikesAvailable.ebike} e-bikes)</span>

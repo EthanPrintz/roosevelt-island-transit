@@ -15,7 +15,9 @@ interface GbfsStatusItem {
 	station_id: string;
 	num_bikes_available: number;
 	num_ebikes_available?: number;
+	num_bikes_disabled?: number;
 	num_docks_available: number;
+	num_docks_disabled?: number;
 	is_renting: number;
 	is_returning: number;
 	last_reported: number;
@@ -33,7 +35,7 @@ interface GbfsInfoItem {
  * LiveCitiBikeProvider
  *
  * Fetches real-time Citi Bike station status via public GBFS v3.0 JSON endpoints.
- * Filters for Roosevelt Island docking stations.
+ * Filters for Roosevelt Island docking stations and extracts hardware health telemetry.
  */
 export class LiveCitiBikeProvider implements TransitProvider {
 	readonly mode: TransitMode = 'citibike';
@@ -70,6 +72,7 @@ export class LiveCitiBikeProvider implements TransitProvider {
 			}
 
 			const stations: BikeStation[] = [];
+			const nowMs = Date.now();
 
 			for (const status of statusJson.data.stations) {
 				const info = infoMap.get(status.station_id);
@@ -78,6 +81,11 @@ export class LiveCitiBikeProvider implements TransitProvider {
 				const ebikes = status.num_ebikes_available || 0;
 				const totalBikes = status.num_bikes_available;
 				const classic = Math.max(0, totalBikes - ebikes);
+				const disabledBikes = status.num_bikes_disabled || 0;
+				const disabledDocks = status.num_docks_disabled || 0;
+
+				const lastReportedMs = status.last_reported * 1000;
+				const ageMins = Math.max(0, Math.round((nowMs - lastReportedMs) / 60000));
 
 				stations.push({
 					id: `citibike-live-${status.station_id}`,
@@ -94,10 +102,13 @@ export class LiveCitiBikeProvider implements TransitProvider {
 						total: totalBikes,
 					},
 					docksAvailable: status.num_docks_available,
+					disabledBikes,
+					disabledDocks,
 					isRenting: Boolean(status.is_renting),
 					isReturning: Boolean(status.is_returning),
-					status: 'normal',
-					lastReported: new Date(status.last_reported * 1000).toISOString(),
+					status: ageMins > 60 ? 'rerouted' : 'normal',
+					lastReported: new Date(lastReportedMs).toISOString(),
+					lastReportedAgeMins: ageMins,
 				});
 			}
 

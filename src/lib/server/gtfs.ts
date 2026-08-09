@@ -13,6 +13,7 @@ export interface DecodedGtfsFeed {
 				routeId?: string;
 				startDate?: string;
 				startTime?: string;
+				scheduleRelationship?: string;
 			};
 			vehicle?: {
 				id?: string;
@@ -25,6 +26,26 @@ export interface DecodedGtfsFeed {
 				arrival?: { time?: number; delay?: number };
 				departure?: { time?: number; delay?: number };
 			}>;
+		};
+		vehicle?: {
+			trip?: {
+				tripId?: string;
+				routeId?: string;
+				startDate?: string;
+				startTime?: string;
+			};
+			position?: {
+				latitude?: number;
+				longitude?: number;
+				bearing?: number;
+				speed?: number;
+			};
+			currentStatus?: string;
+			timestamp?: number;
+			vehicle?: {
+				id?: string;
+				label?: string;
+			};
 		};
 		alert?: {
 			activePeriod?: Array<{ start?: number; end?: number }>;

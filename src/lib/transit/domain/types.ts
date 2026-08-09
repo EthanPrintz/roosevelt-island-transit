@@ -78,6 +78,7 @@ export interface SubwayDeparture extends BaseDeparture {
 	trainLength?: number;
 	track: 'Uptown' | 'Downtown';
 	isShuttle: boolean;
+	originStartTime?: string; // e.g. "10:12:30" origin terminal dispatch
 }
 
 /**
@@ -106,6 +107,10 @@ export interface FerryDeparture extends BaseDeparture {
 	mode: 'ferry';
 	vesselName?: string;
 	pierName: string;
+	vesselStatus?: 'IN_TRANSIT_TO' | 'INCOMING_AT' | 'STOPPED_AT';
+	speedKnots?: number;
+	coordinates?: { lat: number; lng: number };
+	bearing?: number;
 }
 
 /**
@@ -131,10 +136,13 @@ export interface BikeStation {
 		total: number;
 	};
 	docksAvailable: number;
+	disabledBikes?: number;
+	disabledDocks?: number;
 	isRenting: boolean;
 	isReturning: boolean;
 	status: ServiceStatus;
 	lastReported: string; // ISO 8601
+	lastReportedAgeMins?: number;
 }
 
 /**

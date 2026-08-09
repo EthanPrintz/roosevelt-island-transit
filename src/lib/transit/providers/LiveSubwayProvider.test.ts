@@ -19,6 +19,12 @@ describe('LiveSubwayProvider', () => {
 			expect(['queens_bound', 'manhattan_bound']).toContain(dep.direction);
 			expect(typeof dep.isRealtime).toBe('boolean');
 			expect(dep.scheduledTime).toBeDefined();
+
+			if (dep.scheduleRelationship) {
+				expect(['SCHEDULED', 'ADDED', 'UNSCHEDULED', 'CANCELED', 'SKIPPED']).toContain(
+					dep.scheduleRelationship,
+				);
+			}
 		}
 	});
 

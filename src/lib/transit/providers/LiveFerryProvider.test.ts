@@ -20,6 +20,13 @@ describe('LiveFerryProvider', () => {
 			expect(['northbound', 'southbound']).toContain(dep.direction);
 			expect(typeof dep.isRealtime).toBe('boolean');
 			expect(dep.scheduledTime).toBeDefined();
+
+			if (dep.vesselStatus) {
+				expect(['IN_TRANSIT_TO', 'INCOMING_AT', 'STOPPED_AT']).toContain(dep.vesselStatus);
+			}
+			if (dep.speedKnots !== undefined) {
+				expect(typeof dep.speedKnots).toBe('number');
+			}
 		}
 	});
 
