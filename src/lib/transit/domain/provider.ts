@@ -8,12 +8,16 @@ import type {
 
 export type ProviderCapability = 'departures' | 'alerts' | 'bike_stations';
 
+export interface DepartureOptions {
+	windowMinutes?: number;
+}
+
 export interface TransitProvider {
 	readonly mode: TransitMode;
 	readonly name: string;
 	readonly capabilities: Set<ProviderCapability>;
 
-	getDepartures?(): Promise<ProviderResult<TransitDeparture>>;
+	getDepartures?(options?: DepartureOptions): Promise<ProviderResult<TransitDeparture>>;
 	getAlerts?(): Promise<ProviderResult<TransitAlert>>;
 	getBikeStations?(): Promise<ProviderResult<BikeStation>>;
 }

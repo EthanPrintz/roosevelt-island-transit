@@ -8,6 +8,7 @@ let isCached = $state<boolean>(false);
 let fetchedAt = $state<string>('');
 let isLoading = $state<boolean>(true);
 let autoRefreshSeconds = $state<number>(15);
+let selectedWindow = $state<number>(240); // Default 4 hours lookahead
 
 $effect(() => {
 	loadLiveData();
@@ -31,7 +32,7 @@ $effect(() => {
 async function loadLiveData() {
 	try {
 		isLoading = true;
-		const res = await fetch('/api/transit');
+		const res = await fetch(`/api/transit?window=${selectedWindow}`);
 		if (res.ok) {
 			const json = await res.json();
 			departures = json.departures || [];
@@ -46,6 +47,11 @@ async function loadLiveData() {
 	} finally {
 		isLoading = false;
 	}
+}
+
+function changeWindow(newWindow: number) {
+	selectedWindow = newWindow;
+	loadLiveData();
 }
 
 function getRelativeTimeLabel(isoString: string): string {
@@ -83,7 +89,22 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare streams.</p>
 		</div>
 
-		<div class="flex items-center gap-3">
+		<div class="flex flex-wrap items-center gap-3">
+			<!-- Lookahead Window Selector -->
+			<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs">
+				<span class="px-2 text-[10px] font-bold text-text-muted uppercase">Window:</span>
+				{#each [120, 240, 360, 480] as win}
+					<button
+						onclick={() => changeWindow(win)}
+						class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {selectedWindow === win
+							? 'bg-primary text-white shadow-xs'
+							: 'text-text-muted hover:text-text-main'}"
+					>
+						{win / 60}h
+					</button>
+				{/each}
+			</div>
+
 			<button
 				onclick={loadLiveData}
 				disabled={isLoading}
@@ -96,7 +117,7 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 
 	{#if fetchedAt}
 		<div class="text-right -mt-4 text-[10px] text-text-muted font-mono">
-			Fetched: {new Date(fetchedAt).toLocaleTimeString()} {isCached ? '(Cached 15s)' : '(Live API)'}
+			Fetched: {new Date(fetchedAt).toLocaleTimeString()} {isCached ? '(Cached 15s)' : '(Live API)'} • {selectedWindow / 60}-Hour Lookahead Window
 		</div>
 	{/if}
 
@@ -125,7 +146,7 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>🚇</span>
-				MTA Subway (F/M Trains) — {subwayDepartures.length} Total Departures
+				MTA Subway (F/M Trains) — {subwayDepartures.length} Total Departures ({selectedWindow / 60}h Window)
 			</h2>
 		</div>
 
@@ -285,7 +306,7 @@ let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === '
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>⛴️</span>
-				NYC Ferry (Astoria Line) — {ferryDepartures.length} Total Departures
+				NYC Ferry (Astoria Line) — {ferryDepartures.length} Total Departures ({selectedWindow / 60}h Window)
 			</h2>
 		</div>
 

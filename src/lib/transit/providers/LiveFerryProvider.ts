@@ -1,6 +1,6 @@
 import { decodeGtfsRealtimeBuffer } from '$lib/server/gtfs';
 import { gtfsStaticStore, type ScheduledDeparture } from '$lib/server/gtfs-static';
-import type { ProviderCapability, TransitProvider } from '../domain/provider';
+import type { DepartureOptions, ProviderCapability, TransitProvider } from '../domain/provider';
 import type { FerryDeparture, ProviderResult, TransitAlert, TransitMode } from '../domain/types';
 
 export const NYC_FERRY_TRIP_UPDATE_URL =
@@ -19,15 +19,21 @@ export class LiveFerryProvider implements TransitProvider {
 	readonly name = 'NYC Ferry Live (Astoria Line)';
 	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
 
-	async getDepartures(): Promise<ProviderResult<FerryDeparture>> {
+	async getDepartures(options?: DepartureOptions): Promise<ProviderResult<FerryDeparture>> {
 		try {
 			const now = new Date();
+			const windowMinutes = options?.windowMinutes ?? 240; // Default 4 hours lookahead
 
 			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Landing (25)
 			let staticDepartures: ScheduledDeparture[] = [];
 			try {
 				await gtfsStaticStore.loadDataset('ferry', NYC_FERRY_STATIC_GTFS_URL);
-				staticDepartures = gtfsStaticStore.getScheduledDepartures('ferry', '25', now, 120);
+				staticDepartures = gtfsStaticStore.getScheduledDepartures(
+					'ferry',
+					'25',
+					now,
+					windowMinutes,
+				);
 			} catch (staticErr) {
 				console.warn('GTFS static store unavailable for ferry, falling back to RT-only', staticErr);
 			}

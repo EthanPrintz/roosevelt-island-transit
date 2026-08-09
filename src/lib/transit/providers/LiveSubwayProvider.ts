@@ -1,6 +1,6 @@
 import { decodeGtfsRealtimeBuffer } from '$lib/server/gtfs';
 import { gtfsStaticStore, type ScheduledDeparture } from '$lib/server/gtfs-static';
-import type { ProviderCapability, TransitProvider } from '../domain/provider';
+import type { DepartureOptions, ProviderCapability, TransitProvider } from '../domain/provider';
 import type { ProviderResult, SubwayDeparture, TransitAlert, TransitMode } from '../domain/types';
 
 export const MTA_BDFM_FEED_URL =
@@ -19,15 +19,21 @@ export class LiveSubwayProvider implements TransitProvider {
 	readonly name = 'MTA Subway Live (F/M Lines)';
 	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
 
-	async getDepartures(): Promise<ProviderResult<SubwayDeparture>> {
+	async getDepartures(options?: DepartureOptions): Promise<ProviderResult<SubwayDeparture>> {
 		try {
 			const now = new Date();
+			const windowMinutes = options?.windowMinutes ?? 240; // Default 4 hours lookahead
 
 			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Station (B06)
 			let staticDepartures: ScheduledDeparture[] = [];
 			try {
 				await gtfsStaticStore.loadDataset('subway', MTA_STATIC_GTFS_URL);
-				staticDepartures = gtfsStaticStore.getScheduledDepartures('subway', 'B06', now, 120);
+				staticDepartures = gtfsStaticStore.getScheduledDepartures(
+					'subway',
+					'B06',
+					now,
+					windowMinutes,
+				);
 			} catch (staticErr) {
 				console.warn(
 					'GTFS static store unavailable for subway, falling back to RT-only',

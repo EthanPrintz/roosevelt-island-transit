@@ -15,13 +15,15 @@ aggregator.registerProvider(new LiveCitiBikeProvider());
 
 export const GET: RequestHandler = async ({ url }) => {
 	const modeParam = (url.searchParams.get('mode') as TransitMode | 'all') || 'all';
+	const windowParam = Number.parseInt(url.searchParams.get('window') || '240', 10);
+	const windowMinutes = Number.isNaN(windowParam) ? 240 : windowParam;
 
-	const cacheKey = `live-transit-feed-${modeParam}`;
+	const cacheKey = `live-transit-feed-${modeParam}-w${windowMinutes}`;
 	const ttlMs = 15000; // 15 seconds server-side cache
 
 	const { data, isCached } = await serverCache.getOrFetch(cacheKey, ttlMs, async () => {
 		const [departures, alerts, stations] = await Promise.all([
-			aggregator.getAllDepartures(modeParam),
+			aggregator.getAllDepartures(modeParam, { windowMinutes }),
 			aggregator.getAllAlerts(modeParam),
 			aggregator.getBikeStations(modeParam),
 		]);
