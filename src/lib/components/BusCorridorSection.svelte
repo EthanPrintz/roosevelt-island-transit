@@ -190,16 +190,12 @@ let octagonSouth = $derived(
 
 			<!-- Follow-Up Departures: Compact Horizontal Arrival Chips -->
 			{#if followUps.length > 0}
-				<div class="pt-0.5 space-y-1.5">
-					<div class="text-[10px] font-mono font-bold text-text-muted uppercase tracking-wider px-0.5">
-						Upcoming Departures
-					</div>
-					<div class="flex flex-wrap items-center gap-1.5">
-						{#each followUps as dep (dep.id)}
-							{@const b = dep as BusDeparture}
-							{@const t = b.predictedTime || b.scheduledTime}
-							{@const relTime = formatRelativeTime(t)}
-							{@const absTime = formatClockTime(t)}
+				<div class="flex flex-wrap items-center gap-1.5 pt-1">
+					{#each followUps as dep (dep.id)}
+						{@const b = dep as BusDeparture}
+						{@const t = b.predictedTime || b.scheduledTime}
+						{@const relTime = formatRelativeTime(t)}
+						{@const absTime = formatClockTime(t)}
 
 							<div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-bg-elevated/60 border border-border-default/60 text-xs shadow-2xs hover:bg-bg-surface transition-colors">
 								{#if b.isRealtime}
@@ -218,7 +214,6 @@ let octagonSouth = $derived(
 								{/if}
 							</div>
 						{/each}
-					</div>
 				</div>
 			{/if}
 		{/if}
