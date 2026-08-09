@@ -210,10 +210,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<DirectionHeader
 					title="Manhattan-Bound"
 					subtitle="via 63rd St & 6th Ave"
-					badges={[
-						{ text: 'F', bgClass: 'bullet-subway text-[9px]' },
-						{ text: 'M', bgClass: 'bullet-subway text-[9px]' }
-					]}
 				/>
 
 				{#if manhattanSubways.length === 0}
@@ -312,10 +308,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<DirectionHeader
 					title="Queens-Bound"
 					subtitle="via Jamaica & Forest Hills"
-					badges={[
-						{ text: 'F', bgClass: 'bullet-subway text-[9px]' },
-						{ text: 'M', bgClass: 'bullet-subway text-[9px]' }
-					]}
 				/>
 
 				{#if queensSubways.length === 0}
