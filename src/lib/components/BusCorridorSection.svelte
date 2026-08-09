@@ -15,7 +15,8 @@ interface Props {
 	icon: any;
 	iconBgClass: string;
 	accentColor: 'blue' | 'rose';
-	departures: TransitDeparture[];
+	northboundDepartures: TransitDeparture[];
+	southboundDepartures: TransitDeparture[];
 	vehicles?: LiveVehiclePosition[];
 	alerts?: TransitAlert[];
 	northboundTitle: string;
@@ -31,7 +32,8 @@ let {
 	icon,
 	iconBgClass,
 	accentColor,
-	departures,
+	northboundDepartures = [],
+	southboundDepartures = [],
 	vehicles = [],
 	alerts = [],
 	northboundTitle,
@@ -43,15 +45,6 @@ let {
 }: Props = $props();
 
 let selectedStop = $state<IslandStopNode>('subway_plaza');
-
-let northboundDepartures = $derived(
-	departures.filter(
-		(d) => d.direction === 'northbound' || d.direction === 'queens_bound' || d.direction === 'loop',
-	),
-);
-let southboundDepartures = $derived(
-	departures.filter((d) => d.direction === 'southbound' || d.direction === 'manhattan_bound'),
-);
 </script>
 
 <div class="space-y-2.5">

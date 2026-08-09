@@ -104,7 +104,12 @@ let manhattanTrams = $derived(tramDepartures.filter((d) => d.direction === 'manh
 let islandTrams = $derived(tramDepartures.filter((d) => d.direction === 'queens_bound'));
 
 let q102Departures = $derived(departures.filter((d) => d.mode === 'q102_bus'));
+let astoriaQ102 = $derived(q102Departures.filter((d) => d.direction === 'queens_bound'));
+let colerQ102 = $derived(q102Departures.filter((d) => d.direction === 'northbound'));
+
 let redBusDepartures = $derived(departures.filter((d) => d.mode === 'red_bus'));
+let northboundRedBus = $derived(redBusDepartures.filter((d) => d.direction === 'northbound'));
+let southboundRedBus = $derived(redBusDepartures.filter((d) => d.direction === 'southbound'));
 
 let q102Vehicles = $derived(vehicles.filter((v) => v.mode === 'q102_bus'));
 let redBusVehicles = $derived(vehicles.filter((v) => v.mode === 'red_bus'));
@@ -269,7 +274,8 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 		icon={Train01Icon}
 		iconBgClass="bg-blue-500/10 text-blue-500"
 		accentColor="blue"
-		departures={q102Departures}
+		northboundDepartures={astoriaQ102}
+		southboundDepartures={colerQ102}
 		vehicles={q102Vehicles}
 		alerts={q102Alerts}
 		northboundTitle="Astoria-Bound"
@@ -286,7 +292,8 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 		icon={Train01Icon}
 		iconBgClass="bg-rose-600/10 text-rose-600 dark:text-rose-400"
 		accentColor="rose"
-		departures={redBusDepartures}
+		northboundDepartures={northboundRedBus}
+		southboundDepartures={southboundRedBus}
 		vehicles={redBusVehicles}
 		alerts={redBusAlerts}
 		northboundTitle="Northbound"
