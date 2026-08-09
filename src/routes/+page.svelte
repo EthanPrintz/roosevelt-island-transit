@@ -132,51 +132,74 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 </svelte:head>
 
 <div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
-	<!-- Top Bar -->
-	<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-		<div>
-			<div class="flex items-center gap-2">
-				<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold border border-emerald-500/20">
-					<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-					AUTO-REFRESHING ({autoRefreshSeconds}s)
-				</span>
-			</div>
-			<h1 class="text-2xl font-bold text-text-main mt-1">Roosevelt Island Live Transit Feed</h1>
-			<p class="text-xs text-text-muted mt-0.5">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare streams with live telemetry.</p>
-		</div>
-
-		<div class="flex flex-wrap items-center gap-3">
-			<!-- Lookahead Window Selector -->
-			<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs">
-				<span class="px-2 text-[10px] font-bold text-text-muted uppercase">Window:</span>
-				{#each [120, 240, 360, 480] as win}
-					<button
-						onclick={() => changeWindow(win)}
-						class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {selectedWindow === win
-							? 'bg-primary text-primary-fg shadow-xs'
-							: 'text-text-muted hover:text-text-main'}"
-					>
-						{win / 60}h
-					</button>
-				{/each}
+	<!-- Unified Header Card -->
+	<header class="p-5 sm:p-6 rounded-2xl bg-bg-surface border border-border-default shadow-xs space-y-4">
+		<!-- Top Bar: Title & Primary Controls -->
+		<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+			<div class="space-y-1">
+				<div class="flex items-center gap-2">
+					<h1 class="text-xl sm:text-2xl font-black text-text-main tracking-tight">Roosevelt Island Transit Core</h1>
+					<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold border border-emerald-500/20 shrink-0">
+						<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+						LIVE ({autoRefreshSeconds}s)
+					</span>
+				</div>
+				<p class="text-xs text-text-muted">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare streams with live telemetry.</p>
 			</div>
 
-			<button
-				onclick={loadLiveData}
-				disabled={isLoading}
-				class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-primary-fg text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
-			>
-				<HugeiconsIcon icon={RefreshIcon} size={14} class={isLoading ? 'animate-spin' : ''} />
-				<span>{isLoading ? 'Refreshing...' : 'Refresh Now'}</span>
-			</button>
-		</div>
-	</div>
+			<div class="flex flex-wrap items-center gap-2.5 shrink-0">
+				<!-- Lookahead Window Selector -->
+				<div class="flex items-center rounded-xl bg-bg-elevated/60 border border-border-default/80 p-1 text-xs">
+					<span class="px-2 text-[10px] font-bold text-text-muted uppercase">Window:</span>
+					{#each [120, 240, 360, 480] as win}
+						<button
+							onclick={() => changeWindow(win)}
+							class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {selectedWindow === win
+								? 'bg-primary text-primary-fg shadow-xs'
+								: 'text-text-muted hover:text-text-main'}"
+						>
+							{win / 60}h
+						</button>
+					{/each}
+				</div>
 
-	{#if fetchedAt}
-		<div class="text-right -mt-4 text-[10px] text-text-muted font-mono">
-			Fetched: {new Date(fetchedAt).toLocaleTimeString()} {isCached ? '(Cached 15s)' : '(Live API)'} • {selectedWindow / 60}-Hour Lookahead Window
+				<button
+					onclick={loadLiveData}
+					disabled={isLoading}
+					class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-primary-fg text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
+				>
+					<HugeiconsIcon icon={RefreshIcon} size={13} class={isLoading ? 'animate-spin' : ''} />
+					<span>{isLoading ? 'Refreshing...' : 'Refresh'}</span>
+				</button>
+			</div>
 		</div>
-	{/if}
+
+		<!-- Bottom Bar: Live Network Status & Metadata Sync Bar -->
+		<div class="pt-3.5 border-t border-border-subtle/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-text-muted">
+			<!-- Live Transit Feed Health Badges -->
+			<div class="flex flex-wrap items-center gap-2 font-medium">
+				<span class="text-[10px] uppercase font-bold tracking-wider text-text-subtle">Feed Health:</span>
+				<div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 font-mono font-bold text-[10px] border border-orange-500/20">
+					<HugeiconsIcon icon={Train01Icon} size={12} />
+					<span>Subway GTFS-RT ({subwayDepartures.length})</span>
+				</div>
+				<div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono font-bold text-[10px] border border-sky-500/20">
+					<HugeiconsIcon icon={FerryBoatIcon} size={12} />
+					<span>Ferry GTFS-RT ({ferryDepartures.length})</span>
+				</div>
+				<div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[10px] border border-emerald-500/20">
+					<HugeiconsIcon icon={Bicycle01Icon} size={12} />
+					<span>Citi Bike GBFS ({stations.length})</span>
+				</div>
+			</div>
+
+			{#if fetchedAt}
+				<div class="font-mono text-[10px] text-right shrink-0">
+					Synced: <strong class="text-text-main">{new Date(fetchedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</strong> {isCached ? '(Cached 15s)' : '(Live Stream)'}
+				</div>
+			{/if}
+		</div>
+	</header>
 
 	<!-- Active System Alerts -->
 	{#if alerts.length > 0}
