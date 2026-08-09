@@ -60,10 +60,30 @@ let { children }: { children: Snippet } = $props();
 	<!-- Footer -->
 	<footer class="border-t border-border-subtle bg-bg-surface/50 py-6 transition-colors mt-8">
 		<div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-text-muted">
-			<div class="flex items-center gap-2">
-				<HugeiconsIcon icon={CableCarIcon} size={14} strokeWidth={2} />
-				<span>Roosevelt Island Transit</span>
+			<div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+				<div class="flex items-center gap-2">
+					<HugeiconsIcon icon={CableCarIcon} size={14} strokeWidth={2} class="text-primary" />
+					<span class="font-bold text-text-main">Roosevelt Island Transit</span>
+				</div>
+				<span class="hidden sm:inline text-border-default">•</span>
+				<div>
+					Created by
+					<a
+						href="https://ethanprintz.com"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="font-medium text-text-main hover:text-primary underline decoration-border-default hover:decoration-primary underline-offset-2 transition-colors"
+					>Ethan Printz</a>,
+					Founder of
+					<a
+						href="https://rooseveltisland.studio"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="font-medium text-text-main hover:text-primary underline decoration-border-default hover:decoration-primary underline-offset-2 transition-colors"
+					>Roosevelt Island Studio</a>
+				</div>
 			</div>
+
 			<div class="font-mono text-[11px]">
 				Subway • Tram • Ferry • Citi Bike
 			</div>
