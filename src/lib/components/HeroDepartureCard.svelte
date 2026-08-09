@@ -1,5 +1,5 @@
 <script lang="ts">
-import { AlertCircleIcon, FlashIcon, SparklesIcon } from '@hugeicons/core-free-icons';
+import { AlertCircleIcon, Clock01Icon, FlashIcon, SparklesIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type { TransitDeparture } from '$lib/transit/domain/types';
 import { formatRelativeTime } from '$lib/utils/time-format';
@@ -33,29 +33,30 @@ const accentStyles = {
 		timeText: 'text-orange-600 dark:text-orange-400',
 		iconColor: 'text-orange-500',
 		badgeDefault:
-			'bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/20',
+			'bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30',
 	},
 	rose: {
 		container: 'bg-linear-to-br from-rose-500/10 via-bg-surface to-bg-surface border-rose-500/30',
 		timeText: 'text-rose-600 dark:text-rose-400',
 		iconColor: 'text-rose-500',
-		badgeDefault: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20',
+		badgeDefault: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30',
 	},
 	cyan: {
 		container: 'bg-linear-to-br from-cyan-500/10 via-bg-surface to-bg-surface border-cyan-500/30',
 		timeText: 'text-cyan-600 dark:text-cyan-400',
 		iconColor: 'text-cyan-500',
-		badgeDefault: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20',
+		badgeDefault: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30',
 	},
 	blue: {
 		container: 'bg-linear-to-br from-blue-500/10 via-bg-surface to-bg-surface border-blue-500/30',
 		timeText: 'text-blue-600 dark:text-blue-400',
 		iconColor: 'text-blue-500',
-		badgeDefault: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20',
+		badgeDefault: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30',
 	},
 };
 
 let styles = $derived(accentStyles[accentColor] || accentStyles.orange);
+let effectiveIcon = $derived(statusIcon || (departure.isRealtime ? FlashIcon : Clock01Icon));
 
 let timeString = $derived(
 	new Date(departure.predictedTime || departure.scheduledTime).toLocaleTimeString([], {
@@ -72,20 +73,18 @@ let relativeLabel = $derived(
 	<!-- Top Row: Standardized Status Pill (Left) & Relative Countdown (Right) -->
 	<div class="flex items-center justify-between text-xs">
 		<div class="flex items-center gap-1.5 flex-wrap">
-			<span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[9px] font-bold uppercase {statusClass || styles.badgeDefault}">
-				{#if statusIcon}
-					<HugeiconsIcon icon={statusIcon} size={10} />
-				{/if}
+			<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {statusClass || styles.badgeDefault}">
+				<HugeiconsIcon icon={effectiveIcon} size={10} />
 				<span>{statusText}</span>
 			</span>
 
 			{#if departure.scheduleRelationship === 'ADDED'}
-				<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono text-[9px] uppercase font-bold">
+				<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-600 dark:text-purple-300 font-mono text-[9px] uppercase font-bold border border-purple-500/30">
 					<HugeiconsIcon icon={SparklesIcon} size={10} />
 					<span>Extra</span>
 				</span>
 			{:else if departure.scheduleRelationship === 'CANCELED'}
-				<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-red-500/20 text-red-600 dark:text-red-300 font-mono text-[9px] uppercase font-bold">
+				<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/15 text-red-600 dark:text-red-300 font-mono text-[9px] uppercase font-bold border border-red-500/30">
 					<HugeiconsIcon icon={AlertCircleIcon} size={10} />
 					<span>Canceled</span>
 				</span>

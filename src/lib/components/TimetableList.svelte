@@ -32,7 +32,7 @@ let activeIconColor = $derived(iconColors[accentColor] || iconColors.orange);
 			<!-- Left Side: Route Badge / Cabin / Vessel + Destination -->
 			<div class="flex items-center gap-2 min-w-0 flex-1">
 				{#if customBadge}
-					<span class="px-1.5 py-0.2 rounded bg-bg-surface border border-border-default font-mono text-[10px] text-text-muted shrink-0 font-bold">
+					<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
 						{customBadge}
 					</span>
 				{:else if dep.mode === 'subway'}

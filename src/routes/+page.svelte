@@ -6,6 +6,8 @@ import {
 	Bicycle01Icon,
 	BoatIcon,
 	CableCarIcon,
+	CheckmarkCircle01Icon,
+	Clock01Icon,
 	FerryBoatIcon,
 	FlashIcon,
 	Navigation01Icon,
@@ -318,7 +320,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						departure={manhattanTrams[0]}
 						accentColor="rose"
 						statusText={(manhattanTrams[0] as any).isBoarding ? 'Boarding' : 'In Transit'}
-						statusClass={(manhattanTrams[0] as any).isBoarding ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20'}
+						statusIcon={(manhattanTrams[0] as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
+						statusClass={(manhattanTrams[0] as any).isBoarding ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'}
 						subDetails={(manhattanTrams[0] as any).cabin || 'Tram Cabin'}
 					/>
 
@@ -346,7 +349,8 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						departure={islandTrams[0]}
 						accentColor="rose"
 						statusText={(islandTrams[0] as any).isBoarding ? 'Boarding' : 'In Transit'}
-						statusClass={(islandTrams[0] as any).isBoarding ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20'}
+						statusIcon={(islandTrams[0] as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
+						statusClass={(islandTrams[0] as any).isBoarding ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'}
 						subDetails={(islandTrams[0] as any).cabin || 'Tram Cabin'}
 					/>
 
