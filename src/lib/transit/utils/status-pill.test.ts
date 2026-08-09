@@ -1,5 +1,6 @@
 import {
 	AnchorIcon,
+	ArrowShrinkIcon,
 	CheckmarkCircle01Icon,
 	Clock01Icon,
 	FlashIcon,
@@ -54,6 +55,27 @@ describe('resolveHeroStatusPill', () => {
 		expect(result.label).toBe('At Dock');
 		expect(result.icon).toBe(AnchorIcon);
 		expect(result.pillClass).toContain('bg-cyan-500/15');
+	});
+
+	it('resolves Approaching state for realtime departure within 2 minutes', () => {
+		const bus: TransitDeparture = {
+			id: 'bus-approaching-1',
+			mode: 'q102_bus',
+			routeId: 'Q102',
+			routeName: 'MTA Q102 Bus',
+			headsign: 'Astoria',
+			destinationName: 'Astoria',
+			direction: 'queens_bound',
+			scheduledTime: new Date(Date.now() + 1 * 60000).toISOString(),
+			isRealtime: true,
+			status: 'normal',
+			stopName: 'Subway Plaza',
+		};
+
+		const result = resolveHeroStatusPill(bus, 'blue');
+		expect(result.label).toBe('Approaching');
+		expect(result.icon).toBe(ArrowShrinkIcon);
+		expect(result.pillClass).toContain('bg-blue-500/15');
 	});
 
 	it('resolves En Route state for general realtime departures', () => {

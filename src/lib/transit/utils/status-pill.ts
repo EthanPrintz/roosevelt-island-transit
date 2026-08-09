@@ -1,9 +1,9 @@
 import {
 	AnchorIcon,
+	ArrowShrinkIcon,
 	CheckmarkCircle01Icon,
 	Clock01Icon,
 	FlashIcon,
-	Navigation01Icon,
 } from '@hugeicons/core-free-icons';
 import type { FerryDeparture, TramDeparture, TransitDeparture } from '../domain/types';
 
@@ -26,8 +26,8 @@ const ACCENT_CLASSES: Record<'orange' | 'rose' | 'cyan' | 'blue', string> = {
  * Enforces standardized operational states:
  * - AT DOCK: AnchorIcon
  * - BOARDING: CheckmarkCircle01Icon
- * - APPROACHING: Navigation01Icon
- * - EN ROUTE: FlashIcon
+ * - APPROACHING: ArrowShrinkIcon (converging arrows)
+ * - LIVE: FlashIcon
  * - SCHEDULED: Clock01Icon
  */
 export function resolveHeroStatusPill(
@@ -65,7 +65,7 @@ export function resolveHeroStatusPill(
 			}
 			return {
 				label: 'Approaching',
-				icon: Navigation01Icon,
+				icon: ArrowShrinkIcon,
 				pillClass: defaultClass,
 			};
 		}
@@ -79,7 +79,7 @@ export function resolveHeroStatusPill(
 		if (diffMins > 0 && diffMins <= 2) {
 			return {
 				label: 'Approaching',
-				icon: Navigation01Icon,
+				icon: ArrowShrinkIcon,
 				pillClass: defaultClass,
 			};
 		}
