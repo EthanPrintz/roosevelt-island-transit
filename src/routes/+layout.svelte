@@ -19,9 +19,6 @@ let { children }: { children: Snippet } = $props();
 				</div>
 				<div class="flex items-center gap-2">
 					<span class="font-extrabold tracking-tight">Roosevelt Island Transit</span>
-					<span class="px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded-md bg-bg-elevated text-text-muted border border-border-subtle hidden sm:inline-block">
-						NYC • Live Core
-					</span>
 				</div>
 			</a>
 
