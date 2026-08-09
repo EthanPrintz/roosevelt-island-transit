@@ -24,11 +24,10 @@ const ACCENT_CLASSES: Record<'orange' | 'rose' | 'cyan' | 'blue', string> = {
 /**
  * Pure, centralized resolver for Hero Card Status Pills across all transit modes.
  * Operational states:
- * - AT DOCK: AnchorIcon
- * - BOARDING: SquareArrowRightIcon
- * - APPROACHING: ArrowRightToLineIcon
- * - LIVE: LiveStreaming02Icon
- * - SCHEDULED: Clock01Icon
+ * 1. AT DOCK / BOARDING: AnchorIcon / SquareArrowRightIcon
+ * 2. APPROACHING (<= 2 mins arrival): ArrowRightToLineIcon & "Approaching"
+ * 3. LIVE (> 2 mins away): LiveStreaming02Icon & "Live"
+ * 4. SCHEDULED: Clock01Icon & "Scheduled"
  */
 export function resolveHeroStatusPill(
 	departure: TransitDeparture,
@@ -36,7 +35,7 @@ export function resolveHeroStatusPill(
 ): StatusPillConfig {
 	const defaultClass = ACCENT_CLASSES[accentColor] || ACCENT_CLASSES.orange;
 
-	// 1. Tramway Boarding State
+	// 1. Station Boarding / Docked States
 	if (departure.mode === 'tram' && (departure as TramDeparture).isBoarding) {
 		return {
 			label: 'Boarding',
@@ -45,45 +44,31 @@ export function resolveHeroStatusPill(
 		};
 	}
 
-	// 2. Ferry Specific Operational States
 	if (departure.mode === 'ferry') {
 		const f = departure as FerryDeparture;
-		if (f.speedKnots !== undefined) {
-			if (f.speedKnots < 1) {
-				return {
-					label: 'At Dock',
-					icon: AnchorIcon,
-					pillClass: defaultClass,
-				};
-			}
-			if (f.speedKnots > 10) {
-				return {
-					label: 'Live',
-					icon: LiveStreaming02Icon,
-					pillClass: defaultClass,
-				};
-			}
+		if (f.speedKnots !== undefined && f.speedKnots < 1) {
 			return {
-				label: 'Approaching',
-				icon: ArrowRightToLineIcon,
+				label: 'At Dock',
+				icon: AnchorIcon,
 				pillClass: defaultClass,
 			};
 		}
 	}
 
-	// 3. General Realtime vs Scheduled
+	// 2. Approaching State (Within 2 minutes of arrival / Arriving Now)
+	const targetTime = new Date(departure.predictedTime || departure.scheduledTime).getTime();
+	const diffMins = (targetTime - Date.now()) / 60000;
+
+	if (departure.isRealtime && diffMins >= 0 && diffMins <= 2) {
+		return {
+			label: 'Approaching',
+			icon: ArrowRightToLineIcon,
+			pillClass: defaultClass,
+		};
+	}
+
+	// 3. Live Telemetry Tracking State (> 2 mins away)
 	if (departure.isRealtime) {
-		const targetTime = new Date(departure.predictedTime || departure.scheduledTime).getTime();
-		const diffMins = (targetTime - Date.now()) / 60000;
-
-		if (diffMins > 0 && diffMins <= 2) {
-			return {
-				label: 'Approaching',
-				icon: ArrowRightToLineIcon,
-				pillClass: defaultClass,
-			};
-		}
-
 		return {
 			label: 'Live',
 			icon: LiveStreaming02Icon,
@@ -91,7 +76,7 @@ export function resolveHeroStatusPill(
 		};
 	}
 
-	// 4. Static Schedule Fallback
+	// 4. Static Timetable Schedule Fallback
 	return {
 		label: 'Scheduled',
 		icon: Clock01Icon,
