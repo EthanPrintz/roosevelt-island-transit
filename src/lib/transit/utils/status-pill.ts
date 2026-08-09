@@ -1,9 +1,9 @@
 import {
 	AnchorIcon,
-	ArrowShrinkIcon,
-	CheckmarkCircle01Icon,
+	ArrowRightToLineIcon,
 	Clock01Icon,
-	FlashIcon,
+	LiveStreaming02Icon,
+	SquareArrowRightIcon,
 } from '@hugeicons/core-free-icons';
 import type { FerryDeparture, TramDeparture, TransitDeparture } from '../domain/types';
 
@@ -23,11 +23,11 @@ const ACCENT_CLASSES: Record<'orange' | 'rose' | 'cyan' | 'blue', string> = {
 
 /**
  * Pure, centralized resolver for Hero Card Status Pills across all transit modes.
- * Enforces standardized operational states:
+ * Operational states:
  * - AT DOCK: AnchorIcon
- * - BOARDING: CheckmarkCircle01Icon
- * - APPROACHING: ArrowShrinkIcon (converging arrows)
- * - LIVE: FlashIcon
+ * - BOARDING: SquareArrowRightIcon
+ * - APPROACHING: ArrowRightToLineIcon
+ * - LIVE: LiveStreaming02Icon
  * - SCHEDULED: Clock01Icon
  */
 export function resolveHeroStatusPill(
@@ -40,7 +40,7 @@ export function resolveHeroStatusPill(
 	if (departure.mode === 'tram' && (departure as TramDeparture).isBoarding) {
 		return {
 			label: 'Boarding',
-			icon: CheckmarkCircle01Icon,
+			icon: SquareArrowRightIcon,
 			pillClass: defaultClass,
 		};
 	}
@@ -59,13 +59,13 @@ export function resolveHeroStatusPill(
 			if (f.speedKnots > 10) {
 				return {
 					label: 'Live',
-					icon: FlashIcon,
+					icon: LiveStreaming02Icon,
 					pillClass: defaultClass,
 				};
 			}
 			return {
 				label: 'Approaching',
-				icon: ArrowShrinkIcon,
+				icon: ArrowRightToLineIcon,
 				pillClass: defaultClass,
 			};
 		}
@@ -79,14 +79,14 @@ export function resolveHeroStatusPill(
 		if (diffMins > 0 && diffMins <= 2) {
 			return {
 				label: 'Approaching',
-				icon: ArrowShrinkIcon,
+				icon: ArrowRightToLineIcon,
 				pillClass: defaultClass,
 			};
 		}
 
 		return {
 			label: 'Live',
-			icon: FlashIcon,
+			icon: LiveStreaming02Icon,
 			pillClass: defaultClass,
 		};
 	}
