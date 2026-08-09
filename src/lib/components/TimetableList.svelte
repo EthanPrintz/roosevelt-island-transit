@@ -1,5 +1,5 @@
 <script lang="ts">
-import { LiveStreaming02Icon, SparklesIcon } from '@hugeicons/core-free-icons';
+import { Clock01Icon, LiveStreaming02Icon, SparklesIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type { TransitDeparture } from '$lib/transit/domain/types';
 import { formatRelativeTime } from '$lib/utils/time-format';
@@ -51,12 +51,14 @@ let activeIconColor = $derived(iconColors[accentColor] || iconColors.orange);
 				{/if}
 			</div>
 
-			<!-- Right Side: Relative Countdown + Clock Time + Live Indicator -->
+			<!-- Right Side: Relative Countdown + Clock Time + Live Indicator / Scheduled Clock Icon -->
 			<div class="flex items-center gap-2.5 font-mono shrink-0">
 				<span class="text-text-muted text-[10px]">{relTime}</span>
 				<span class="font-bold text-text-main text-[11px]">{absTime}</span>
 				{#if dep.isRealtime}
 					<HugeiconsIcon icon={LiveStreaming02Icon} size={10} class={activeIconColor} />
+				{:else}
+					<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
 				{/if}
 			</div>
 		</div>
