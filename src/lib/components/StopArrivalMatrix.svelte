@@ -14,11 +14,26 @@ interface Props {
 
 let { title, subtitle, departures = [], accentColor, emptyMessage }: Props = $props();
 
-const bgHeader = $derived(
-	accentColor === 'blue'
-		? 'bg-blue-500/15 border-blue-500/30 text-blue-400'
-		: 'bg-rose-500/15 border-rose-500/30 text-rose-400',
-);
+const accentStyles = {
+	blue: {
+		heroContainer:
+			'bg-linear-to-br from-blue-500/10 via-bg-surface to-bg-surface border-blue-500/30',
+		timeText: 'text-blue-600 dark:text-blue-400',
+		iconColor: 'text-blue-500',
+		badgeDefault: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30',
+		stopBadge: 'bg-blue-500/15 border-blue-500/30 text-blue-400',
+	},
+	rose: {
+		heroContainer:
+			'bg-linear-to-br from-rose-500/10 via-bg-surface to-bg-surface border-rose-500/30',
+		timeText: 'text-rose-600 dark:text-rose-400',
+		iconColor: 'text-rose-500',
+		badgeDefault: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30',
+		stopBadge: 'bg-rose-500/15 border-rose-500/30 text-rose-400',
+	},
+};
+
+let styles = $derived(accentStyles[accentColor] || accentStyles.blue);
 
 function normalizeStopName(raw: string): { name: string; isOffIsland: boolean } {
 	const text = (raw || '').toLowerCase();
@@ -57,39 +72,23 @@ let groupedStops = $derived.by(() => {
 });
 </script>
 
-{#snippet statusBadge(isRealtime: boolean)}
-	{#if isRealtime}
-		<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 shrink-0">
-			<HugeiconsIcon icon={FlashIcon} size={9} />
-			LIVE
-		</span>
-	{:else}
-		<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-bg-elevated text-text-muted border border-border-default shrink-0">
-			<HugeiconsIcon icon={Clock01Icon} size={9} />
-			SCHED
-		</span>
-	{/if}
-{/snippet}
-
-<div class="panel-card space-y-3 p-4">
-	<div class="flex items-center justify-between">
-		<div>
-			<h3 class="text-sm font-extrabold tracking-tight text-text-main">{title}</h3>
-			<p class="text-xs text-text-muted font-medium">{subtitle}</p>
-		</div>
+<div class="space-y-3">
+	<div class="px-1">
+		<h3 class="text-sm font-extrabold tracking-tight text-text-main">{title}</h3>
+		<p class="text-xs text-text-muted font-medium">{subtitle}</p>
 	</div>
 
 	{#if departures.length === 0}
-		<div class="text-center text-xs text-text-muted italic py-6 border border-dashed border-border-default/60 rounded-xl">
+		<div class="panel-card text-center text-xs text-text-muted italic py-6 border border-dashed border-border-default/60 rounded-xl">
 			{emptyMessage}
 		</div>
 	{:else}
-		<div class="space-y-3">
+		<div class="space-y-4">
 			{#each groupedStops as group (group.name)}
 				{@const nextDep = group.departures[0]}
 				{@const followUps = group.departures.slice(1, 5)}
 				
-				<div class="p-3.5 rounded-xl border bg-bg-surface/90 border-border-default/80 space-y-3 shadow-2xs">
+				<div class="panel-card space-y-3 p-4">
 					<!-- Stop Card Header -->
 					<div class="flex items-center justify-between">
 						<div class="flex items-center gap-2">
@@ -99,7 +98,7 @@ let groupedStops = $derived.by(() => {
 									Queens / Off-Island
 								</span>
 							{:else}
-								<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border {bgHeader}">
+								<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border {styles.stopBadge}">
 									<HugeiconsIcon icon={Location01Icon} size={11} />
 									Roosevelt Island
 								</span>
@@ -108,55 +107,78 @@ let groupedStops = $derived.by(() => {
 						</div>
 					</div>
 
-					<!-- Hero Next Arrival Card -->
+					<!-- Hero Departure Card matching standard HeroDepartureCard.svelte design -->
 					{#if nextDep}
 						{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
-						<div class="p-3 rounded-lg bg-bg-elevated/60 border border-border-default/50 space-y-1.5">
-							<div class="flex items-center justify-between gap-2">
-								<div class="flex items-center gap-1.5 truncate">
-									{@render statusBadge(nextDep.isRealtime)}
-									<span class="text-xs font-bold text-text-main truncate">
-										{nextDep.vehicleId ? `Bus #${nextDep.vehicleId}` : nextDep.headsign}
-									</span>
-								</div>
-								<span class="text-xs font-mono font-extrabold text-primary shrink-0">
+						{@const statusLabel = nextDep.isRealtime ? 'En Route' : 'Scheduled'}
+						{@const statusIcon = nextDep.isRealtime ? FlashIcon : Clock01Icon}
+						{@const subDetails = nextDep.vehicleId ? `Bus #${nextDep.vehicleId}${nextDep.nextStopName ? ` • (${nextDep.nextStopName})` : ''}` : undefined}
+
+						<div class="p-3.5 rounded-xl border space-y-2 relative overflow-hidden shadow-2xs {styles.heroContainer}">
+							<!-- Top Row: Status Pill & Relative Countdown -->
+							<div class="flex items-center justify-between text-xs">
+								<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {styles.badgeDefault}">
+									<HugeiconsIcon icon={statusIcon} size={10} />
+									<span>{statusLabel}</span>
+								</span>
+
+								<span class="font-mono text-xs font-bold {styles.timeText}">
 									{formatRelativeTime(targetTime)}
 								</span>
 							</div>
 
-							<div class="flex items-center justify-between text-[11px] font-mono text-text-muted gap-2">
-								<span class="truncate">
-									{nextDep.headsign}
-									{#if nextDep.nextStopName}
-										<span class="italic opacity-80 truncate">({nextDep.nextStopName})</span>
-									{/if}
-								</span>
-								<span class="font-bold text-text-main text-xs shrink-0">{formatClockTime(targetTime)}</span>
+							<!-- Middle Row: Destination Title & Large Clock Time -->
+							<div class="flex items-baseline justify-between gap-2 pt-0.5">
+								<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
+									<span class="truncate">{nextDep.headsign}</span>
+								</div>
+
+								<div class="font-mono text-lg font-black text-text-main leading-none shrink-0">
+									{formatClockTime(targetTime)}
+								</div>
 							</div>
+
+							<!-- Bottom Row: Sub details -->
+							{#if subDetails || !nextDep.isRealtime}
+								<div class="flex items-center justify-between text-[10px] font-mono text-text-muted pt-0.5">
+									<div class="truncate min-w-0 flex-1">
+										{#if subDetails}
+											<span>{subDetails}</span>
+										{/if}
+									</div>
+
+									{#if !nextDep.isRealtime}
+										<span class="shrink-0 ml-2">Scheduled</span>
+									{/if}
+								</div>
+							{/if}
 						</div>
 					{/if}
 
-					<!-- Follow-up Departures Timetable -->
+					<!-- Follow-Up Timetable List matching standard TimetableList.svelte design -->
 					{#if followUps.length > 0}
-						<div class="space-y-1 pt-0.5">
-							<div class="text-[10px] font-mono font-bold text-text-muted px-1 uppercase tracking-wider">
-								Upcoming Schedule
-							</div>
-							<div class="grid grid-cols-1 gap-1">
-								{#each followUps as dep (dep.id)}
-									{@const t = dep.predictedTime || dep.scheduledTime}
-									<div class="flex items-center justify-between py-1 px-2 rounded-md bg-bg-elevated/30 text-xs font-mono">
-										<div class="flex items-center gap-1.5 truncate">
-											{@render statusBadge(dep.isRealtime)}
-											<span class="text-text-muted text-[11px] truncate">{dep.headsign}</span>
-										</div>
-										<div class="flex items-center gap-2.5 shrink-0 text-[11px]">
-											<span class="text-text-muted">{formatRelativeTime(t)}</span>
-											<span class="font-bold text-text-main">{formatClockTime(t)}</span>
-										</div>
+						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+							{#each followUps as dep (dep.id)}
+								{@const t = dep.predictedTime || dep.scheduledTime}
+								<div class="p-2.5 flex items-center justify-between text-xs gap-2 hover:bg-bg-surface/50 transition-colors">
+									<div class="flex items-center gap-2 min-w-0 flex-1">
+										{#if dep.vehicleId}
+											<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
+												Bus #{dep.vehicleId}
+											</span>
+										{/if}
+										<span class="font-medium text-text-main truncate text-xs">{dep.headsign}</span>
 									</div>
-								{/each}
-							</div>
+
+									<div class="flex items-center gap-2.5 font-mono shrink-0">
+										<span class="text-text-muted text-[10px]">{formatRelativeTime(t)}</span>
+										<span class="font-bold text-text-main text-[11px]">{formatClockTime(t)}</span>
+										{#if dep.isRealtime}
+											<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
+										{/if}
+									</div>
+								</div>
+							{/each}
 						</div>
 					{/if}
 				</div>
