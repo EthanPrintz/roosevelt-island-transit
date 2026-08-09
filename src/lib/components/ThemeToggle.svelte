@@ -10,12 +10,12 @@ const modes: { mode: ThemeMode; label: string; icon: any }[] = [
 ];
 </script>
 
-<div class="inline-flex items-center p-0.5 rounded-xl bg-bg-elevated/70 border border-border-default/80">
+<div class="flex items-center gap-0.5">
 	{#each modes as { mode, label, icon }}
 		<button
 			type="button"
 			onclick={() => themeState.setMode(mode)}
-			class="p-1.5 rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center {themeState.currentMode === mode ? 'bg-primary text-primary-fg shadow-xs' : 'text-text-muted hover:text-text-main hover:bg-bg-surface/50'}"
+			class="w-7 h-7 rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center {themeState.currentMode === mode ? 'bg-primary text-primary-fg shadow-2xs' : 'text-text-muted hover:text-text-main hover:bg-bg-elevated/60'}"
 			aria-label="{label} theme"
 			title="{label} theme"
 		>

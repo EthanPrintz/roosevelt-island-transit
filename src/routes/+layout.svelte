@@ -10,7 +10,7 @@ let { children }: { children: Snippet } = $props();
 </script>
 
 <div class="min-h-screen flex flex-col bg-bg-base text-text-main font-sans selection:bg-primary selection:text-primary-fg">
-	<!-- Top Application Navigation Bar with Integrated Unified Control Bar -->
+	<!-- Top Application Navigation Bar with Standardized Unified Toolbar -->
 	<header class="sticky top-0 z-50 backdrop-blur-md bg-bg-surface/80 border-b border-border-subtle transition-colors">
 		<div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
 			<!-- Logo / Brand with Live Status Indicator -->
@@ -24,44 +24,44 @@ let { children }: { children: Snippet } = $props();
 				</div>
 			</a>
 
-			<!-- Single Integrated Control Toolbar -->
-			<div class="flex items-center gap-2 rounded-2xl bg-bg-surface border border-border-default/90 p-1 shadow-2xs">
+			<!-- Standardized Single-Surface Control Toolbar -->
+			<div class="h-9 px-2 rounded-full border border-border-default bg-bg-surface flex items-center gap-2 shadow-2xs">
 				<!-- Window Selector Segment -->
-				<div class="flex items-center rounded-xl bg-bg-elevated/60 p-0.5">
+				<div class="flex items-center gap-0.5">
 					{#each [120, 240, 360, 480] as win}
 						<button
 							onclick={() => transitSettings.setWindow(win)}
-							class="px-2 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {transitSettings.selectedWindow === win
+							class="h-7 px-2 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center {transitSettings.selectedWindow === win
 								? 'bg-primary text-primary-fg shadow-2xs'
-								: 'text-text-muted hover:text-text-main'}"
+								: 'text-text-muted hover:text-text-main hover:bg-bg-elevated/60'}"
 						>
 							{win / 60}h
 						</button>
 					{/each}
 				</div>
 
-				<div class="h-4 w-px bg-border-default/80"></div>
+				<div class="h-4 w-px bg-border-subtle"></div>
 
-				<!-- Refresh Action Button -->
+				<!-- Sync Action Button -->
 				<button
 					onclick={() => transitSettings.triggerRefresh()}
 					disabled={transitSettings.isLoading}
-					class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-bg-elevated/60 hover:bg-bg-elevated text-text-main text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer"
+					class="h-7 px-2.5 rounded-lg text-xs font-bold text-text-main hover:bg-bg-elevated/60 transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
 					title="Refresh Live Data"
 				>
 					<HugeiconsIcon icon={RefreshIcon} size={13} class={transitSettings.isLoading ? 'animate-spin text-primary' : 'text-text-muted'} />
-					<span class="hidden sm:inline-block text-[11px]">{transitSettings.isLoading ? 'Syncing...' : 'Sync'}</span>
+					<span class="text-[11px] font-medium">{transitSettings.isLoading ? 'Syncing' : 'Sync'}</span>
 				</button>
 
 				{#if transitSettings.fetchedAt}
-					<div class="h-4 w-px bg-border-default/80 hidden lg:block"></div>
-					<div class="hidden lg:flex items-center gap-1 font-mono text-[10px] text-text-muted px-1">
+					<div class="h-4 w-px bg-border-subtle hidden lg:block"></div>
+					<div class="h-7 px-1.5 text-[10px] font-mono text-text-muted hidden lg:flex items-center gap-1">
 						<HugeiconsIcon icon={Clock01Icon} size={11} />
 						<span>{new Date(transitSettings.fetchedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
 					</div>
 				{/if}
 
-				<div class="h-4 w-px bg-border-default/80"></div>
+				<div class="h-4 w-px bg-border-subtle"></div>
 
 				<!-- Theme Selector Segment -->
 				<ThemeToggle />
