@@ -354,8 +354,8 @@ export class GtfsStaticStore {
 				scheduledDate.setHours(h, m, s, 0);
 
 				const diffMs = scheduledDate.getTime() - nowMs;
-				// Window: from -5 minutes ago up to windowMinutes ahead
-				if (diffMs >= -300000 && diffMs <= windowMinutes * 60000) {
+				// Window: from -2 minutes ago up to windowMinutes ahead
+				if (diffMs >= -120000 && diffMs <= windowMinutes * 60000) {
 					results.push({
 						tripId: entry.tripId,
 						routeId: trip.routeId,
