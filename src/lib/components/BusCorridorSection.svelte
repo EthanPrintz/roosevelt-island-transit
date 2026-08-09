@@ -154,7 +154,9 @@ let octagonSouth = $derived(
 					<!-- Top Row: Standardized Status Pill (Left) & Relative Countdown (Right) -->
 					<div class="flex items-center justify-between text-xs">
 						<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {pill.pillClass}">
-							<HugeiconsIcon icon={pill.icon} size={10} />
+							{#key pill.icon}
+								<HugeiconsIcon icon={pill.icon} size={10} />
+							{/key}
 							<span>{pill.label}</span>
 						</span>
 

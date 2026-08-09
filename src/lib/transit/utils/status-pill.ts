@@ -23,9 +23,12 @@ const ACCENT_CLASSES: Record<'orange' | 'rose' | 'cyan' | 'blue', string> = {
 
 /**
  * Pure, centralized resolver for Hero Card Status Pills across all transit modes.
- * Strict Operational Rule:
- * - If isRealtime is false (scheduled timetable estimate): ALWAYS return Scheduled (Clock01Icon).
- * - Live statuses (Boarding, At Dock, Approaching, Live) are ONLY rendered when isRealtime is true.
+ * Enforces 100% synchronization with time countdowns & Hugeicons:
+ * - isRealtime: false -> ALWAYS Scheduled (Clock01Icon)
+ * - Tram isBoarding -> Boarding (CheckmarkCircle01Icon)
+ * - Ferry speed < 1 -> At Dock (AnchorIcon)
+ * - diffMins between -2 and 2 -> Approaching (ArrowRightToLineIcon)
+ * - diffMins > 2 -> Live (FlashIcon)
  */
 export function resolveHeroStatusPill(
 	departure: TransitDeparture,
@@ -62,11 +65,11 @@ export function resolveHeroStatusPill(
 		}
 	}
 
-	// 3. Realtime Approaching State (Within 2 minutes of arrival / Arriving Now)
+	// 3. Realtime Approaching State (Arriving Now / Within 2 minutes)
 	const targetTime = new Date(departure.predictedTime || departure.scheduledTime).getTime();
 	const diffMins = (targetTime - Date.now()) / 60000;
 
-	if (diffMins >= 0 && diffMins <= 2) {
+	if (diffMins >= -2 && diffMins <= 2) {
 		return {
 			label: 'Approaching',
 			icon: ArrowRightToLineIcon,

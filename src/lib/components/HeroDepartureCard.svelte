@@ -73,7 +73,9 @@ let relativeLabel = $derived(
 	<div class="flex items-center justify-between text-xs">
 		<div class="flex items-center gap-1.5 flex-wrap">
 			<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {resolvedClass}">
-				<HugeiconsIcon icon={resolvedIcon} size={10} />
+				{#key resolvedIcon}
+					<HugeiconsIcon icon={resolvedIcon} size={10} />
+				{/key}
 				<span>{resolvedText}</span>
 			</span>
 
