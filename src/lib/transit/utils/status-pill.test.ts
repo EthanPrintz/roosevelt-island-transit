@@ -10,7 +10,7 @@ import type { FerryDeparture, TramDeparture, TransitDeparture } from '../domain/
 import { resolveHeroStatusPill } from './status-pill';
 
 describe('resolveHeroStatusPill', () => {
-	it('resolves Boarding state for Tramway when isBoarding is true', () => {
+	it('resolves Scheduled state for non-realtime Tramway departure even if isBoarding is true', () => {
 		const tram: TramDeparture = {
 			id: 'tram-1',
 			mode: 'tram',
@@ -28,12 +28,35 @@ describe('resolveHeroStatusPill', () => {
 		};
 
 		const result = resolveHeroStatusPill(tram, 'rose');
+		expect(result.label).toBe('Scheduled');
+		expect(result.icon).toBe(Clock01Icon);
+		expect(result.pillClass).toContain('bg-rose-500/15');
+	});
+
+	it('resolves Boarding state for realtime Tramway departure when isBoarding is true', () => {
+		const tram: TramDeparture = {
+			id: 'tram-realtime-1',
+			mode: 'tram',
+			routeId: 'TRAM',
+			routeName: 'Roosevelt Island Tramway',
+			headsign: 'Manhattan',
+			destinationName: 'Manhattan',
+			direction: 'manhattan_bound',
+			scheduledTime: new Date().toISOString(),
+			isRealtime: true,
+			status: 'normal',
+			stopName: 'Roosevelt Island',
+			cabin: 'NORTH',
+			isBoarding: true,
+		};
+
+		const result = resolveHeroStatusPill(tram, 'rose');
 		expect(result.label).toBe('Boarding');
 		expect(result.icon).toBe(CheckmarkCircle01Icon);
 		expect(result.pillClass).toContain('bg-rose-500/15');
 	});
 
-	it('resolves At Dock state for Ferry when speedKnots < 1', () => {
+	it('resolves At Dock state for realtime Ferry when speedKnots < 1', () => {
 		const ferry: FerryDeparture = {
 			id: 'ferry-1',
 			mode: 'ferry',
