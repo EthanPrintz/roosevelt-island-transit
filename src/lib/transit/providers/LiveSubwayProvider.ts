@@ -1,78 +1,130 @@
 import { decodeGtfsRealtimeBuffer } from '$lib/server/gtfs';
+import { gtfsStaticStore, type ScheduledDeparture } from '$lib/server/gtfs-static';
 import type { ProviderCapability, TransitProvider } from '../domain/provider';
 import type { ProviderResult, SubwayDeparture, TransitAlert, TransitMode } from '../domain/types';
 
-export const MTA_SUBWAY_BDFM_URL =
+export const MTA_BDFM_FEED_URL =
 	'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm';
+export const MTA_STATIC_GTFS_URL =
+	'https://web.mta.info/developers/data/nyct/subway/google_transit.zip';
 
 /**
  * LiveSubwayProvider
  *
- * Fetches real-time GTFS-RT Protobuf feed from MTA for F/M subway lines.
- * Filters for Roosevelt Island Station (GTFS Stop ID B06N / B06S).
+ * Hybrid GTFS engine that combines static MTA Subway schedules (stop ID B06)
+ * with live real-time GTFS-RT Protobuf updates from MTA BDFM feed.
  */
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
-	readonly name = 'MTA Subway Live (F/M Trains)';
+	readonly name = 'MTA Subway Live (F/M Lines)';
 	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
 
 	async getDepartures(): Promise<ProviderResult<SubwayDeparture>> {
 		try {
-			const res = await fetch(MTA_SUBWAY_BDFM_URL, {
-				headers: { Accept: 'application/x-protobuf' },
-			});
+			const now = new Date();
 
-			if (!res.ok) {
-				throw new Error(`MTA API returned status ${res.status}`);
+			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Station (B06)
+			let staticDepartures: ScheduledDeparture[] = [];
+			try {
+				await gtfsStaticStore.loadDataset('subway', MTA_STATIC_GTFS_URL);
+				staticDepartures = gtfsStaticStore.getScheduledDepartures('subway', 'B06', now, 120);
+			} catch (staticErr) {
+				console.warn(
+					'GTFS static store unavailable for subway, falling back to RT-only',
+					staticErr,
+				);
 			}
 
-			const arrayBuffer = await res.arrayBuffer();
-			const feed = decodeGtfsRealtimeBuffer(arrayBuffer);
+			// 2. Fetch live GTFS-RT feed
+			const res = await fetch(MTA_BDFM_FEED_URL);
+			const liveUpdates = new Map<
+				string,
+				{ time: string; delay: number; track: string; stopId: string }
+			>();
+
+			if (res.ok) {
+				const arrayBuffer = await res.arrayBuffer();
+				const feed = decodeGtfsRealtimeBuffer(arrayBuffer);
+
+				for (const entity of feed.entity) {
+					if (!entity.tripUpdate?.stopTimeUpdate) continue;
+					const tripId = entity.tripUpdate.trip.tripId;
+
+					for (const update of entity.tripUpdate.stopTimeUpdate) {
+						const stopId = String(update.stopId || '').replace(/"/g, '');
+						if (stopId.startsWith('B06')) {
+							const timeVal = update.departure?.time || update.arrival?.time;
+							if (!timeVal) continue;
+							const isoTime = new Date(timeVal * 1000).toISOString();
+							const delaySec = update.departure?.delay || update.arrival?.delay || 0;
+							const track = stopId.endsWith('N') ? 'Uptown' : 'Downtown';
+
+							if (tripId) {
+								liveUpdates.set(tripId, { time: isoTime, delay: delaySec, track, stopId });
+							}
+						}
+					}
+				}
+			}
 
 			const departures: SubwayDeparture[] = [];
+			const processedTripIds = new Set<string>();
 
-			for (const entity of feed.entity) {
-				if (!entity.tripUpdate?.stopTimeUpdate) continue;
+			// 3. Process static departures & overlay live updates
+			for (const stat of staticDepartures) {
+				processedTripIds.add(stat.tripId);
 
-				const trip = entity.tripUpdate.trip;
-				const routeId = (trip.routeId || '').toUpperCase();
+				const rt = liveUpdates.get(stat.tripId);
+				const isRealtime = Boolean(rt);
+				const predictedTime = rt ? rt.time : stat.scheduledTime;
+				const delaySec = rt ? rt.delay : 0;
+				const isNorthbound = stat.stopId.endsWith('N') || (rt ? rt.track === 'Uptown' : false);
 
-				for (const update of entity.tripUpdate.stopTimeUpdate) {
-					const stopId = update.stopId || '';
-					// Roosevelt Island GTFS Station ID is B06 (B06N = Uptown/Queens, B06S = Downtown/Manhattan)
-					if (!stopId.startsWith('B06')) continue;
+				departures.push({
+					id: `subway-live-${stat.tripId}-${stat.stopId}`,
+					mode: 'subway',
+					routeId: (stat.routeId as 'F' | 'M') || 'F',
+					routeName: stat.routeId === 'M' ? 'M Train' : 'F Train',
+					tripId: stat.tripId,
+					headsign: isNorthbound ? 'Queens / Jamaica 179 St' : 'Manhattan / Coney Island',
+					destinationName: isNorthbound ? 'Queens' : 'Manhattan',
+					direction: isNorthbound ? 'queens_bound' : 'manhattan_bound',
+					scheduledTime: stat.scheduledTime,
+					predictedTime,
+					isRealtime,
+					delaySeconds: delaySec,
+					status: delaySec > 180 ? 'delays' : 'normal',
+					stopName: 'Roosevelt Island Station',
+					stopId: stat.stopId,
+					track: isNorthbound ? 'Uptown' : 'Downtown',
+					isShuttle: false,
+				});
+			}
 
-					const isUptown = stopId.endsWith('N');
-					const timeVal = update.departure?.time || update.arrival?.time;
-					if (!timeVal) continue;
+			// 4. Include any real-time unscheduled/added trips not in static schedule
+			for (const [tripId, rt] of liveUpdates.entries()) {
+				if (processedTripIds.has(tripId)) continue;
+				const isNorthbound = rt.track === 'Uptown';
 
-					const isoTime = new Date(timeVal * 1000).toISOString();
-					const isMShuttle = routeId === 'M' && isUptown;
-
-					departures.push({
-						id: `subway-live-${trip.tripId || Math.random()}-${stopId}`,
-						mode: 'subway',
-						routeId: routeId === 'M' ? 'M' : 'F',
-						routeName: `${routeId || 'F'} Train`,
-						tripId: trip.tripId,
-						headsign: isUptown
-							? routeId === 'F'
-								? 'Queens / Jamaica 179 St'
-								: 'Forest Hills - 71 Ave via 63rd St'
-							: 'Manhattan / Coney Island',
-						destinationName: isUptown ? 'Queens' : 'Manhattan',
-						direction: isUptown ? 'queens_bound' : 'manhattan_bound',
-						scheduledTime: isoTime,
-						predictedTime: isoTime,
-						isRealtime: true,
-						delaySeconds: update.departure?.delay || 0,
-						status: isMShuttle ? 'rerouted' : 'normal',
-						stopName: 'Roosevelt Island Station',
-						stopId,
-						track: isUptown ? 'Uptown' : 'Downtown',
-						isShuttle: isMShuttle,
-					});
-				}
+				departures.push({
+					id: `subway-live-${tripId}-${rt.stopId}`,
+					mode: 'subway',
+					routeId: 'F',
+					routeName: 'F Train',
+					tripId,
+					headsign: isNorthbound ? 'Queens / Jamaica 179 St' : 'Manhattan / Coney Island',
+					destinationName: isNorthbound ? 'Queens' : 'Manhattan',
+					direction: isNorthbound ? 'queens_bound' : 'manhattan_bound',
+					scheduledTime: rt.time,
+					predictedTime: rt.time,
+					isRealtime: true,
+					delaySeconds: rt.delay,
+					status: 'normal',
+					stopName: 'Roosevelt Island Station',
+					stopId: rt.stopId,
+					track: rt.track as 'Uptown' | 'Downtown',
+					isShuttle: false,
+				});
 			}
 
 			return {

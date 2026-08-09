@@ -61,6 +61,8 @@ let manhattanSubways = $derived(subwayDepartures.filter((d) => d.direction === '
 let queensSubways = $derived(subwayDepartures.filter((d) => d.direction === 'queens_bound'));
 
 let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
+let southboundFerries = $derived(ferryDepartures.filter((d) => d.direction === 'southbound'));
+let northboundFerries = $derived(ferryDepartures.filter((d) => d.direction === 'northbound'));
 </script>
 
 <svelte:head>
@@ -123,7 +125,7 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>🚇</span>
-				MTA Subway (F/M Trains) — {subwayDepartures.length} Live Trains
+				MTA Subway (F/M Trains) — {subwayDepartures.length} Total Departures
 			</h2>
 		</div>
 
@@ -165,7 +167,14 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 								<div class="font-mono text-xl font-black text-text-main">
 									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
-								<span class="text-[10px] font-bold text-emerald-500">Live GTFS-RT</span>
+								{#if nextTrain.isRealtime}
+									<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
+										<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+										Live GTFS-RT
+									</span>
+								{:else}
+									<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
+								{/if}
 							</div>
 						</div>
 					</div>
@@ -183,6 +192,9 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 											<span class="font-bold text-text-main">
 												{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 											</span>
+											{#if train.isRealtime}
+												<span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Live GTFS-RT"></span>
+											{/if}
 										</div>
 									</div>
 								{/each}
@@ -229,7 +241,14 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 								<div class="font-mono text-xl font-black text-text-main">
 									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
-								<span class="text-[10px] font-bold text-emerald-500">Live GTFS-RT</span>
+								{#if nextTrain.isRealtime}
+									<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
+										<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+										Live GTFS-RT
+									</span>
+								{:else}
+									<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
+								{/if}
 							</div>
 						</div>
 					</div>
@@ -247,6 +266,9 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 											<span class="font-bold text-text-main">
 												{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 											</span>
+											{#if train.isRealtime}
+												<span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Live GTFS-RT"></span>
+											{/if}
 										</div>
 									</div>
 								{/each}
@@ -258,50 +280,174 @@ let ferryDepartures = $derived(departures.filter((d) => d.mode === 'ferry'));
 		</div>
 	</div>
 
-	<!-- Dedicated Section: ⛴️ NYC Ferry (Astoria Line) -->
-	<div class="space-y-2">
+	<!-- Dedicated Section: ⛴️ NYC Ferry (Astoria Line) Split by Direction -->
+	<div class="space-y-4">
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<span>⛴️</span>
-				NYC Ferry (Astoria Line) — {ferryDepartures.length} Live Departures
+				NYC Ferry (Astoria Line) — {ferryDepartures.length} Total Departures
 			</h2>
 		</div>
 
-		{#if ferryDepartures.length === 0}
-			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
-				{isLoading ? 'Loading NYC Ferry feeds...' : 'No incoming ferry boats active in Connexionz GTFS-RT feed for stop 25.'}
-			</div>
-		{:else}
-			<div class="divide-y divide-border-subtle rounded-xl bg-bg-surface border border-border-default overflow-hidden">
-				{#each ferryDepartures as departure (departure.id)}
-					<div class="p-3.5 flex items-center justify-between text-xs gap-3">
-						<div class="flex items-center gap-2.5">
-							<span class="px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono font-extrabold text-[11px] uppercase border border-sky-500/20">
-								FERRY
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+			<!-- Southbound Column -->
+			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<span class="px-2.5 py-0.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono font-black text-xs border border-sky-500/20">
+							FERRY
+						</span>
+						<h3 class="text-sm font-bold text-text-main">Southbound / Wall St Pier 11</h3>
+					</div>
+					<span class="text-[11px] font-mono text-text-muted">Dock 25</span>
+				</div>
+
+				{#if southboundFerries.length === 0}
+					<div class="p-4 text-center text-xs text-text-muted">
+						{isLoading ? 'Loading Southbound ferries...' : 'No upcoming Southbound ferries in feed.'}
+					</div>
+				{:else}
+					<!-- HERO CARD: Next Southbound Ferry -->
+					{@const nextFerry = southboundFerries[0]}
+					<div class="p-4 rounded-xl bg-gradient-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
+						<div class="flex items-center justify-between text-xs">
+							<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
+								NEXT FERRY
 							</span>
+							<span class="font-mono text-xs font-bold text-sky-600 dark:text-sky-400">
+								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
+							</span>
+						</div>
+						<div class="flex items-baseline justify-between pt-1">
 							<div>
-								<div class="font-bold text-text-main">{departure.headsign}</div>
-								<div class="text-[11px] text-text-muted">
-									{departure.stopName}
-									{#if departure.mode === 'ferry' && departure.vesselName}
-										• Vessel: <strong class="text-text-main font-mono">{departure.vesselName}</strong>
+								<div class="text-base font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
+								<div class="text-[11px] text-text-muted mt-0.5">
+									Roosevelt Island Dock
+									{#if nextFerry.vesselName}
+										• Vessel: <strong class="text-text-main font-mono">{nextFerry.vesselName}</strong>
 									{/if}
 								</div>
 							</div>
-						</div>
-						<div class="text-right">
-							<div class="font-mono text-sm font-extrabold text-text-main">
-								{new Date(departure.predictedTime || departure.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+							<div class="text-right">
+								<div class="font-mono text-xl font-black text-text-main">
+									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+								</div>
+								{#if nextFerry.isRealtime}
+									<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
+										<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+										Live GTFS-RT
+									</span>
+								{:else}
+									<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
+								{/if}
 							</div>
-							<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-								<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-								Live GTFS-RT
-							</span>
 						</div>
 					</div>
-				{/each}
+
+					<!-- SUBSEQUENT FERRIES -->
+					{#if southboundFerries.length > 1}
+						<div class="space-y-1.5 pt-1">
+							<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Following Ferries</div>
+							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+								{#each southboundFerries.slice(1) as ferry (ferry.id)}
+									<div class="p-2.5 flex items-center justify-between text-xs">
+										<div class="font-medium text-text-main">{ferry.headsign}</div>
+										<div class="flex items-center gap-3 font-mono">
+											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
+											<span class="font-bold text-text-main">
+												{new Date(ferry.predictedTime || ferry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+											</span>
+											{#if ferry.isRealtime}
+												<span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Live GTFS-RT"></span>
+											{/if}
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				{/if}
 			</div>
-		{/if}
+
+			<!-- Northbound Column -->
+			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<span class="px-2.5 py-0.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono font-black text-xs border border-sky-500/20">
+							FERRY
+						</span>
+						<h3 class="text-sm font-bold text-text-main">Northbound / East 90th St</h3>
+					</div>
+					<span class="text-[11px] font-mono text-text-muted">Dock 25</span>
+				</div>
+
+				{#if northboundFerries.length === 0}
+					<div class="p-4 text-center text-xs text-text-muted">
+						{isLoading ? 'Loading Northbound ferries...' : 'No upcoming Northbound ferries in feed.'}
+					</div>
+				{:else}
+					<!-- HERO CARD: Next Northbound Ferry -->
+					{@const nextFerry = northboundFerries[0]}
+					<div class="p-4 rounded-xl bg-gradient-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
+						<div class="flex items-center justify-between text-xs">
+							<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
+								NEXT FERRY
+							</span>
+							<span class="font-mono text-xs font-bold text-sky-600 dark:text-sky-400">
+								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
+							</span>
+						</div>
+						<div class="flex items-baseline justify-between pt-1">
+							<div>
+								<div class="text-base font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
+								<div class="text-[11px] text-text-muted mt-0.5">
+									Roosevelt Island Dock
+									{#if nextFerry.vesselName}
+										• Vessel: <strong class="text-text-main font-mono">{nextFerry.vesselName}</strong>
+									{/if}
+								</div>
+							</div>
+							<div class="text-right">
+								<div class="font-mono text-xl font-black text-text-main">
+									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+								</div>
+								{#if nextFerry.isRealtime}
+									<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
+										<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+										Live GTFS-RT
+									</span>
+								{:else}
+									<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
+								{/if}
+							</div>
+						</div>
+					</div>
+
+					<!-- SUBSEQUENT FERRIES -->
+					{#if northboundFerries.length > 1}
+						<div class="space-y-1.5 pt-1">
+							<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Following Ferries</div>
+							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+								{#each northboundFerries.slice(1) as ferry (ferry.id)}
+									<div class="p-2.5 flex items-center justify-between text-xs">
+										<div class="font-medium text-text-main">{ferry.headsign}</div>
+										<div class="flex items-center gap-3 font-mono">
+											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
+											<span class="font-bold text-text-main">
+												{new Date(ferry.predictedTime || ferry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+											</span>
+											{#if ferry.isRealtime}
+												<span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Live GTFS-RT"></span>
+											{/if}
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				{/if}
+			</div>
+		</div>
 	</div>
 
 	<!-- Dedicated Section: 🚲 Citi Bike Docks -->
