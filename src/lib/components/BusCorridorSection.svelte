@@ -152,12 +152,9 @@ let octagonDepartures = $derived(
 						</span>
 					</div>
 
-					<!-- Middle Row: Route Badge + Destination Title (Left) & Large Clock Time (Right) -->
+					<!-- Middle Row: Destination Title (Left) & Large Clock Time (Right) -->
 					<div class="flex items-baseline justify-between gap-2 pt-0.5">
-						<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1 flex items-center gap-1.5">
-							<span class="px-1.5 py-0.5 rounded-md font-mono text-[9px] font-bold uppercase {styles.badgeDefault}">
-								{nextDep.routeId === 'RED_BUS' ? 'Red Bus' : 'Q102'}
-							</span>
+						<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
 							<span class="truncate">{nextDep.headsign}</span>
 						</div>
 
