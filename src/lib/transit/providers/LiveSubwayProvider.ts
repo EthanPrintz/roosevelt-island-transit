@@ -13,6 +13,7 @@ export const MTA_STATIC_GTFS_URL =
  *
  * Hybrid GTFS engine that combines static MTA Subway schedules (stop ID B06)
  * with live real-time GTFS-RT Protobuf updates from MTA BDFM feed.
+ * Includes suffix-matching deduplication for MTA GTFS schedule prefixes.
  */
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
@@ -74,14 +75,31 @@ export class LiveSubwayProvider implements TransitProvider {
 			}
 
 			const departures: SubwayDeparture[] = [];
-			const processedTripIds = new Set<string>();
+			const processedRtTripIds = new Set<string>();
+
+			// Helper to match live GTFS-RT trip IDs to static GTFS trip IDs
+			const matchLiveUpdate = (staticTripId: string) => {
+				const exactData = liveUpdates.get(staticTripId);
+				if (exactData) {
+					return { data: exactData, rtTripId: staticTripId };
+				}
+				for (const [rtTripId, data] of liveUpdates.entries()) {
+					if (staticTripId.endsWith(rtTripId) || staticTripId.includes(rtTripId)) {
+						return { data, rtTripId };
+					}
+				}
+				return null;
+			};
 
 			// 3. Process static departures & overlay live updates
 			for (const stat of staticDepartures) {
-				processedTripIds.add(stat.tripId);
+				const match = matchLiveUpdate(stat.tripId);
+				const isRealtime = Boolean(match);
+				if (match) {
+					processedRtTripIds.add(match.rtTripId);
+				}
 
-				const rt = liveUpdates.get(stat.tripId);
-				const isRealtime = Boolean(rt);
+				const rt = match?.data;
 				const predictedTime = rt ? rt.time : stat.scheduledTime;
 				const delaySec = rt ? rt.delay : 0;
 				const isNorthbound = stat.stopId.endsWith('N') || (rt ? rt.track === 'Uptown' : false);
@@ -109,7 +127,7 @@ export class LiveSubwayProvider implements TransitProvider {
 
 			// 4. Include any real-time unscheduled/added trips not in static schedule
 			for (const [tripId, rt] of liveUpdates.entries()) {
-				if (processedTripIds.has(tripId)) continue;
+				if (processedRtTripIds.has(tripId)) continue;
 				const isNorthbound = rt.track === 'Uptown';
 
 				departures.push({
