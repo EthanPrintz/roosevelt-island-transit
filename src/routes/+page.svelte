@@ -274,6 +274,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 		icon={Train01Icon}
 		iconBgClass="bg-blue-500/10 text-blue-500"
 		accentColor="blue"
+		showRadar={false}
 		northboundDepartures={astoriaQ102}
 		southboundDepartures={colerQ102}
 		vehicles={q102Vehicles}

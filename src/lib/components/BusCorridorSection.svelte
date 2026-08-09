@@ -17,6 +17,7 @@ interface Props {
 	southboundDepartures: TransitDeparture[];
 	vehicles?: LiveVehiclePosition[];
 	alerts?: TransitAlert[];
+	showRadar?: boolean;
 	northboundTitle: string;
 	northboundSubtitle: string;
 	southboundTitle: string;
@@ -34,6 +35,7 @@ let {
 	southboundDepartures = [],
 	vehicles = [],
 	alerts = [],
+	showRadar = true,
 	northboundTitle,
 	northboundSubtitle,
 	southboundTitle,
@@ -46,8 +48,10 @@ let {
 <div class="space-y-2.5">
 	<ModeSectionHeader {title} {icon} {iconBgClass} {alerts} />
 
-	<!-- Live Corridor Radar Track -->
-	<VehicleCorridorTracker {vehicles} {accentColor} />
+	<!-- Live Corridor Radar Track (Conditional) -->
+	{#if showRadar}
+		<VehicleCorridorTracker {vehicles} {accentColor} />
+	{/if}
 
 	<!-- Directional Multi-Stop Matrices -->
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
