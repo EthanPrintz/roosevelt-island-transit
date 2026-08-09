@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { Snippet } from 'svelte';
 import '../app.css';
-import { BoatIcon, Clock01Icon, RefreshIcon, Train01Icon } from '@hugeicons/core-free-icons';
+import { CableCarIcon, Clock01Icon, RefreshIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
@@ -16,7 +16,7 @@ let { children }: { children: Snippet } = $props();
 			<!-- Logo / Brand with Live Status Indicator -->
 			<a href="/" class="flex items-center gap-2.5 font-bold text-sm tracking-tight text-text-main hover:opacity-90 transition-opacity shrink-0">
 				<div class="p-1.5 rounded-xl bg-primary text-primary-fg shadow-xs flex items-center justify-center relative">
-					<HugeiconsIcon icon={Train01Icon} size={18} strokeWidth={2.5} />
+					<HugeiconsIcon icon={CableCarIcon} size={18} strokeWidth={2.5} />
 				</div>
 				<div class="flex items-center gap-2">
 					<span class="font-extrabold tracking-tight">Roosevelt Island Transit</span>
@@ -61,7 +61,7 @@ let { children }: { children: Snippet } = $props();
 	<footer class="border-t border-border-subtle bg-bg-surface/50 py-6 transition-colors mt-8">
 		<div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-text-muted">
 			<div class="flex items-center gap-2">
-				<HugeiconsIcon icon={BoatIcon} size={14} strokeWidth={2} />
+				<HugeiconsIcon icon={CableCarIcon} size={14} strokeWidth={2} />
 				<span>Roosevelt Island Transit</span>
 			</div>
 			<div class="font-mono text-[11px]">
