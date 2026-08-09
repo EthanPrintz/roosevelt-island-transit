@@ -45,11 +45,11 @@ export class LiveQ102Provider implements TransitProvider {
 				const stopDefs = [
 					{ id: '450151', name: 'Subway Plaza', isOff: false },
 					{ id: '450142', name: 'Subway Plaza', isOff: false },
-					{ id: '404179', name: 'Octagon / Main St', isOff: false },
-					{ id: '404180', name: 'Coler Hospital', isOff: false },
-					{ id: '404185', name: 'Southtown / Tech', isOff: false },
-					{ id: '404150', name: 'Vernon Blvd (LIC)', isOff: true },
-					{ id: '404130', name: 'Astoria 27 Ave Terminal', isOff: true },
+					{ id: '450152', name: 'Coler Hospital', isOff: false },
+					{ id: '450150', name: 'Octagon / Main St', isOff: false },
+					{ id: '450141', name: 'Southtown / Tech', isOff: false },
+					{ id: '505487', name: 'Vernon Blvd (LIC)', isOff: true },
+					{ id: '505495', name: 'Vernon Blvd (LIC)', isOff: true },
 				];
 
 				for (const def of stopDefs) {
@@ -124,6 +124,8 @@ export class LiveQ102Provider implements TransitProvider {
 								? `${call.NumberOfStopsAway} stops away`
 								: undefined);
 
+						const liveStopName = call?.StopPointName?.[0] || 'Subway Plaza';
+
 						departures.push({
 							id: `q102-live-${vehicleId || Math.random().toString(36).substring(2, 8)}`,
 							mode: 'q102_bus',
@@ -137,7 +139,7 @@ export class LiveQ102Provider implements TransitProvider {
 							predictedTime: expectedTime,
 							isRealtime: true,
 							status: 'normal',
-							stopName: 'Main St / Subway Stop',
+							stopName: liveStopName,
 							vehicleId,
 							occupancy,
 							nextStopName: proximityText,
