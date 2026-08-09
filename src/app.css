@@ -22,7 +22,7 @@
 	/* Mode Specific Accent Tokens */
 	--color-subway: oklch(0.65 0.22 41.5);
 	--color-ferry: oklch(0.65 0.17 235);
-	--color-bike: oklch(0.65 0.19 160);
+	--color-bike: oklch(0.52 0.22 260);
 
 	/* Semantic tokens */
 	--color-bg-base: var(--bg-base);
