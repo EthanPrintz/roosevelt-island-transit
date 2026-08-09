@@ -130,13 +130,11 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 </svelte:head>
 
 <div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
-	<!-- Minimal Stream Control Bar -->
-	<header class="p-4 rounded-2xl bg-bg-surface border border-border-default shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-		<div>
-			<h1 class="text-base font-extrabold text-text-main tracking-tight">Live Arrivals</h1>
-		</div>
+	<!-- Minimal Control Bar -->
+	<header class="p-3.5 rounded-2xl bg-bg-surface border border-border-default shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+		<h1 class="text-sm font-extrabold text-text-main tracking-tight uppercase">Live Arrivals</h1>
 
-		<div class="flex items-center gap-2.5 shrink-0">
+		<div class="flex items-center gap-2 shrink-0">
 			<!-- Lookahead Window Selector -->
 			<div class="flex items-center rounded-xl bg-bg-elevated/60 border border-border-default/80 p-1 text-xs">
 				{#each [120, 240, 360, 480] as win}
@@ -154,9 +152,9 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			<button
 				onclick={loadLiveData}
 				disabled={isLoading}
-				class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-primary text-primary-fg text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
+				class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-primary text-primary-fg text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
 			>
-				<HugeiconsIcon icon={RefreshIcon} size={13} class={isLoading ? 'animate-spin' : ''} />
+				<HugeiconsIcon icon={RefreshIcon} size={12} class={isLoading ? 'animate-spin' : ''} />
 				<span>{isLoading ? 'Refreshing...' : 'Refresh'}</span>
 			</button>
 
@@ -171,7 +169,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<!-- Active System Alerts -->
 	{#if alerts.length > 0}
 		<div class="space-y-2">
-			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-1.5">
+			<h2 class="section-title">
 				<HugeiconsIcon icon={Alert02Icon} size={14} class="text-amber-500" />
 				<span>Alerts ({alerts.length})</span>
 			</h2>
@@ -192,9 +190,9 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	{/if}
 
 	<!-- Section: Subway -->
-	<div class="space-y-3">
+	<div class="space-y-2.5">
 		<div class="flex items-center justify-between">
-			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
+			<h2 class="section-title">
 				<HugeiconsIcon icon={Train01Icon} size={15} class="text-orange-500" />
 				<span>Subway</span>
 			</h2>
@@ -215,7 +213,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						? 'bg-orange-500 text-white shadow-xs'
 						: 'text-text-muted hover:text-text-main'}"
 				>
-					<span class="w-3.5 h-3.5 rounded-full bg-orange-500 text-white font-black text-[9px] flex items-center justify-center">F</span>
+					<span class="bullet-subway text-[9px]">F</span>
 				</button>
 				<button
 					onclick={() => (subwayRouteFilter = 'M')}
@@ -223,19 +221,19 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						? 'bg-orange-500 text-white shadow-xs'
 						: 'text-text-muted hover:text-text-main'}"
 				>
-					<span class="w-3.5 h-3.5 rounded-full bg-orange-500 text-white font-black text-[9px] flex items-center justify-center">M</span>
+					<span class="bullet-subway text-[9px]">M</span>
 				</button>
 			</div>
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Manhattan-Bound Column -->
-			<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5">
+			<div class="panel-card">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-2">
 						<div class="flex items-center gap-1">
-							<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">F</span>
-							<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">M</span>
+							<span class="bullet-subway text-[9px]">F</span>
+							<span class="bullet-subway text-[9px]">M</span>
 						</div>
 						<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Manhattan-Bound</h3>
 					</div>
@@ -251,7 +249,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<div class="p-3 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
 							<div class="flex items-center gap-1.5">
-								<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">
+								<span class="bullet-subway text-[9px]">
 									{nextTrain.routeId}
 								</span>
 								{#if nextTrain.scheduleRelationship === 'ADDED'}
@@ -303,7 +301,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							{#each manhattanSubways.slice(1) as train (train.id)}
 								<div class="p-2 flex items-center justify-between text-xs">
 									<div class="flex items-center gap-2">
-										<span class="w-3.5 h-3.5 rounded-full bg-orange-500 text-white font-black text-[9px] flex items-center justify-center shadow-2xs shrink-0">
+										<span class="bullet-subway text-[9px]">
 											{train.routeId}
 										</span>
 										<span class="font-medium text-text-main">{train.headsign}</span>
@@ -333,12 +331,12 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			</div>
 
 			<!-- Queens-Bound Column -->
-			<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5">
+			<div class="panel-card">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-2">
 						<div class="flex items-center gap-1">
-							<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">F</span>
-							<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">M</span>
+							<span class="bullet-subway text-[9px]">F</span>
+							<span class="bullet-subway text-[9px]">M</span>
 						</div>
 						<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Queens-Bound</h3>
 					</div>
@@ -354,7 +352,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<div class="p-3 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
 							<div class="flex items-center gap-1.5">
-								<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">
+								<span class="bullet-subway text-[9px]">
 									{nextTrain.routeId}
 								</span>
 								{#if nextTrain.scheduleRelationship === 'ADDED'}
@@ -406,7 +404,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							{#each queensSubways.slice(1) as train (train.id)}
 								<div class="p-2 flex items-center justify-between text-xs">
 									<div class="flex items-center gap-2">
-										<span class="w-3.5 h-3.5 rounded-full bg-orange-500 text-white font-black text-[9px] flex items-center justify-center shadow-2xs shrink-0">
+										<span class="bullet-subway text-[9px]">
 											{train.routeId}
 										</span>
 										<span class="font-medium text-text-main">{train.headsign}</span>
@@ -438,17 +436,17 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	</div>
 
 	<!-- Section: Ferry -->
-	<div class="space-y-3">
+	<div class="space-y-2.5">
 		<div class="flex items-center justify-between">
-			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
-				<HugeiconsIcon icon={FerryBoatIcon} size={16} class="text-sky-500" />
+			<h2 class="section-title">
+				<HugeiconsIcon icon={FerryBoatIcon} size={15} class="text-sky-500" />
 				<span>Ferry</span>
 			</h2>
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Southbound Column -->
-			<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5">
+			<div class="panel-card">
 				<div class="flex items-center justify-between">
 					<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Southbound / Wall St</h3>
 				</div>
@@ -544,7 +542,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			</div>
 
 			<!-- Northbound Column -->
-			<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5">
+			<div class="panel-card">
 				<div class="flex items-center justify-between">
 					<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Northbound / E 90th St</h3>
 				</div>
@@ -642,38 +640,38 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	</div>
 
 	<!-- Section: Citi Bike -->
-	<div class="space-y-3">
+	<div class="space-y-2.5">
 		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
-				<HugeiconsIcon icon={Bicycle01Icon} size={16} class="text-emerald-500" />
+			<h2 class="section-title">
+				<HugeiconsIcon icon={Bicycle01Icon} size={15} class="text-emerald-500" />
 				<span>Citi Bike</span>
 			</h2>
 
 			<!-- Legend Bar -->
-			<div class="flex flex-wrap items-center gap-3 text-[10px] font-medium text-text-muted bg-bg-surface px-3 py-1.5 rounded-xl border border-border-default shadow-2xs">
+			<div class="flex flex-wrap items-center gap-3 text-[10px] font-medium text-text-muted bg-bg-surface px-3 py-1 rounded-xl border border-border-default shadow-2xs">
 				<div class="flex items-center gap-1.5">
-					<span class="w-3.5 h-3.5 rounded bg-sky-500 flex items-center justify-center text-white shadow-2xs">
-						<HugeiconsIcon icon={FlashIcon} size={9} />
+					<span class="w-3 h-3 rounded bg-sky-500 flex items-center justify-center text-white shadow-2xs">
+						<HugeiconsIcon icon={FlashIcon} size={8} />
 					</span>
 					<span>E-Bike ({totalEbikes})</span>
 				</div>
 				<div class="flex items-center gap-1.5">
-					<span class="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs">
-						<HugeiconsIcon icon={Bicycle01Icon} size={9} />
+					<span class="w-3 h-3 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs">
+						<HugeiconsIcon icon={Bicycle01Icon} size={8} />
 					</span>
 					<span>Classic ({totalClassicBikes})</span>
 				</div>
 				{#if totalBrokenBikes > 0}
 					<div class="flex items-center gap-1.5">
-						<span class="w-3.5 h-3.5 rounded bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500">
-							<HugeiconsIcon icon={Wrench01Icon} size={9} />
+						<span class="w-3 h-3 rounded bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500">
+							<HugeiconsIcon icon={Wrench01Icon} size={8} />
 						</span>
 						<span>Broken ({totalBrokenBikes})</span>
 					</div>
 				{/if}
 				<div class="flex items-center gap-1.5">
-					<span class="w-3.5 h-3.5 rounded bg-bg-elevated/60 border border-border-default flex items-center justify-center text-text-muted">
-						<HugeiconsIcon icon={SquareIcon} size={9} />
+					<span class="w-3 h-3 rounded bg-bg-elevated/60 border border-border-default flex items-center justify-center text-text-muted">
+						<HugeiconsIcon icon={SquareIcon} size={8} />
 					</span>
 					<span>Open Dock ({totalOpenDocks})</span>
 				</div>
@@ -688,7 +686,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 				{#each stations as station (station.id)}
 					{@const slots = generateDockSlots(station)}
-					<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5 flex flex-col justify-between">
+					<div class="panel-card flex flex-col justify-between">
 						<div>
 							<div class="flex items-start justify-between gap-2">
 								<div>
