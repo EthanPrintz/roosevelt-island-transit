@@ -202,10 +202,15 @@ let q102Departures = $derived(departures.filter((d) => d.mode === 'q102_bus'));
 let astoriaQ102 = $derived(q102Departures.filter((d) => d.direction === 'queens_bound'));
 let colerQ102 = $derived(q102Departures.filter((d) => d.direction === 'northbound'));
 
+let redBusDepartures = $derived(departures.filter((d) => d.mode === 'red_bus'));
+let northboundRedBus = $derived(redBusDepartures.filter((d) => d.direction === 'northbound'));
+let southboundRedBus = $derived(redBusDepartures.filter((d) => d.direction === 'southbound'));
+
 let subwayAlerts = $derived(alerts.filter((a) => a.mode === 'subway'));
 let tramAlerts = $derived(alerts.filter((a) => a.mode === 'tram'));
 let ferryAlerts = $derived(alerts.filter((a) => a.mode === 'ferry'));
 let q102Alerts = $derived(alerts.filter((a) => a.mode === 'q102_bus'));
+let redBusAlerts = $derived(alerts.filter((a) => a.mode === 'red_bus'));
 let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 
 let totalEbikes = $derived(stations.reduce((sum, s) => sum + (s.bikesAvailable.ebike || 0), 0));
@@ -225,7 +230,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<!-- Section: Subway -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
-			title="MTA Subway"
+			title="Subway"
 			icon={Train01Icon}
 			iconBgClass="bg-orange-500/10 text-orange-500"
 			alerts={subwayAlerts}
@@ -303,7 +308,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<!-- Section: Tramway -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
-			title="RI Tramway"
+			title="Tramway"
 			icon={CableCarIcon}
 			iconBgClass="bg-rose-500/10 text-rose-500"
 			alerts={tramAlerts}
@@ -371,7 +376,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<!-- Section: Ferry -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
-			title="NYC Ferry"
+			title="Ferry"
 			icon={FerryBoatIcon}
 			iconBgClass="bg-cyan-500/10 text-cyan-500"
 			alerts={ferryAlerts}
@@ -448,10 +453,10 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		</div>
 	</div>
 
-	<!-- Section: MTA Q102 Bus -->
+	<!-- Section: City Bus -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
-			title="MTA Q102 Bus"
+			title="City Bus"
 			icon={Train01Icon}
 			iconBgClass="bg-blue-500/10 text-blue-500"
 			alerts={q102Alerts}
@@ -517,6 +522,80 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							departures={colerQ102.slice(1)}
 							accentColor="blue"
 							badgeTextFn={(dep) => (dep as BusDeparture).nextStopName || ((dep as BusDeparture).vehicleId ? `Bus #${(dep as BusDeparture).vehicleId}` : undefined)}
+						/>
+					{/if}
+				{/if}
+			</div>
+		</div>
+	</div>
+
+	<!-- Section: Red Bus -->
+	<div class="space-y-2.5">
+		<ModeSectionHeader
+			title="Red Bus"
+			icon={Train01Icon}
+			iconBgClass="bg-rose-600/10 text-rose-600 dark:text-rose-400"
+			alerts={redBusAlerts}
+		/>
+
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<!-- Northbound Column -->
+			<div class="panel-card space-y-3">
+				<DirectionHeader
+					title="Northbound"
+					subtitle="Octagon via Main St"
+				/>
+
+				{#if northboundRedBus.length === 0}
+					<div class="p-3 text-center text-xs text-text-muted">
+						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Northbound Red Buses.'}
+					</div>
+				{:else}
+					{@const nextBus = northboundRedBus[0] as BusDeparture}
+
+					<HeroDepartureCard
+						departure={nextBus}
+						accentColor="rose"
+						statusText={nextBus.isRealtime ? 'En Route' : 'Scheduled'}
+						statusIcon={nextBus.isRealtime ? FlashIcon : Clock01Icon}
+						subDetails={nextBus.stopName || 'Octagon Shuttle'}
+					/>
+
+					{#if northboundRedBus.length > 1}
+						<TimetableList
+							departures={northboundRedBus.slice(1)}
+							accentColor="rose"
+						/>
+					{/if}
+				{/if}
+			</div>
+
+			<!-- Southbound Column -->
+			<div class="panel-card space-y-3">
+				<DirectionHeader
+					title="Southbound"
+					subtitle="Southtown & Cornell Tech"
+				/>
+
+				{#if southboundRedBus.length === 0}
+					<div class="p-3 text-center text-xs text-text-muted">
+						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Southbound Red Buses.'}
+					</div>
+				{:else}
+					{@const nextBus = southboundRedBus[0] as BusDeparture}
+
+					<HeroDepartureCard
+						departure={nextBus}
+						accentColor="rose"
+						statusText={nextBus.isRealtime ? 'En Route' : 'Scheduled'}
+						statusIcon={nextBus.isRealtime ? FlashIcon : Clock01Icon}
+						subDetails={nextBus.stopName || 'Southtown Express'}
+					/>
+
+					{#if southboundRedBus.length > 1}
+						<TimetableList
+							departures={southboundRedBus.slice(1)}
+							accentColor="rose"
 						/>
 					{/if}
 				{/if}
