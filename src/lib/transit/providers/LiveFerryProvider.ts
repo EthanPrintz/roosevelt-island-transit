@@ -225,7 +225,20 @@ export class LiveFerryProvider implements TransitProvider {
 				});
 			}
 
-			// 5. Smart Active Horizon Suppression Engine & Stale Trip Filtering
+			// 5. Dynamic Active Horizon Suppression Engine & Stale Trip Filtering
+			let maxRealtimeMsSouthbound = 0;
+			let maxRealtimeMsNorthbound = 0;
+
+			for (const dep of departures) {
+				if (!dep.isRealtime) continue;
+				const timeMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
+				if (dep.direction === 'southbound') {
+					if (timeMs > maxRealtimeMsSouthbound) maxRealtimeMsSouthbound = timeMs;
+				} else {
+					if (timeMs > maxRealtimeMsNorthbound) maxRealtimeMsNorthbound = timeMs;
+				}
+			}
+
 			const filteredDepartures = departures.filter((dep) => {
 				const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
 				const diffMins = (arrivalMs - now.getTime()) / 60000;
@@ -235,11 +248,17 @@ export class LiveFerryProvider implements TransitProvider {
 
 				if (dep.isRealtime) return true;
 
-				if (liveUpdates.size > 0) {
-					// Suppress un-tracked static entries arriving within active 20-minute horizon
-					if (diffMins <= FERRY_ACTIVE_HORIZON_MINUTES) {
-						return false;
-					}
+				const maxLiveMs =
+					dep.direction === 'southbound' ? maxRealtimeMsSouthbound : maxRealtimeMsNorthbound;
+
+				// Dynamic Active Horizon Suppression: Suppress any static timetable entry
+				// scheduled earlier than or at the furthest live tracked departure in that direction
+				if (maxLiveMs > 0 && arrivalMs <= maxLiveMs) {
+					return false;
+				}
+
+				if (liveUpdates.size > 0 && diffMins <= FERRY_ACTIVE_HORIZON_MINUTES) {
+					return false;
 				}
 
 				return true;

@@ -205,7 +205,20 @@ export class LiveSubwayProvider implements TransitProvider {
 				});
 			}
 
-			// 5. Smart Active Horizon & Proximity Shift Suppression Engine & Stale Trip Filtering
+			// 5. Dynamic Active Horizon & Proximity Shift Suppression Engine & Stale Trip Filtering
+			let maxRealtimeMsQueensBound = 0;
+			let maxRealtimeMsManhattanBound = 0;
+
+			for (const dep of departures) {
+				if (!dep.isRealtime) continue;
+				const timeMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
+				if (dep.direction === 'queens_bound') {
+					if (timeMs > maxRealtimeMsQueensBound) maxRealtimeMsQueensBound = timeMs;
+				} else {
+					if (timeMs > maxRealtimeMsManhattanBound) maxRealtimeMsManhattanBound = timeMs;
+				}
+			}
+
 			const filteredDepartures = departures.filter((dep) => {
 				const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
 				const diffMins = (arrivalMs - now.getTime()) / 60000;
@@ -215,13 +228,22 @@ export class LiveSubwayProvider implements TransitProvider {
 
 				if (dep.isRealtime) return true; // Always keep live tracked departures
 
-				if (liveUpdates.size > 0) {
-					// Suppress un-tracked static entries arriving within the active 30-minute horizon
-					if (diffMins <= SUBWAY_ACTIVE_HORIZON_MINUTES) {
-						return false;
-					}
+				const maxLiveMs =
+					dep.direction === 'queens_bound' ? maxRealtimeMsQueensBound : maxRealtimeMsManhattanBound;
 
-					// Proximity suppression: suppress static entry if a live RT trip exists within ±7 mins on the same track
+				// Dynamic Active Horizon Suppression: Suppress any static timetable entry
+				// scheduled earlier than or at the furthest live tracked departure in that direction
+				if (maxLiveMs > 0 && arrivalMs <= maxLiveMs) {
+					return false;
+				}
+
+				// Fallback horizon suppression: suppress static entries within 30 minutes if live updates exist
+				if (liveUpdates.size > 0 && diffMins <= SUBWAY_ACTIVE_HORIZON_MINUTES) {
+					return false;
+				}
+
+				// Proximity suppression: suppress static entry if a live RT trip exists within ±7 mins on the same track
+				if (liveUpdates.size > 0) {
 					for (const rtTrip of liveUpdates.values()) {
 						const rtTimeMs = new Date(rtTrip.time).getTime();
 						const timeDiffMins = Math.abs(arrivalMs - rtTimeMs) / 60000;
