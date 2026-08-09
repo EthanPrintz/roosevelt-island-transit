@@ -22,7 +22,7 @@
 	--color-subway: oklch(0.65 0.22 41.5);
 	--color-tram: oklch(0.6 0.22 15);
 	--color-ferry: oklch(0.68 0.17 200);
-	--color-bike: oklch(0.48 0.24 275);
+	--color-bike: oklch(0.5 0.22 250);
 
 	/* Semantic tokens */
 	--color-bg-base: var(--bg-base);

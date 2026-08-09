@@ -772,7 +772,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<div class="space-y-2.5">
 		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
 			<h2 class="section-title">
-				<HugeiconsIcon icon={Bicycle01Icon} size={15} class="text-indigo-600 dark:text-indigo-400" />
+				<HugeiconsIcon icon={Bicycle01Icon} size={15} class="text-blue-600 dark:text-blue-400" />
 				<span>Citi Bike</span>
 			</h2>
 
@@ -785,7 +785,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<span>E-Bike ({totalEbikes})</span>
 				</div>
 				<div class="flex items-center gap-1.5">
-					<span class="w-3 h-3 rounded bg-indigo-600 text-white flex items-center justify-center shadow-2xs">
+					<span class="w-3 h-3 rounded bg-blue-600 text-white flex items-center justify-center shadow-2xs">
 						<HugeiconsIcon icon={Bicycle01Icon} size={8} />
 					</span>
 					<span>Classic ({totalClassicBikes})</span>
@@ -835,7 +835,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 								<div>
 									<h3 class="font-bold text-xs text-text-main leading-tight">{station.name}</h3>
 									<div class="text-[11px] text-text-muted mt-0.5 flex flex-wrap items-center gap-1.5">
-										<strong class="text-indigo-600 dark:text-indigo-400 font-mono font-bold">{station.bikesAvailable.total} bikes</strong>
+										<strong class="text-blue-600 dark:text-blue-400 font-mono font-bold">{station.bikesAvailable.total} bikes</strong>
 										<span class="inline-flex items-center gap-0.5 font-mono text-cyan-600 dark:text-cyan-400">
 											<HugeiconsIcon icon={FlashIcon} size={11} />
 											<span>{station.bikesAvailable.ebike}</span>
