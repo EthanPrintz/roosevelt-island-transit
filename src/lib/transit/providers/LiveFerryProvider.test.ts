@@ -10,5 +10,22 @@ describe('LiveFerryProvider', () => {
 		const result = await provider.getDepartures();
 		expect(result.data).toBeDefined();
 		expect(Array.isArray(result.data)).toBe(true);
+
+		// Verify every departure adheres to FerryDeparture schema
+		for (const dep of result.data) {
+			expect(dep.mode).toBe('ferry');
+			expect(dep.routeId).toBe('AST');
+			expect(dep.stopName).toBe('Roosevelt Island Ferry Landing');
+			expect(dep.stopId).toBe('25');
+			expect(['northbound', 'southbound']).toContain(dep.direction);
+			expect(typeof dep.isRealtime).toBe('boolean');
+			expect(dep.scheduledTime).toBeDefined();
+		}
+	});
+
+	it('returns empty alerts array by default', async () => {
+		const provider = new LiveFerryProvider();
+		const result = await provider.getAlerts();
+		expect(result.data).toEqual([]);
 	});
 });
