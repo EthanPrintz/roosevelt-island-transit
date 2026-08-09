@@ -7,6 +7,7 @@ import type {
 	TransitAlert,
 	TransitDeparture,
 } from '$lib/transit/domain/types';
+import { resolveHeroStatusPill } from '$lib/transit/utils/status-pill';
 import { formatClockTime, formatRelativeTime } from '$lib/utils/time-format';
 import ModeSectionHeader from './ModeSectionHeader.svelte';
 import VehicleCorridorTracker from './VehicleCorridorTracker.svelte';
@@ -53,14 +54,12 @@ const accentStyles = {
 			'bg-linear-to-br from-blue-500/10 via-bg-surface to-bg-surface border-blue-500/30',
 		timeText: 'text-blue-600 dark:text-blue-400',
 		iconColor: 'text-blue-500',
-		badgeDefault: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30',
 	},
 	rose: {
 		heroContainer:
 			'bg-linear-to-br from-rose-500/10 via-bg-surface to-bg-surface border-rose-500/30',
 		timeText: 'text-rose-600 dark:text-rose-400',
 		iconColor: 'text-rose-500',
-		badgeDefault: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30',
 	},
 };
 
@@ -147,16 +146,15 @@ let octagonSouth = $derived(
 		{:else}
 			{#if nextDep}
 				{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
-				{@const statusLabel = nextDep.isRealtime ? 'En Route' : 'Scheduled'}
-				{@const statusIcon = nextDep.isRealtime ? FlashIcon : Clock01Icon}
+				{@const pill = resolveHeroStatusPill(nextDep, accentColor)}
 				{@const subDetails = nextDep.vehicleId ? `Bus #${nextDep.vehicleId}${nextDep.nextStopName ? ` • (${nextDep.nextStopName})` : ''}` : undefined}
 
 				<div class="p-3.5 rounded-xl border space-y-2 relative overflow-hidden shadow-2xs {styles.heroContainer}">
-					<!-- Top Row: Status Pill (Left) & Relative Countdown (Right) -->
+					<!-- Top Row: Standardized Status Pill (Left) & Relative Countdown (Right) -->
 					<div class="flex items-center justify-between text-xs">
-						<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {styles.badgeDefault}">
-							<HugeiconsIcon icon={statusIcon} size={10} />
-							<span>{statusLabel}</span>
+						<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {pill.pillClass}">
+							<HugeiconsIcon icon={pill.icon} size={10} />
+							<span>{pill.label}</span>
 						</span>
 
 						<span class="font-mono text-xs font-bold {styles.timeText}">

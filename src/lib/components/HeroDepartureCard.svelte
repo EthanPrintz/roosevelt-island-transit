@@ -1,13 +1,14 @@
 <script lang="ts">
-import { AlertCircleIcon, Clock01Icon, FlashIcon, SparklesIcon } from '@hugeicons/core-free-icons';
+import { AlertCircleIcon, SparklesIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type { TransitDeparture } from '$lib/transit/domain/types';
+import { resolveHeroStatusPill } from '$lib/transit/utils/status-pill';
 import { formatRelativeTime } from '$lib/utils/time-format';
 
 interface Props {
 	departure: TransitDeparture;
 	accentColor: 'orange' | 'rose' | 'cyan' | 'blue';
-	statusText: string;
+	statusText?: string;
 	statusIcon?: any;
 	statusClass?: string;
 	lineBadgeText?: string;
@@ -32,31 +33,29 @@ const accentStyles = {
 			'bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border-orange-500/30',
 		timeText: 'text-orange-600 dark:text-orange-400',
 		iconColor: 'text-orange-500',
-		badgeDefault:
-			'bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30',
 	},
 	rose: {
 		container: 'bg-linear-to-br from-rose-500/10 via-bg-surface to-bg-surface border-rose-500/30',
 		timeText: 'text-rose-600 dark:text-rose-400',
 		iconColor: 'text-rose-500',
-		badgeDefault: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30',
 	},
 	cyan: {
 		container: 'bg-linear-to-br from-cyan-500/10 via-bg-surface to-bg-surface border-cyan-500/30',
 		timeText: 'text-cyan-600 dark:text-cyan-400',
 		iconColor: 'text-cyan-500',
-		badgeDefault: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30',
 	},
 	blue: {
 		container: 'bg-linear-to-br from-blue-500/10 via-bg-surface to-bg-surface border-blue-500/30',
 		timeText: 'text-blue-600 dark:text-blue-400',
 		iconColor: 'text-blue-500',
-		badgeDefault: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30',
 	},
 };
 
 let styles = $derived(accentStyles[accentColor] || accentStyles.orange);
-let effectiveIcon = $derived(statusIcon || (departure.isRealtime ? FlashIcon : Clock01Icon));
+let statusPill = $derived(resolveHeroStatusPill(departure, accentColor));
+let resolvedText = $derived(statusText || statusPill.label);
+let resolvedIcon = $derived(statusIcon || statusPill.icon);
+let resolvedClass = $derived(statusClass || statusPill.pillClass);
 
 let timeString = $derived(
 	new Date(departure.predictedTime || departure.scheduledTime).toLocaleTimeString([], {
@@ -73,9 +72,9 @@ let relativeLabel = $derived(
 	<!-- Top Row: Standardized Status Pill (Left) & Relative Countdown (Right) -->
 	<div class="flex items-center justify-between text-xs">
 		<div class="flex items-center gap-1.5 flex-wrap">
-			<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {statusClass || styles.badgeDefault}">
-				<HugeiconsIcon icon={effectiveIcon} size={10} />
-				<span>{statusText}</span>
+			<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {resolvedClass}">
+				<HugeiconsIcon icon={resolvedIcon} size={10} />
+				<span>{resolvedText}</span>
 			</span>
 
 			{#if departure.scheduleRelationship === 'ADDED'}

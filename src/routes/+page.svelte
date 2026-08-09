@@ -1,12 +1,5 @@
 <script lang="ts">
-import {
-	CableCarIcon,
-	CheckmarkCircle01Icon,
-	FerryBoatIcon,
-	FlashIcon,
-	Navigation01Icon,
-	Train01Icon,
-} from '@hugeicons/core-free-icons';
+import { CableCarIcon, FerryBoatIcon, FlashIcon, Train01Icon } from '@hugeicons/core-free-icons';
 import BusCorridorSection from '$lib/components/BusCorridorSection.svelte';
 import CitiBikeSection from '$lib/components/CitiBikeSection.svelte';
 import ModeSectionHeader from '$lib/components/ModeSectionHeader.svelte';
@@ -68,27 +61,6 @@ async function loadLiveData() {
 	} finally {
 		transitSettings.isLoading = false;
 	}
-}
-
-function getFerryBadge(ferry: FerryDeparture) {
-	const isStopped =
-		ferry.vesselStatus === 'STOPPED_AT' ||
-		(ferry.vesselStatus as unknown) === 2 ||
-		(ferry.vesselStatus as unknown) === '2' ||
-		(ferry.speedKnots !== undefined && ferry.speedKnots <= 1);
-
-	const isApproaching =
-		ferry.vesselStatus === 'INCOMING_AT' ||
-		(ferry.vesselStatus as unknown) === 1 ||
-		(ferry.vesselStatus as unknown) === '1';
-
-	if (isStopped) {
-		return { label: 'Docked', icon: undefined, class: undefined };
-	}
-	if (isApproaching) {
-		return { label: 'Approaching', icon: Navigation01Icon, class: undefined };
-	}
-	return { label: 'En Route', icon: undefined, class: undefined };
 }
 
 let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
@@ -192,9 +164,6 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				departures={manhattanTrams}
 				accentColor="rose"
 				emptyMessage="No upcoming Manhattan-bound Tram departures."
-				statusTextFn={(dep) => ((dep as any).isBoarding ? 'Boarding' : 'In Transit')}
-				statusIconFn={(dep) =>
-					(dep as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
 				subDetailsFn={(dep) => {
 					const c = (dep as any).cabin;
 					if (!c) return 'Tram Cabin';
@@ -210,9 +179,6 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				departures={islandTrams}
 				accentColor="rose"
 				emptyMessage="No upcoming Island-bound Tram departures."
-				statusTextFn={(dep) => ((dep as any).isBoarding ? 'Boarding' : 'In Transit')}
-				statusIconFn={(dep) =>
-					(dep as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
 				subDetailsFn={(dep) => {
 					const c = (dep as any).cabin;
 					if (!c) return 'Tram Cabin';
@@ -240,9 +206,6 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				departures={southboundFerries}
 				accentColor="cyan"
 				emptyMessage="No upcoming Southbound Ferries."
-				statusTextFn={(dep) => getFerryBadge(dep as FerryDeparture).label}
-				statusIconFn={(dep) => getFerryBadge(dep as FerryDeparture).icon}
-				statusClassFn={(dep) => getFerryBadge(dep as FerryDeparture).class}
 				subDetailsFn={(dep) => {
 					const f = dep as FerryDeparture;
 					return f.vesselName
@@ -260,9 +223,6 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				departures={northboundFerries}
 				accentColor="cyan"
 				emptyMessage="No upcoming Northbound Ferries."
-				statusTextFn={(dep) => getFerryBadge(dep as FerryDeparture).label}
-				statusIconFn={(dep) => getFerryBadge(dep as FerryDeparture).icon}
-				statusClassFn={(dep) => getFerryBadge(dep as FerryDeparture).class}
 				subDetailsFn={(dep) => {
 					const f = dep as FerryDeparture;
 					return f.vesselName
