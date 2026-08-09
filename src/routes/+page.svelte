@@ -1,38 +1,30 @@
 <script lang="ts">
 import {
-	Alert02Icon,
-	AlertCircleIcon,
-	AnchorIcon,
 	Bicycle01Icon,
-	BoatIcon,
 	CableCarIcon,
 	CheckmarkCircle01Icon,
-	Clock01Icon,
 	FerryBoatIcon,
 	FlashIcon,
 	Navigation01Icon,
-	SparklesIcon,
 	SquareIcon,
 	Train01Icon,
 	Wrench01Icon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import BikeStationCard from '$lib/components/BikeStationCard.svelte';
-import DirectionHeader from '$lib/components/DirectionHeader.svelte';
-import HeroDepartureCard from '$lib/components/HeroDepartureCard.svelte';
 import ModeSectionHeader from '$lib/components/ModeSectionHeader.svelte';
 import SegmentedControl from '$lib/components/SegmentedControl.svelte';
 import type { SegmentOption } from '$lib/components/segmented-control.types';
-import TimetableList from '$lib/components/TimetableList.svelte';
+import TransitColumn from '$lib/components/TransitColumn.svelte';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
 import type {
 	BikeStation,
 	BusDeparture,
 	FerryDeparture,
+	SubwayDeparture,
 	TransitAlert,
 	TransitDeparture,
 } from '$lib/transit/domain/types';
-import { formatRelativeTime } from '$lib/utils/time-format';
 
 let departures = $state<TransitDeparture[]>([]);
 let alerts = $state<TransitAlert[]>([]);
@@ -46,14 +38,12 @@ const windowOptions: SegmentOption<number>[] = [
 ];
 
 $effect(() => {
-	// Reactively reload whenever selectedWindow changes or triggerRefresh is incremented
 	const _win = transitSettings.selectedWindow;
 	const _trig = transitSettings.refreshTrigger;
 	loadLiveData();
 });
 
 $effect(() => {
-	// Auto-refresh every 15 seconds (matching server cache TTL)
 	const interval = setInterval(() => {
 		loadLiveData();
 	}, 15000);
@@ -75,14 +65,10 @@ async function loadLiveData() {
 			transitSettings.fetchedAt = json.fetchedAt || '';
 		}
 	} catch (_err) {
-		// Catch network error
+		// Catch transient network error
 	} finally {
 		transitSettings.isLoading = false;
 	}
-}
-
-function getRelativeTimeLabel(isoString: string): string {
-	return formatRelativeTime(isoString);
 }
 
 function getFerryBadge(ferry: FerryDeparture) {
@@ -92,99 +78,19 @@ function getFerryBadge(ferry: FerryDeparture) {
 		(ferry.vesselStatus as unknown) === '2' ||
 		(ferry.speedKnots !== undefined && ferry.speedKnots <= 1);
 
-	const isIncoming =
+	const isApproaching =
 		ferry.vesselStatus === 'INCOMING_AT' ||
 		(ferry.vesselStatus as unknown) === 1 ||
 		(ferry.vesselStatus as unknown) === '1';
 
 	if (isStopped) {
-		return {
-			label: 'Docked',
-			icon: AnchorIcon,
-			class: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30',
-		};
+		return { label: 'Docked', icon: undefined, class: undefined };
 	}
-	if (isIncoming) {
-		return {
-			label: 'Approaching',
-			icon: Navigation01Icon,
-			class: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30',
-		};
+	if (isApproaching) {
+		return { label: 'Approaching', icon: Navigation01Icon, class: undefined };
 	}
-	return {
-		label: 'En Route',
-		icon: BoatIcon,
-		class: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30',
-	};
+	return { label: 'En Route', icon: undefined, class: undefined };
 }
-
-type DockSlotType = 'ebike' | 'classic' | 'broken_bike' | 'disabled_dock' | 'empty';
-
-function generateDockSlots(station: BikeStation): DockSlotType[] {
-	const slots: DockSlotType[] = [];
-
-	const ebikeCount = station.bikesAvailable.ebike || 0;
-	for (let i = 0; i < ebikeCount; i++) {
-		slots.push('ebike');
-	}
-
-	const classicCount = station.bikesAvailable.classic || 0;
-	for (let i = 0; i < classicCount; i++) {
-		slots.push('classic');
-	}
-
-	const brokenBikes = station.disabledBikes || 0;
-	for (let i = 0; i < brokenBikes; i++) {
-		slots.push('broken_bike');
-	}
-
-	const disabledDocks = station.disabledDocks || 0;
-	for (let i = 0; i < disabledDocks; i++) {
-		slots.push('disabled_dock');
-	}
-
-	const totalCapacity = Math.max(station.capacity, slots.length);
-	const remaining = Math.max(0, totalCapacity - slots.length);
-	for (let i = 0; i < remaining; i++) {
-		slots.push('empty');
-	}
-
-	return slots;
-}
-
-function getTramHeadwayStatus(now: Date = new Date()): {
-	label: string;
-	isPeak: boolean;
-	isClosed: boolean;
-} {
-	const nyString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
-	const nyDate = new Date(nyString);
-	const dayOfWeek = nyDate.getDay();
-	const timeInMins = nyDate.getHours() * 60 + nyDate.getMinutes();
-
-	const isFridayOrSaturday = dayOfWeek === 5 || dayOfWeek === 6;
-	const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
-
-	const isClosedOvernight = isFridayOrSaturday
-		? timeInMins >= 210 && timeInMins < 360
-		: timeInMins >= 120 && timeInMins < 360;
-
-	if (isClosedOvernight) {
-		return { label: 'Overnight Closed', isPeak: false, isClosed: true };
-	}
-
-	const isRushHour =
-		isWeekday &&
-		((timeInMins >= 420 && timeInMins < 600) || (timeInMins >= 870 && timeInMins < 1140));
-
-	if (isRushHour) {
-		return { label: 'Rush Hour (7.5m Frequency)', isPeak: true, isClosed: false };
-	}
-
-	return { label: 'Off-Peak (15m Frequency)', isPeak: false, isClosed: false };
-}
-
-let tramStatus = $derived(getTramHeadwayStatus(new Date()));
 
 let subwayDepartures = $derived(departures.filter((d) => d.mode === 'subway'));
 let manhattanSubways = $derived(subwayDepartures.filter((d) => d.direction === 'manhattan_bound'));
@@ -227,7 +133,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 <div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
-	<!-- Section: Subway -->
+	<!-- Section 1: Subway -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
 			title="Subway"
@@ -243,69 +149,39 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		</ModeSectionHeader>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-			<!-- Manhattan-Bound Column -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Manhattan-Bound"
-					subtitle="via 63rd St & 6th Ave"
-				/>
+			<TransitColumn
+				title="Manhattan-Bound"
+				subtitle="via 63rd St & 6th Ave"
+				departures={manhattanSubways}
+				accentColor="orange"
+				emptyMessage="No upcoming Manhattan-bound Subway trains."
+				statusTextFn={(dep) => (dep.isRealtime ? 'Live' : 'Scheduled')}
+				statusIconFn={(dep) => (dep.isRealtime ? FlashIcon : undefined)}
+				lineBadgeTextFn={(dep) => (dep as SubwayDeparture).routeId}
+				subDetailsFn={(dep) =>
+					(dep as SubwayDeparture).originStartTime
+						? `Dispatched: ${(dep as SubwayDeparture).originStartTime}`
+						: undefined}
+			/>
 
-				{#if manhattanSubways.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading live arrivals...' : 'No upcoming Manhattan-bound Subway trains.'}
-					</div>
-				{:else}
-					<HeroDepartureCard
-						departure={manhattanSubways[0]}
-						accentColor="orange"
-						statusText={manhattanSubways[0].isRealtime ? 'Live' : 'Scheduled'}
-						statusIcon={manhattanSubways[0].isRealtime ? FlashIcon : undefined}
-						lineBadgeText={manhattanSubways[0].routeId}
-						subDetails={manhattanSubways[0].originStartTime ? `Dispatched: ${manhattanSubways[0].originStartTime}` : undefined}
-					/>
-
-					{#if manhattanSubways.length > 1}
-						<TimetableList
-							departures={manhattanSubways.slice(1)}
-							accentColor="orange"
-						/>
-					{/if}
-				{/if}
-			</div>
-
-			<!-- Queens-Bound Column -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Queens-Bound"
-					subtitle="via Jamaica & Forest Hills"
-				/>
-
-				{#if queensSubways.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading live arrivals...' : 'No upcoming Queens-bound Subway trains.'}
-					</div>
-				{:else}
-					<HeroDepartureCard
-						departure={queensSubways[0]}
-						accentColor="orange"
-						statusText={queensSubways[0].isRealtime ? 'Live' : 'Scheduled'}
-						statusIcon={queensSubways[0].isRealtime ? FlashIcon : undefined}
-						lineBadgeText={queensSubways[0].routeId}
-						subDetails={queensSubways[0].originStartTime ? `Dispatched: ${queensSubways[0].originStartTime}` : undefined}
-					/>
-
-					{#if queensSubways.length > 1}
-						<TimetableList
-							departures={queensSubways.slice(1)}
-							accentColor="orange"
-						/>
-					{/if}
-				{/if}
-			</div>
+			<TransitColumn
+				title="Queens-Bound"
+				subtitle="via Jamaica & Forest Hills"
+				departures={queensSubways}
+				accentColor="orange"
+				emptyMessage="No upcoming Queens-bound Subway trains."
+				statusTextFn={(dep) => (dep.isRealtime ? 'Live' : 'Scheduled')}
+				statusIconFn={(dep) => (dep.isRealtime ? FlashIcon : undefined)}
+				lineBadgeTextFn={(dep) => (dep as SubwayDeparture).routeId}
+				subDetailsFn={(dep) =>
+					(dep as SubwayDeparture).originStartTime
+						? `Dispatched: ${(dep as SubwayDeparture).originStartTime}`
+						: undefined}
+			/>
 		</div>
 	</div>
 
-	<!-- Section: Tramway -->
+	<!-- Section 2: Tramway -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
 			title="Tramway"
@@ -315,69 +191,37 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		/>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-			<!-- Direction: Manhattan-Bound (59th St) -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Manhattan-Bound"
-					subtitle="59th St & 2nd Ave"
-				/>
+			<TransitColumn
+				title="Manhattan-Bound"
+				subtitle="59th St & 2nd Ave"
+				departures={manhattanTrams}
+				accentColor="rose"
+				emptyMessage="No upcoming Manhattan-bound Tram departures."
+				statusTextFn={(dep) => ((dep as any).isBoarding ? 'Boarding' : 'In Transit')}
+				statusIconFn={(dep) =>
+					(dep as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
+				subDetailsFn={(dep) => (dep as any).cabin || 'Tram Cabin'}
+				badgeTextFn={(dep) => (dep as any).cabin || 'Tram'}
+				maxTimetableItems={4}
+			/>
 
-				{#if manhattanTrams.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading live departures...' : 'No upcoming Manhattan-bound Tram departures.'}
-					</div>
-				{:else}
-					<HeroDepartureCard
-						departure={manhattanTrams[0]}
-						accentColor="rose"
-						statusText={(manhattanTrams[0] as any).isBoarding ? 'Boarding' : 'In Transit'}
-						statusIcon={(manhattanTrams[0] as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
-						subDetails={(manhattanTrams[0] as any).cabin || 'Tram Cabin'}
-					/>
-
-					{#if manhattanTrams.length > 1}
-						<TimetableList
-							departures={manhattanTrams.slice(1, 5)}
-							accentColor="rose"
-							badgeTextFn={(dep) => (dep as any).cabin || 'Tram'}
-						/>
-					{/if}
-				{/if}
-			</div>
-
-			<!-- Direction: Roosevelt Island Landing -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Island-Bound"
-					subtitle="Roosevelt Island Station"
-				/>
-
-				{#if islandTrams.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading live departures...' : 'No upcoming Island-bound Tram departures.'}
-					</div>
-				{:else}
-					<HeroDepartureCard
-						departure={islandTrams[0]}
-						accentColor="rose"
-						statusText={(islandTrams[0] as any).isBoarding ? 'Boarding' : 'In Transit'}
-						statusIcon={(islandTrams[0] as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
-						subDetails={(islandTrams[0] as any).cabin || 'Tram Cabin'}
-					/>
-
-					{#if islandTrams.length > 1}
-						<TimetableList
-							departures={islandTrams.slice(1, 5)}
-							accentColor="rose"
-							badgeTextFn={(dep) => (dep as any).cabin || 'Tram'}
-						/>
-					{/if}
-				{/if}
-			</div>
+			<TransitColumn
+				title="Island-Bound"
+				subtitle="Roosevelt Island Station"
+				departures={islandTrams}
+				accentColor="rose"
+				emptyMessage="No upcoming Island-bound Tram departures."
+				statusTextFn={(dep) => ((dep as any).isBoarding ? 'Boarding' : 'In Transit')}
+				statusIconFn={(dep) =>
+					(dep as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
+				subDetailsFn={(dep) => (dep as any).cabin || 'Tram Cabin'}
+				badgeTextFn={(dep) => (dep as any).cabin || 'Tram'}
+				maxTimetableItems={4}
+			/>
 		</div>
 	</div>
 
-	<!-- Section: Ferry -->
+	<!-- Section 3: Ferry -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
 			title="Ferry"
@@ -387,77 +231,49 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		/>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-			<!-- Southbound Column -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Southbound"
-					subtitle="Wall St / Pier 11"
-				/>
+			<TransitColumn
+				title="Southbound"
+				subtitle="Wall St / Pier 11"
+				departures={southboundFerries}
+				accentColor="cyan"
+				emptyMessage="No upcoming Southbound Ferries."
+				statusTextFn={(dep) => getFerryBadge(dep as FerryDeparture).label}
+				statusIconFn={(dep) => getFerryBadge(dep as FerryDeparture).icon}
+				statusClassFn={(dep) => getFerryBadge(dep as FerryDeparture).class}
+				subDetailsFn={(dep) => {
+					const f = dep as FerryDeparture;
+					return f.vesselName
+						? f.speedKnots
+							? `${f.vesselName} • ${f.speedKnots} kts`
+							: f.vesselName
+						: 'Astoria Line';
+				}}
+				badgeTextFn={(dep) => (dep as FerryDeparture).vesselName}
+			/>
 
-				{#if southboundFerries.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading live departures...' : 'No upcoming Southbound Ferries.'}
-					</div>
-				{:else}
-					{@const nextFerry = southboundFerries[0]}
-					{@const ferryBadge = getFerryBadge(nextFerry)}
-
-					<HeroDepartureCard
-						departure={nextFerry}
-						accentColor="cyan"
-						statusText={ferryBadge.label}
-						statusIcon={ferryBadge.icon}
-						statusClass={ferryBadge.class}
-						subDetails={nextFerry.vesselName ? (nextFerry.speedKnots ? `${nextFerry.vesselName} • ${nextFerry.speedKnots} kts` : nextFerry.vesselName) : 'Astoria Line'}
-					/>
-
-					{#if southboundFerries.length > 1}
-						<TimetableList
-							departures={southboundFerries.slice(1)}
-							accentColor="cyan"
-							badgeTextFn={(dep) => (dep as any).vesselName}
-						/>
-					{/if}
-				{/if}
-			</div>
-
-			<!-- Northbound Column -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Northbound"
-					subtitle="East 90th St / UES"
-				/>
-
-				{#if northboundFerries.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading live departures...' : 'No upcoming Northbound Ferries.'}
-					</div>
-				{:else}
-					{@const nextFerry = northboundFerries[0]}
-					{@const ferryBadge = getFerryBadge(nextFerry)}
-
-					<HeroDepartureCard
-						departure={nextFerry}
-						accentColor="cyan"
-						statusText={ferryBadge.label}
-						statusIcon={ferryBadge.icon}
-						statusClass={ferryBadge.class}
-						subDetails={nextFerry.vesselName ? (nextFerry.speedKnots ? `${nextFerry.vesselName} • ${nextFerry.speedKnots} kts` : nextFerry.vesselName) : 'Astoria Line'}
-					/>
-
-					{#if northboundFerries.length > 1}
-						<TimetableList
-							departures={northboundFerries.slice(1)}
-							accentColor="cyan"
-							badgeTextFn={(dep) => (dep as any).vesselName}
-						/>
-					{/if}
-				{/if}
-			</div>
+			<TransitColumn
+				title="Northbound"
+				subtitle="East 90th St / UES"
+				departures={northboundFerries}
+				accentColor="cyan"
+				emptyMessage="No upcoming Northbound Ferries."
+				statusTextFn={(dep) => getFerryBadge(dep as FerryDeparture).label}
+				statusIconFn={(dep) => getFerryBadge(dep as FerryDeparture).icon}
+				statusClassFn={(dep) => getFerryBadge(dep as FerryDeparture).class}
+				subDetailsFn={(dep) => {
+					const f = dep as FerryDeparture;
+					return f.vesselName
+						? f.speedKnots
+							? `${f.vesselName} • ${f.speedKnots} kts`
+							: f.vesselName
+						: 'Astoria Line';
+				}}
+				badgeTextFn={(dep) => (dep as FerryDeparture).vesselName}
+			/>
 		</div>
 	</div>
 
-	<!-- Section: City Bus -->
+	<!-- Section 4: City Bus -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
 			title="City Bus"
@@ -467,73 +283,53 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		/>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<!-- Astoria-Bound Column -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Astoria-Bound"
-					subtitle="27 Ave via RI Bridge"
-				/>
+			<TransitColumn
+				title="Astoria-Bound"
+				subtitle="27 Ave via RI Bridge"
+				departures={astoriaQ102}
+				accentColor="blue"
+				emptyMessage="No upcoming Astoria-bound City Buses (Q102)."
+				subDetailsFn={(dep) => {
+					const b = dep as BusDeparture;
+					return b.nextStopName
+						? b.vehicleId
+							? `Bus #${b.vehicleId} • ${b.nextStopName}`
+							: b.nextStopName
+						: b.vehicleId
+							? `Bus #${b.vehicleId}`
+							: 'Main St Stop';
+				}}
+				badgeTextFn={(dep) => {
+					const b = dep as BusDeparture;
+					return b.nextStopName || (b.vehicleId ? `Bus #${b.vehicleId}` : undefined);
+				}}
+			/>
 
-				{#if astoriaQ102.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading live predictions...' : 'No upcoming Astoria-bound City Buses (Q102).'}
-					</div>
-				{:else}
-					{@const nextBus = astoriaQ102[0] as BusDeparture}
-
-					<HeroDepartureCard
-						departure={nextBus}
-						accentColor="blue"
-						statusText={nextBus.isRealtime ? 'En Route' : 'Scheduled'}
-						statusIcon={nextBus.isRealtime ? FlashIcon : Clock01Icon}
-						subDetails={nextBus.nextStopName ? (nextBus.vehicleId ? `Bus #${nextBus.vehicleId} • ${nextBus.nextStopName}` : nextBus.nextStopName) : (nextBus.vehicleId ? `Bus #${nextBus.vehicleId}` : 'Main St Stop')}
-					/>
-
-					{#if astoriaQ102.length > 1}
-						<TimetableList
-							departures={astoriaQ102.slice(1)}
-							accentColor="blue"
-							badgeTextFn={(dep) => (dep as BusDeparture).nextStopName || ((dep as BusDeparture).vehicleId ? `Bus #${(dep as BusDeparture).vehicleId}` : undefined)}
-						/>
-					{/if}
-				{/if}
-			</div>
-
-			<!-- Coler Hospital Column -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Coler Hospital-Bound"
-					subtitle="Southtown & North Loop"
-				/>
-
-				{#if colerQ102.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading live predictions...' : 'No upcoming Coler-bound City Buses (Q102).'}
-					</div>
-				{:else}
-					{@const nextBus = colerQ102[0] as BusDeparture}
-
-					<HeroDepartureCard
-						departure={nextBus}
-						accentColor="blue"
-						statusText={nextBus.isRealtime ? 'En Route' : 'Scheduled'}
-						statusIcon={nextBus.isRealtime ? FlashIcon : Clock01Icon}
-						subDetails={nextBus.nextStopName ? (nextBus.vehicleId ? `Bus #${nextBus.vehicleId} • ${nextBus.nextStopName}` : nextBus.nextStopName) : (nextBus.vehicleId ? `Bus #${nextBus.vehicleId}` : 'Main St Stop')}
-					/>
-
-					{#if colerQ102.length > 1}
-						<TimetableList
-							departures={colerQ102.slice(1)}
-							accentColor="blue"
-							badgeTextFn={(dep) => (dep as BusDeparture).nextStopName || ((dep as BusDeparture).vehicleId ? `Bus #${(dep as BusDeparture).vehicleId}` : undefined)}
-						/>
-					{/if}
-				{/if}
-			</div>
+			<TransitColumn
+				title="Coler Hospital-Bound"
+				subtitle="Southtown & North Loop"
+				departures={colerQ102}
+				accentColor="blue"
+				emptyMessage="No upcoming Coler-bound City Buses (Q102)."
+				subDetailsFn={(dep) => {
+					const b = dep as BusDeparture;
+					return b.nextStopName
+						? b.vehicleId
+							? `Bus #${b.vehicleId} • ${b.nextStopName}`
+							: b.nextStopName
+						: b.vehicleId
+							? `Bus #${b.vehicleId}`
+							: 'Main St Stop';
+				}}
+				badgeTextFn={(dep) => {
+					const b = dep as BusDeparture;
+					return b.nextStopName || (b.vehicleId ? `Bus #${b.vehicleId}` : undefined);
+				}}
+			/>
 		</div>
 	</div>
 
-	<!-- Section: Red Bus -->
+	<!-- Section 5: Red Bus -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
 			title="Red Bus"
@@ -543,71 +339,27 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		/>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<!-- Northbound Column -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Northbound"
-					subtitle="Octagon via Main St"
-				/>
+			<TransitColumn
+				title="Northbound"
+				subtitle="Octagon via Main St"
+				departures={northboundRedBus}
+				accentColor="rose"
+				emptyMessage="No live Red Bus tracking data available."
+				subDetailsFn={(dep) => dep.stopName || 'Octagon Shuttle'}
+			/>
 
-				{#if northboundRedBus.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading shuttle status...' : 'No live Red Bus tracking data available.'}
-					</div>
-				{:else}
-					{@const nextBus = northboundRedBus[0] as BusDeparture}
-
-					<HeroDepartureCard
-						departure={nextBus}
-						accentColor="rose"
-						statusText={nextBus.isRealtime ? 'En Route' : 'Scheduled'}
-						statusIcon={nextBus.isRealtime ? FlashIcon : Clock01Icon}
-						subDetails={nextBus.stopName || 'Octagon Shuttle'}
-					/>
-
-					{#if northboundRedBus.length > 1}
-						<TimetableList
-							departures={northboundRedBus.slice(1)}
-							accentColor="rose"
-						/>
-					{/if}
-				{/if}
-			</div>
-
-			<!-- Southbound Column -->
-			<div class="panel-card space-y-3">
-				<DirectionHeader
-					title="Southbound"
-					subtitle="Southtown & Cornell Tech"
-				/>
-
-				{#if southboundRedBus.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted bg-bg-surface/50 rounded-xl border border-border-default/50">
-						{transitSettings.isLoading ? 'Loading shuttle status...' : 'No live Red Bus tracking data available.'}
-					</div>
-				{:else}
-					{@const nextBus = southboundRedBus[0] as BusDeparture}
-
-					<HeroDepartureCard
-						departure={nextBus}
-						accentColor="rose"
-						statusText={nextBus.isRealtime ? 'En Route' : 'Scheduled'}
-						statusIcon={nextBus.isRealtime ? FlashIcon : Clock01Icon}
-						subDetails={nextBus.stopName || 'Southtown Express'}
-					/>
-
-					{#if southboundRedBus.length > 1}
-						<TimetableList
-							departures={southboundRedBus.slice(1)}
-							accentColor="rose"
-						/>
-					{/if}
-				{/if}
-			</div>
+			<TransitColumn
+				title="Southbound"
+				subtitle="Southtown & Cornell Tech"
+				departures={southboundRedBus}
+				accentColor="rose"
+				emptyMessage="No live Red Bus tracking data available."
+				subDetailsFn={(dep) => dep.stopName || 'Southtown Express'}
+			/>
 		</div>
 	</div>
 
-	<!-- Section: Citi Bike -->
+	<!-- Section 6: Citi Bike -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
 			title="Citi Bike"
