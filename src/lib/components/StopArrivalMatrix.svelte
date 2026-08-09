@@ -43,6 +43,20 @@ let groupedStops = $derived.by(() => {
 });
 </script>
 
+{#snippet statusBadge(isRealtime: boolean)}
+	{#if isRealtime}
+		<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 shrink-0">
+			<HugeiconsIcon icon={FlashIcon} size={9} />
+			LIVE
+		</span>
+	{:else}
+		<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-bg-elevated text-text-muted border border-border-default shrink-0">
+			<HugeiconsIcon icon={Clock01Icon} size={9} />
+			SCHED
+		</span>
+	{/if}
+{/snippet}
+
 <div class="panel-card space-y-3 p-4">
 	<div class="flex items-center justify-between">
 		<div>
@@ -61,7 +75,7 @@ let groupedStops = $derived.by(() => {
 				{@const nextDep = group.departures[0]}
 				{@const remainingCount = group.departures.length - 1}
 				
-				<div class="p-3 rounded-xl border transition-all bg-bg-surface/80 border-border-default/70 hover:border-border-default space-y-2">
+				<div class="p-3 rounded-xl border transition-all bg-bg-surface/80 border-border-default/70 hover:border-border-default space-y-2.5">
 					<!-- Stop Header with On-Island vs Off-Island Badge -->
 					<div class="flex items-center justify-between">
 						<div class="flex items-center gap-2">
@@ -78,69 +92,34 @@ let groupedStops = $derived.by(() => {
 							{/if}
 							<span class="text-xs font-bold text-text-main">{group.name}</span>
 						</div>
-						
-						{#if nextDep}
-							{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
-							<span class="text-xs font-mono font-extrabold text-primary">
-								{formatRelativeTime(targetTime)}
-							</span>
-						{/if}
 					</div>
 
-{#snippet statusBadge(isRealtime: boolean)}
-	{#if isRealtime}
-		<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 shrink-0">
-			<HugeiconsIcon icon={FlashIcon} size={9} />
-			LIVE
-		</span>
-	{:else}
-		<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-bg-elevated text-text-muted border border-border-default shrink-0">
-			<HugeiconsIcon icon={Clock01Icon} size={9} />
-			SCHED
-		</span>
-	{/if}
-{/snippet}
+					<!-- Standardized Timetable Departure List for this Stop -->
+					<div class="space-y-1.5 pt-1 border-t border-border-default/40">
+						{#each group.departures.slice(0, 5) as dep (dep.id)}
+							{@const t = dep.predictedTime || dep.scheduledTime}
+							<div class="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-bg-elevated/40 hover:bg-bg-elevated/70 text-xs font-mono transition-colors border border-border-default/30">
+								<div class="flex items-center gap-2 truncate">
+									{@render statusBadge(dep.isRealtime)}
+									<span class="text-text-main truncate text-[11px] font-medium">
+										{dep.vehicleId ? `Bus #${dep.vehicleId} • ${dep.headsign}` : dep.headsign}
+									</span>
+									{#if dep.nextStopName}
+										<span class="italic text-[10px] text-text-muted truncate">({dep.nextStopName})</span>
+									{/if}
+								</div>
 
-<!-- Hero Prediction for this Stop Node -->
-{#if nextDep}
-	{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
-	<div class="flex items-center justify-between text-xs font-mono pt-1 border-t border-border-default/40">
-		<div class="flex items-center gap-1.5 text-text-muted text-[11px] truncate">
-			{@render statusBadge(nextDep.isRealtime)}
-			<span class="truncate">{nextDep.vehicleId ? `Bus #${nextDep.vehicleId}` : nextDep.headsign}</span>
-			{#if nextDep.nextStopName}
-				<span class="italic text-[10px] truncate">({nextDep.nextStopName})</span>
-			{/if}
-		</div>
-		<span class="font-bold text-text-main shrink-0">{formatClockTime(targetTime)}</span>
-	</div>
-{/if}
-
-<!-- Follow-up Timetable List for this Stop Node -->
-{#if remainingCount > 0}
-	<div class="pt-1.5 space-y-1 border-t border-border-default/30">
-		{#each group.departures.slice(1, 5) as dep (dep.id)}
-			{@const t = dep.predictedTime || dep.scheduledTime}
-			<div class="flex items-center justify-between py-1 px-2 rounded-lg bg-bg-elevated/40 hover:bg-bg-elevated/70 text-xs font-mono transition-colors">
-				<div class="flex items-center gap-1.5 truncate">
-					{@render statusBadge(dep.isRealtime)}
-					<span class="text-text-main truncate text-[11px]">
-						{dep.headsign}
-					</span>
-				</div>
-
-				<div class="flex items-center gap-3 shrink-0 text-text-muted">
-					<span class="text-[11px] font-semibold text-text-muted">
-						{formatRelativeTime(t)}
-					</span>
-					<span class="font-bold text-text-main text-[11px]">
-						{formatClockTime(t)}
-					</span>
-				</div>
-			</div>
-		{/each}
-	</div>
-{/if}
+								<div class="flex items-center gap-3 shrink-0">
+									<span class="text-[11px] font-bold text-primary">
+										{formatRelativeTime(t)}
+									</span>
+									<span class="font-extrabold text-text-main text-[11px]">
+										{formatClockTime(t)}
+									</span>
+								</div>
+							</div>
+						{/each}
+					</div>
 				</div>
 			{/each}
 		</div>
