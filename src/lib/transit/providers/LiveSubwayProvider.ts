@@ -30,7 +30,9 @@ export class LiveSubwayProvider implements TransitProvider {
 	async getDepartures(options?: DepartureOptions): Promise<ProviderResult<SubwayDeparture>> {
 		try {
 			const now = new Date();
-			const windowMinutes = options?.windowMinutes ?? 240; // Default 4 hours lookahead
+			const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+			const defaultWindow = Math.max(240, Math.ceil((endOfDay.getTime() - now.getTime()) / 60000));
+			const windowMinutes = options?.windowMinutes ?? defaultWindow;
 
 			// 1. Attempt static GTFS schedule lookup for Roosevelt Island Station (B06)
 			let staticDepartures: ScheduledDeparture[] = [];
