@@ -9,7 +9,7 @@ export const NYC_FERRY_TRIP_UPDATE_URL =
 export const NYC_FERRY_VEHICLE_POS_URL =
 	'https://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/vehicleposition';
 export const NYC_FERRY_STATIC_GTFS_URL =
-	'http://nycferry.connexionz.net/rtt/public/resource/gtfs.zip';
+	'https://nycferry.connexionz.net/rtt/public/resource/gtfs.zip';
 interface VesselTelemetry {
 	vesselLabel?: string;
 	vesselId?: string;

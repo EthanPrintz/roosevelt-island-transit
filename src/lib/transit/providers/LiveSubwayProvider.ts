@@ -118,7 +118,10 @@ export class LiveSubwayProvider implements TransitProvider {
 					return { data: exactData, rtTripId: staticTripId };
 				}
 				for (const [rtTripId, data] of liveUpdates.entries()) {
-					if (staticTripId.endsWith(rtTripId) || staticTripId.includes(rtTripId)) {
+					if (
+						rtTripId.length >= 4 &&
+						(staticTripId.endsWith(rtTripId) || rtTripId.endsWith(staticTripId))
+					) {
 						return { data, rtTripId };
 					}
 				}

@@ -328,44 +328,57 @@ export class GtfsStaticStore {
 		if (!dataset) return [];
 
 		const nowMs = date.getTime();
-		const { year, month, day } = getLocalDateComponents(date);
-		const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
-
 		const results: ScheduledDeparture[] = [];
+		const seenTripKeys = new Set<string>();
 
-		for (const [stopId, entries] of dataset.stopTimes.entries()) {
-			if (!stopId.startsWith(stopPrefix)) continue;
+		// If time is early morning (00:00 - 04:00 AM), also check previous day for >24:00 GTFS trips
+		const datesToEvaluate = [date];
+		if (date.getHours() < 4) {
+			datesToEvaluate.push(new Date(nowMs - 24 * 60 * 60 * 1000));
+		}
 
-			for (const entry of entries) {
-				const trip = dataset.trips.get(entry.tripId);
-				if (!trip) continue;
+		for (const evalDate of datesToEvaluate) {
+			const { year, month, day } = getLocalDateComponents(evalDate);
+			const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
 
-				if (!this.isServiceActive(dataset, trip.serviceId, date)) continue;
+			for (const [stopId, entries] of dataset.stopTimes.entries()) {
+				if (!stopId.startsWith(stopPrefix)) continue;
 
-				const timeStr = entry.departureTime || entry.arrivalTime;
-				if (!timeStr) continue;
+				for (const entry of entries) {
+					const trip = dataset.trips.get(entry.tripId);
+					if (!trip) continue;
 
-				const [hStr, mStr, sStr] = timeStr.split(':');
-				const h = Number.parseInt(hStr, 10);
-				const m = Number.parseInt(mStr, 10);
-				const s = Number.parseInt(sStr || '0', 10);
+					if (!this.isServiceActive(dataset, trip.serviceId, evalDate)) continue;
 
-				const scheduledDate = new Date(startOfDay.getTime());
-				scheduledDate.setHours(h, m, s, 0);
+					const timeStr = entry.departureTime || entry.arrivalTime;
+					if (!timeStr) continue;
 
-				const diffMs = scheduledDate.getTime() - nowMs;
-				// Window: from -2 minutes ago up to windowMinutes ahead
-				if (diffMs >= -120000 && diffMs <= windowMinutes * 60000) {
-					results.push({
-						tripId: entry.tripId,
-						routeId: trip.routeId,
-						serviceId: trip.serviceId,
-						headsign: trip.headsign,
-						directionId: trip.directionId,
-						stopId,
-						stopSequence: entry.stopSequence,
-						scheduledTime: scheduledDate.toISOString(),
-					});
+					const [hStr, mStr, sStr] = timeStr.split(':');
+					const h = Number.parseInt(hStr, 10);
+					const m = Number.parseInt(mStr, 10);
+					const s = Number.parseInt(sStr || '0', 10);
+
+					const scheduledDate = new Date(startOfDay.getTime());
+					scheduledDate.setHours(h, m, s, 0);
+
+					const diffMs = scheduledDate.getTime() - nowMs;
+					// Window: from -2 minutes ago up to windowMinutes ahead
+					if (diffMs >= -120000 && diffMs <= windowMinutes * 60000) {
+						const dedupeKey = `${entry.tripId}-${stopId}-${scheduledDate.getTime()}`;
+						if (seenTripKeys.has(dedupeKey)) continue;
+						seenTripKeys.add(dedupeKey);
+
+						results.push({
+							tripId: entry.tripId,
+							routeId: trip.routeId,
+							serviceId: trip.serviceId,
+							headsign: trip.headsign,
+							directionId: trip.directionId,
+							stopId,
+							stopSequence: entry.stopSequence,
+							scheduledTime: scheduledDate.toISOString(),
+						});
+					}
 				}
 			}
 		}
