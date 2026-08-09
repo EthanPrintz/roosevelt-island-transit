@@ -14,6 +14,8 @@ import {
 	Wrench01Icon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
+import SegmentedControl from '$lib/components/SegmentedControl.svelte';
+import type { SegmentOption } from '$lib/components/segmented-control.types';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
 import type { BikeStation, TransitAlert, TransitDeparture } from '$lib/transit/domain/types';
 import { formatRelativeTime } from '$lib/utils/time-format';
@@ -22,6 +24,19 @@ let departures = $state<TransitDeparture[]>([]);
 let alerts = $state<TransitAlert[]>([]);
 let stations = $state<BikeStation[]>([]);
 let subwayRouteFilter = $state<'ALL' | 'F' | 'M'>('ALL');
+
+const lineFilterOptions: SegmentOption<'ALL' | 'F' | 'M'>[] = [
+	{ value: 'ALL', label: 'All' },
+	{ value: 'F', label: 'F', bullet: 'F', bulletColor: 'bg-orange-500 text-white' },
+	{ value: 'M', label: 'M', bullet: 'M', bulletColor: 'bg-orange-500 text-white' },
+];
+
+const windowOptions: SegmentOption<number>[] = [
+	{ value: 120, label: '2h' },
+	{ value: 240, label: '4h' },
+	{ value: 360, label: '6h' },
+	{ value: 480, label: '8h' },
+];
 
 $effect(() => {
 	// Reactively reload whenever selectedWindow changes or triggerRefresh is incremented
@@ -155,47 +170,17 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 			<!-- Unified Subway Controls Cluster (Line Toggle + Hour Lookahead Selector) -->
 			<div class="flex items-center gap-2 shrink-0">
-				<!-- Route Filter Toggle -->
-				<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs shrink-0 gap-0.5">
-					<button
-						onclick={() => (subwayRouteFilter = 'ALL')}
-						class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {subwayRouteFilter === 'ALL'
-							? 'bg-primary text-primary-fg shadow-xs'
-							: 'text-text-muted hover:text-text-main'}"
-					>
-						All
-					</button>
-					<button
-						onclick={() => (subwayRouteFilter = 'F')}
-						class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'F'
-							? 'bg-orange-500 text-white shadow-xs'
-							: 'text-text-muted hover:text-text-main'}"
-					>
-						<span class="bullet-subway text-[9px]">F</span>
-					</button>
-					<button
-						onclick={() => (subwayRouteFilter = 'M')}
-						class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'M'
-							? 'bg-orange-500 text-white shadow-xs'
-							: 'text-text-muted hover:text-text-main'}"
-					>
-						<span class="bullet-subway text-[9px]">M</span>
-					</button>
-				</div>
+				<SegmentedControl
+					options={lineFilterOptions}
+					value={subwayRouteFilter}
+					onSelect={(val) => (subwayRouteFilter = val)}
+				/>
 
-				<!-- Hour Lookahead Selector -->
-				<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs shrink-0 gap-0.5">
-					{#each [120, 240, 360, 480] as win}
-						<button
-							onclick={() => transitSettings.setWindow(win)}
-							class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {transitSettings.selectedWindow === win
-								? 'bg-primary text-primary-fg shadow-xs'
-								: 'text-text-muted hover:text-text-main'}"
-						>
-							{win / 60}h
-						</button>
-					{/each}
-				</div>
+				<SegmentedControl
+					options={windowOptions}
+					value={transitSettings.selectedWindow}
+					onSelect={(val) => transitSettings.setWindow(val)}
+				/>
 			</div>
 		</div>
 
