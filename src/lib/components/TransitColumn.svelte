@@ -16,6 +16,7 @@ interface Props {
 	statusIconFn?: (dep: TransitDeparture) => any;
 	statusClassFn?: (dep: TransitDeparture) => string | undefined;
 	lineBadgeTextFn?: (dep: TransitDeparture) => string | undefined;
+	lineBadgeClassFn?: (dep: TransitDeparture) => string | undefined;
 	subDetailsFn?: (dep: TransitDeparture) => string | undefined;
 	badgeTextFn?: (dep: TransitDeparture) => string | undefined;
 	maxTimetableItems?: number;
@@ -31,6 +32,7 @@ let {
 	statusIconFn,
 	statusClassFn,
 	lineBadgeTextFn,
+	lineBadgeClassFn,
 	subDetailsFn,
 	badgeTextFn,
 	maxTimetableItems,
@@ -52,7 +54,6 @@ let {
 			statusText={statusTextFn ? statusTextFn(heroDep) : (heroDep.isRealtime ? 'En Route' : 'Scheduled')}
 			statusIcon={statusIconFn ? statusIconFn(heroDep) : (heroDep.isRealtime ? FlashIcon : Clock01Icon)}
 			statusClass={statusClassFn ? statusClassFn(heroDep) : undefined}
-			lineBadgeText={lineBadgeTextFn ? lineBadgeTextFn(heroDep) : undefined}
 			subDetails={subDetailsFn ? subDetailsFn(heroDep) : undefined}
 		/>
 

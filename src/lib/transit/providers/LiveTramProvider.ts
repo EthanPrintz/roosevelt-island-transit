@@ -74,7 +74,7 @@ export class LiveTramProvider implements TransitProvider {
 								delaySeconds: 0,
 								status: 'normal',
 								stopName: 'Roosevelt Island Tram Station',
-								cabin: stepIndex % 2 === 0 ? 'North Cabin' : 'South Cabin',
+								cabin: stepIndex % 2 === 0 ? 'NORTH' : 'SOUTH',
 								isBoarding: diffMins <= 2 && diffMins >= 0,
 							});
 
@@ -93,7 +93,7 @@ export class LiveTramProvider implements TransitProvider {
 								delaySeconds: 0,
 								status: 'normal',
 								stopName: 'Manhattan 59th St Tram Station',
-								cabin: stepIndex % 2 === 0 ? 'South Cabin' : 'North Cabin',
+								cabin: stepIndex % 2 === 0 ? 'SOUTH' : 'NORTH',
 								isBoarding: diffMins <= 2 && diffMins >= 0,
 							});
 						}
@@ -121,7 +121,7 @@ export class LiveTramProvider implements TransitProvider {
 								delaySeconds: 0,
 								status: 'normal',
 								stopName: 'Roosevelt Island Tram Station',
-								cabin: 'North Cabin',
+								cabin: 'NORTH',
 								isBoarding: diffMins <= 2 && diffMins >= 0,
 							});
 						}
@@ -146,7 +146,7 @@ export class LiveTramProvider implements TransitProvider {
 								delaySeconds: 0,
 								status: 'normal',
 								stopName: 'Manhattan 59th St Tram Station',
-								cabin: 'North Cabin',
+								cabin: 'NORTH',
 								isBoarding: diffMins <= 2 && diffMins >= 0,
 							});
 						}

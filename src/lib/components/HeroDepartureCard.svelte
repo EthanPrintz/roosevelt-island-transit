@@ -98,12 +98,7 @@ let relativeLabel = $derived(
 
 	<!-- Middle Row: Clean Destination Title & Large Clock Time -->
 	<div class="flex items-baseline justify-between gap-2 pt-0.5">
-		<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1 flex items-center gap-1.5">
-			{#if lineBadgeText}
-				<span class={lineBadgeClass || 'bullet-subway text-[9px] shrink-0'}>
-					{lineBadgeText}
-				</span>
-			{/if}
+		<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
 			<span class="truncate">{departure.headsign}</span>
 		</div>
 

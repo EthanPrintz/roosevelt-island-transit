@@ -195,8 +195,8 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				statusTextFn={(dep) => ((dep as any).isBoarding ? 'Boarding' : 'In Transit')}
 				statusIconFn={(dep) =>
 					(dep as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
-				subDetailsFn={(dep) => (dep as any).cabin || 'Tram Cabin'}
-				badgeTextFn={(dep) => (dep as any).cabin || 'Tram'}
+				subDetailsFn={(dep) => ((dep as any).cabin ? `${(dep as any).cabin} CABIN` : 'TRAM CABIN')}
+				badgeTextFn={(dep) => (dep as any).cabin || 'NORTH'}
 				maxTimetableItems={4}
 			/>
 
@@ -209,8 +209,8 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				statusTextFn={(dep) => ((dep as any).isBoarding ? 'Boarding' : 'In Transit')}
 				statusIconFn={(dep) =>
 					(dep as any).isBoarding ? CheckmarkCircle01Icon : Navigation01Icon}
-				subDetailsFn={(dep) => (dep as any).cabin || 'Tram Cabin'}
-				badgeTextFn={(dep) => (dep as any).cabin || 'Tram'}
+				subDetailsFn={(dep) => ((dep as any).cabin ? `${(dep as any).cabin} CABIN` : 'TRAM CABIN')}
+				badgeTextFn={(dep) => (dep as any).cabin || 'NORTH'}
 				maxTimetableItems={4}
 			/>
 		</div>
@@ -243,7 +243,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 							: f.vesselName
 						: 'Astoria Line';
 				}}
-				badgeTextFn={(dep) => (dep as FerryDeparture).vesselName}
+				badgeTextFn={() => 'ASTORIA'}
 			/>
 
 			<TransitColumn
@@ -263,7 +263,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 							: f.vesselName
 						: 'Astoria Line';
 				}}
-				badgeTextFn={(dep) => (dep as FerryDeparture).vesselName}
+				badgeTextFn={() => 'ASTORIA'}
 			/>
 		</div>
 	</div>

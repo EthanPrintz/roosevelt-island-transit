@@ -14,7 +14,7 @@
 			"delaySeconds": 0,
 			"status": "normal",
 			"stopName": "Roosevelt Island Tram Station",
-			"cabin": "North Cabin",
+			"cabin": "NORTH",
 			"isBoarding": true
 		},
 		{
@@ -31,7 +31,7 @@
 			"delaySeconds": 0,
 			"status": "normal",
 			"stopName": "Roosevelt Island Tram Station",
-			"cabin": "South Cabin",
+			"cabin": "SOUTH",
 			"isBoarding": false
 		}
 	],

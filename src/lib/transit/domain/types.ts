@@ -105,7 +105,7 @@ export interface SubwayDeparture extends BaseDeparture {
  */
 export interface TramDeparture extends BaseDeparture {
 	mode: 'tram';
-	cabin: 'North Cabin' | 'South Cabin';
+	cabin: 'NORTH' | 'SOUTH' | 'North Cabin' | 'South Cabin';
 	isBoarding: boolean;
 }
 
