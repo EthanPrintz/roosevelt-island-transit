@@ -29,7 +29,11 @@ This workspace is configured for Antigravity / Gemini coding agents. All agents 
 - Import free icons from `@hugeicons/core-free-icons`.
 - Consult the `hugeicons` MCP server when looking for available vector icon glyphs.
 
-## 5. Tooling, Linting & Verification
+## 5. Data Pipeline & Suppression Rules
+- **Dynamic Active Horizon Suppression**: When combining static GTFS schedules with real-time feeds (GTFS-RT / Connexionz), ALWAYS use `suppressGhostSchedules()` from `src/lib/transit/utils/suppression.ts`. Suppress any static departure scheduled earlier than or equal to $T_{\text{max\_live}}$ in that direction.
+- **Hero Card Design System**: HeroDepartureCards follow a strict 3-row architecture (Top Bar: status pill + countdown; Middle Row: destination title + clock time; Bottom Row: mono sub-details line). All status pills MUST use mode accent colors (`orange`, `rose`, `cyan`) with translucent backgrounds and `border border-[color]/30`.
+
+## 6. Tooling, Linting & Verification
 - **Linter & Formatter**: Biome v2.3 (`bun run lint`, `bun run format`).
 - **Type Diagnostics**: Svelte Check (`bun run check`).
 - **Unit Testing**: Vitest (`bun run test`).
