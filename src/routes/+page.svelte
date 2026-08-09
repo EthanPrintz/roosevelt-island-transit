@@ -79,7 +79,7 @@ function getRelativeTimeLabel(isoString: string): string {
 	return `In ${mins} mins`;
 }
 
-type DockSlotType = 'ebike' | 'classic' | 'empty' | 'disabled';
+type DockSlotType = 'ebike' | 'classic' | 'broken_bike' | 'disabled_dock' | 'empty';
 
 function generateDockSlots(station: BikeStation): DockSlotType[] {
 	const slots: DockSlotType[] = [];
@@ -94,9 +94,14 @@ function generateDockSlots(station: BikeStation): DockSlotType[] {
 		slots.push('classic');
 	}
 
+	const brokenBikes = station.disabledBikes || 0;
+	for (let i = 0; i < brokenBikes; i++) {
+		slots.push('broken_bike');
+	}
+
 	const disabledDocks = station.disabledDocks || 0;
 	for (let i = 0; i < disabledDocks; i++) {
-		slots.push('disabled');
+		slots.push('disabled_dock');
 	}
 
 	const totalCapacity = Math.max(station.capacity, slots.length);
@@ -125,6 +130,7 @@ let totalClassicBikes = $derived(
 	stations.reduce((sum, s) => sum + (s.bikesAvailable.classic || 0), 0),
 );
 let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailable || 0), 0));
+let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBikes || 0), 0));
 </script>
 
 <svelte:head>
@@ -734,6 +740,12 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 					<span>Classic Bike ({totalClassicBikes})</span>
 				</div>
 				<div class="flex items-center gap-1.5">
+					<span class="w-3.5 h-3.5 rounded bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500">
+						<HugeiconsIcon icon={Wrench01Icon} size={9} />
+					</span>
+					<span>Broken Bike ({totalBrokenBikes})</span>
+				</div>
+				<div class="flex items-center gap-1.5">
 					<span class="w-3.5 h-3.5 rounded bg-bg-elevated/60 border border-border-default flex items-center justify-center text-text-muted">
 						<HugeiconsIcon icon={SquareIcon} size={9} />
 					</span>
@@ -741,7 +753,7 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 				</div>
 				<div class="flex items-center gap-1.5">
 					<span class="w-3.5 h-3.5 rounded bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-500">
-						<HugeiconsIcon icon={Wrench01Icon} size={9} />
+						<HugeiconsIcon icon={AlertCircleIcon} size={9} />
 					</span>
 					<span>Disabled Dock</span>
 				</div>
@@ -762,7 +774,10 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 								<div>
 									<h3 class="font-bold text-sm text-text-main leading-tight">{station.name}</h3>
 									<div class="text-[11px] text-text-muted mt-0.5">
-										<strong class="text-text-main font-mono">{station.bikesAvailable.total}</strong> bikes / <strong class="text-text-main font-mono">{station.docksAvailable}</strong> open docks
+										<strong class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{station.bikesAvailable.total} rideable</strong> ({station.bikesAvailable.ebike}⚡, {station.bikesAvailable.classic}🚲) • <strong class="text-text-main font-mono">{station.docksAvailable} open docks</strong>
+										{#if (station.disabledBikes || 0) > 0}
+											• <span class="text-rose-500 font-mono font-bold">{station.disabledBikes} broken bike locked</span>
+										{/if}
 									</div>
 								</div>
 								<span class="px-2 py-0.5 rounded-md bg-bg-elevated font-mono font-bold text-[10px] shrink-0">
@@ -773,30 +788,37 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 							<!-- Visual Dock Slot Grid -->
 							<div class="mt-3.5 pt-3 border-t border-border-subtle/80">
 								<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted mb-2">
-									Dock Slot State Matrix ({slots.length} Slots)
+									Dock Slot Physical State Matrix ({slots.length} Slots)
 								</div>
 								<div class="flex flex-wrap gap-1.5">
 									{#each slots as slot, i}
 										{#if slot === 'ebike'}
 											<div
 												class="w-4 h-4 rounded bg-sky-500 flex items-center justify-center text-white shadow-2xs"
-												title="Slot #{i + 1}: E-Bike Available"
+												title="Slot #{i + 1}: E-Bike Available to Ride"
 											>
 												<HugeiconsIcon icon={FlashIcon} size={10} />
 											</div>
 										{:else if slot === 'classic'}
 											<div
 												class="w-4 h-4 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs"
-												title="Slot #{i + 1}: Classic Bike Available"
+												title="Slot #{i + 1}: Classic Bike Available to Ride"
 											>
 												<HugeiconsIcon icon={Bicycle01Icon} size={10} />
 											</div>
-										{:else if slot === 'disabled'}
+										{:else if slot === 'broken_bike'}
 											<div
-												class="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-500"
-												title="Slot #{i + 1}: Disabled Hardware Slot"
+												class="w-4 h-4 rounded bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 shadow-2xs"
+												title="Slot #{i + 1}: Broken Bike Locked in Dock (Wrenched)"
 											>
 												<HugeiconsIcon icon={Wrench01Icon} size={9} />
+											</div>
+										{:else if slot === 'disabled_dock'}
+											<div
+												class="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-500"
+												title="Slot #{i + 1}: Disabled Hardware Dock Slot"
+											>
+												<HugeiconsIcon icon={AlertCircleIcon} size={9} />
 											</div>
 										{:else}
 											<div
@@ -814,7 +836,7 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 						{#if station.disabledBikes || station.disabledDocks}
 							<div class="inline-flex items-center gap-1.5 text-[10px] text-amber-600 dark:text-amber-400 font-mono bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
 								<HugeiconsIcon icon={Wrench01Icon} size={11} />
-								<span>Maintenance: {station.disabledBikes || 0} bad bikes, {station.disabledDocks || 0} bad docks</span>
+								<span>Maintenance: {station.disabledBikes || 0} broken bikes locked, {station.disabledDocks || 0} bad docks</span>
 							</div>
 						{/if}
 					</div>
