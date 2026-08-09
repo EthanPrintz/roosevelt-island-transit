@@ -129,6 +129,11 @@ let tramDepartures = $derived(departures.filter((d) => d.mode === 'tram'));
 let manhattanTrams = $derived(tramDepartures.filter((d) => d.direction === 'manhattan_bound'));
 let islandTrams = $derived(tramDepartures.filter((d) => d.direction === 'queens_bound'));
 
+let subwayAlerts = $derived(alerts.filter((a) => a.mode === 'subway'));
+let tramAlerts = $derived(alerts.filter((a) => a.mode === 'tram'));
+let ferryAlerts = $derived(alerts.filter((a) => a.mode === 'ferry'));
+let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
+
 let totalEbikes = $derived(stations.reduce((sum, s) => sum + (s.bikesAvailable.ebike || 0), 0));
 let totalClassicBikes = $derived(
 	stations.reduce((sum, s) => sum + (s.bikesAvailable.classic || 0), 0),
@@ -142,28 +147,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 </svelte:head>
 
 <div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
-	<!-- Active System Alerts -->
-	{#if alerts.length > 0}
-		<div class="space-y-2">
-			<h2 class="section-title">
-				<HugeiconsIcon icon={Alert02Icon} size={14} class="text-amber-500" />
-				<span>Alerts ({alerts.length})</span>
-			</h2>
-			<div class="space-y-2">
-				{#each alerts as alert (alert.id)}
-					<div class="p-3 rounded-xl bg-bg-surface border border-border-default text-xs space-y-1">
-						<div class="flex items-center gap-2">
-							<span class="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-mono text-[10px] uppercase font-bold">
-								{alert.mode}
-							</span>
-							<strong class="text-text-main">{alert.title}</strong>
-						</div>
-						<p class="text-text-muted">{alert.description}</p>
-					</div>
-				{/each}
-			</div>
-		</div>
-	{/if}
 
 	<!-- Section: Subway -->
 	<div class="space-y-2.5">
@@ -188,6 +171,20 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				/>
 			</div>
 		</div>
+
+		{#if subwayAlerts.length > 0}
+			<div class="space-y-2">
+				{#each subwayAlerts as alert (alert.id)}
+					<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
+						<HugeiconsIcon icon={Alert02Icon} size={16} class="shrink-0 mt-0.5" />
+						<div class="space-y-0.5">
+							<strong class="font-bold text-text-main">{alert.title}</strong>
+							<p class="text-text-muted text-[11px] leading-relaxed">{alert.description}</p>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Manhattan-Bound Column -->
@@ -408,6 +405,20 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			<span class="text-[10px] font-mono text-text-muted">7.5m Peak • 15m Off-Peak</span>
 		</div>
 
+		{#if tramAlerts.length > 0}
+			<div class="space-y-2">
+				{#each tramAlerts as alert (alert.id)}
+					<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
+						<HugeiconsIcon icon={Alert02Icon} size={16} class="shrink-0 mt-0.5" />
+						<div class="space-y-0.5">
+							<strong class="font-bold text-text-main">{alert.title}</strong>
+							<p class="text-text-muted text-[11px] leading-relaxed">{alert.description}</p>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
+
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 			<!-- Direction: Manhattan-Bound (59th St) -->
 			<div class="panel-card space-y-3">
@@ -547,6 +558,20 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				<span>Ferry</span>
 			</h2>
 		</div>
+
+		{#if ferryAlerts.length > 0}
+			<div class="space-y-2">
+				{#each ferryAlerts as alert (alert.id)}
+					<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
+						<HugeiconsIcon icon={Alert02Icon} size={16} class="shrink-0 mt-0.5" />
+						<div class="space-y-0.5">
+							<strong class="font-bold text-text-main">{alert.title}</strong>
+							<p class="text-text-muted text-[11px] leading-relaxed">{alert.description}</p>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Southbound Column -->
@@ -781,6 +806,20 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				</div>
 			</div>
 		</div>
+
+		{#if citibikeAlerts.length > 0}
+			<div class="space-y-2">
+				{#each citibikeAlerts as alert (alert.id)}
+					<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
+						<HugeiconsIcon icon={Alert02Icon} size={16} class="shrink-0 mt-0.5" />
+						<div class="space-y-0.5">
+							<strong class="font-bold text-text-main">{alert.title}</strong>
+							<p class="text-text-muted text-[11px] leading-relaxed">{alert.description}</p>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
 
 		{#if stations.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
