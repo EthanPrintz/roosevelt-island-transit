@@ -128,18 +128,7 @@ export class LiveTramProvider implements TransitProvider {
 
 	async getAlerts(): Promise<ProviderResult<TransitAlert>> {
 		return {
-			data: [
-				{
-					id: 'tram-advisory-schedule',
-					mode: 'tram',
-					affectedRoutes: ['TRAM'],
-					title: 'Tramway Operating Schedule',
-					description:
-						'Trams run every 7.5 minutes during weekday peak hours (7-10 AM & 2:30-7 PM) and every 15 minutes off-peak.',
-					severity: 'info',
-					effect: 'OTHER',
-				},
-			],
+			data: [],
 			fetchedAt: new Date().toISOString(),
 			isCached: false,
 		};

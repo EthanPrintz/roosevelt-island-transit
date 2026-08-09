@@ -25,11 +25,9 @@ describe('LiveTramProvider', () => {
 		expect(islandBound.length).toBeGreaterThan(0);
 	});
 
-	it('returns info alerts regarding tram schedule headways', async () => {
+	it('returns empty alerts during normal operations', async () => {
 		const provider = new LiveTramProvider();
 		const result = await provider.getAlerts();
-		expect(result.data.length).toBeGreaterThan(0);
-		expect(result.data[0].mode).toBe('tram');
-		expect(result.data[0].severity).toBe('info');
+		expect(result.data).toEqual([]);
 	});
 });

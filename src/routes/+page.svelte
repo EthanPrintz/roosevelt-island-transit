@@ -5,6 +5,7 @@ import {
 	AnchorIcon,
 	Bicycle01Icon,
 	BoatIcon,
+	CableCarIcon,
 	FerryBoatIcon,
 	FlashIcon,
 	Navigation01Icon,
@@ -401,7 +402,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<div class="space-y-2.5">
 		<div class="flex items-center justify-between">
 			<h2 class="section-title">
-				<HugeiconsIcon icon={Navigation01Icon} size={15} class="text-rose-500" />
+				<HugeiconsIcon icon={CableCarIcon} size={15} class="text-rose-500" />
 				<span>Tramway</span>
 			</h2>
 			<span class="text-[10px] font-mono text-text-muted">7.5m Peak • 15m Off-Peak</span>
@@ -476,7 +477,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			<div class="panel-card space-y-3">
 				<div class="flex items-center justify-between border-b border-border-default pb-2">
 					<h3 class="font-bold text-xs text-text-main flex items-center gap-1.5">
-						<span class="w-2 h-2 rounded-full bg-sky-500"></span>
+						<span class="w-2 h-2 rounded-full bg-rose-500"></span>
 						<span>Island-Bound</span>
 					</h3>
 					<span class="text-[10px] text-text-muted font-mono">Roosevelt Island Station</span>
@@ -490,7 +491,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<div class="p-3 rounded-xl bg-bg-surface border border-border-default space-y-2">
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-1.5">
-								<span class="px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-500 font-mono text-[10px] font-bold">
+								<span class="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 font-mono text-[10px] font-bold">
 									{hero.cabin || 'Tram Cabin'}
 								</span>
 								{#if hero.isBoarding}
@@ -518,7 +519,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							{#each islandTrams.slice(1, 5) as dep (dep.id)}
 								<div class="flex items-center justify-between text-xs py-1 px-2 rounded-lg hover:bg-bg-surface/50 transition-colors">
 									<div class="flex items-center gap-2">
-										<span class="w-1.5 h-1.5 rounded-full bg-sky-500/60"></span>
+										<span class="w-1.5 h-1.5 rounded-full bg-rose-500/60"></span>
 										<span class="text-text-muted font-mono text-[11px]">{dep.cabin || 'Tram'}</span>
 									</div>
 									<div class="flex items-center gap-3">
