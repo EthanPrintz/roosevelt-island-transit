@@ -126,24 +126,23 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 </script>
 
 <svelte:head>
-	<title>Roosevelt Island Live Transit Core</title>
+	<title>Roosevelt Island Transit</title>
 </svelte:head>
 
-<div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
+<div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
 	<!-- Minimal Stream Control Bar -->
-	<header class="p-4 sm:p-5 rounded-2xl bg-bg-surface border border-border-default shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+	<header class="p-4 rounded-2xl bg-bg-surface border border-border-default shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 		<div>
-			<h1 class="text-lg font-black text-text-main tracking-tight">Live Arrival Stream</h1>
-			<p class="text-xs text-text-muted">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare</p>
+			<h1 class="text-base font-extrabold text-text-main tracking-tight">Live Arrivals</h1>
 		</div>
 
-		<div class="flex items-center gap-3 shrink-0">
+		<div class="flex items-center gap-2.5 shrink-0">
 			<!-- Lookahead Window Selector -->
 			<div class="flex items-center rounded-xl bg-bg-elevated/60 border border-border-default/80 p-1 text-xs">
 				{#each [120, 240, 360, 480] as win}
 					<button
 						onclick={() => changeWindow(win)}
-						class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {selectedWindow === win
+						class="px-2 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {selectedWindow === win
 							? 'bg-primary text-primary-fg shadow-xs'
 							: 'text-text-muted hover:text-text-main'}"
 					>
@@ -155,7 +154,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			<button
 				onclick={loadLiveData}
 				disabled={isLoading}
-				class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-fg text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
+				class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-primary text-primary-fg text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
 			>
 				<HugeiconsIcon icon={RefreshIcon} size={13} class={isLoading ? 'animate-spin' : ''} />
 				<span>{isLoading ? 'Refreshing...' : 'Refresh'}</span>
@@ -173,12 +172,12 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	{#if alerts.length > 0}
 		<div class="space-y-2">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-1.5">
-				<HugeiconsIcon icon={Alert02Icon} size={15} class="text-amber-500" />
-				<span>Live Service Alerts ({alerts.length})</span>
+				<HugeiconsIcon icon={Alert02Icon} size={14} class="text-amber-500" />
+				<span>Alerts ({alerts.length})</span>
 			</h2>
 			<div class="space-y-2">
 				{#each alerts as alert (alert.id)}
-					<div class="p-3.5 rounded-xl bg-bg-surface border border-border-default text-xs space-y-1">
+					<div class="p-3 rounded-xl bg-bg-surface border border-border-default text-xs space-y-1">
 						<div class="flex items-center gap-2">
 							<span class="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-mono text-[10px] uppercase font-bold">
 								{alert.mode}
@@ -192,19 +191,19 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		</div>
 	{/if}
 
-	<!-- Section: MTA Subway -->
+	<!-- Section: Subway -->
 	<div class="space-y-3">
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
-				<HugeiconsIcon icon={Train01Icon} size={16} class="text-orange-500" />
-				<span>MTA Subway</span>
+				<HugeiconsIcon icon={Train01Icon} size={15} class="text-orange-500" />
+				<span>Subway</span>
 			</h2>
 
 			<!-- Route Filter Toggle -->
 			<div class="flex items-center rounded-xl bg-bg-surface border border-border-default p-1 text-xs shrink-0">
 				<button
 					onclick={() => (subwayRouteFilter = 'ALL')}
-					class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {subwayRouteFilter === 'ALL'
+					class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {subwayRouteFilter === 'ALL'
 						? 'bg-primary text-primary-fg shadow-xs'
 						: 'text-text-muted hover:text-text-main'}"
 				>
@@ -212,7 +211,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				</button>
 				<button
 					onclick={() => (subwayRouteFilter = 'F')}
-					class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'F'
+					class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'F'
 						? 'bg-orange-500 text-white shadow-xs'
 						: 'text-text-muted hover:text-text-main'}"
 				>
@@ -220,7 +219,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				</button>
 				<button
 					onclick={() => (subwayRouteFilter = 'M')}
-					class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'M'
+					class="px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 {subwayRouteFilter === 'M'
 						? 'bg-orange-500 text-white shadow-xs'
 						: 'text-text-muted hover:text-text-main'}"
 				>
@@ -229,44 +228,40 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			</div>
 		</div>
 
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Manhattan-Bound Column -->
-			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
+			<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-2">
 						<div class="flex items-center gap-1">
-							<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">F</span>
-							<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">M</span>
+							<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">F</span>
+							<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">M</span>
 						</div>
-						<h3 class="text-sm font-bold text-text-main">Downtown / Manhattan-Bound</h3>
+						<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Manhattan-Bound</h3>
 					</div>
-					<span class="text-[11px] font-mono text-text-muted">Track B06S</span>
 				</div>
 
 				{#if manhattanSubways.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted">
-						{isLoading ? 'Loading Manhattan trains...' : 'No upcoming Manhattan-bound trains in feed.'}
+					<div class="p-3 text-center text-xs text-text-muted">
+						{isLoading ? 'Loading...' : 'No upcoming Manhattan trains.'}
 					</div>
 				{:else}
 					<!-- HERO CARD: Next Manhattan-Bound Train -->
 					{@const nextTrain = manhattanSubways[0]}
-					<div class="p-4 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
+					<div class="p-3 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
-							<div class="flex items-center gap-2">
-								<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
-									NEXT TRAIN
-								</span>
-								<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">
+							<div class="flex items-center gap-1.5">
+								<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">
 									{nextTrain.routeId}
 								</span>
 								{#if nextTrain.scheduleRelationship === 'ADDED'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono font-bold text-[10px] uppercase border border-purple-500/30">
-										<HugeiconsIcon icon={SparklesIcon} size={11} />
-										<span>Extra Train</span>
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono text-[9px] uppercase">
+										<HugeiconsIcon icon={SparklesIcon} size={10} />
+										<span>Extra</span>
 									</span>
 								{:else if nextTrain.scheduleRelationship === 'CANCELED'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 text-red-600 dark:text-red-300 font-mono font-bold text-[10px] uppercase border border-red-500/30">
-										<HugeiconsIcon icon={AlertCircleIcon} size={11} />
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-red-500/20 text-red-600 dark:text-red-300 font-mono text-[9px] uppercase">
+										<HugeiconsIcon icon={AlertCircleIcon} size={10} />
 										<span>Canceled</span>
 									</span>
 								{/if}
@@ -275,28 +270,28 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 								{getRelativeTimeLabel(nextTrain.predictedTime || nextTrain.scheduledTime)}
 							</span>
 						</div>
-						<div class="flex items-baseline justify-between pt-1">
+						<div class="flex items-baseline justify-between pt-0.5">
 							<div>
-								<div class="text-base font-extrabold text-text-main leading-tight flex items-center gap-2">
+								<div class="text-sm font-extrabold text-text-main leading-tight flex items-center gap-2">
 									<span>{nextTrain.headsign}</span>
 								</div>
 								{#if nextTrain.originStartTime}
-									<div class="text-[11px] text-text-muted mt-0.5">
-										Dispatched: <span class="font-mono">{nextTrain.originStartTime}</span>
+									<div class="text-[10px] text-text-muted mt-0.5 font-mono">
+										Dispatched: {nextTrain.originStartTime}
 									</div>
 								{/if}
 							</div>
 							<div class="text-right">
-								<div class="font-mono text-xl font-black text-text-main">
+								<div class="font-mono text-lg font-black text-text-main">
 									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextTrain.isRealtime}
-									<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-										<HugeiconsIcon icon={FlashIcon} size={11} class="animate-pulse" />
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-500">
+										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
 								{:else}
-									<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
+									<span class="text-[9px] text-text-muted">Scheduled</span>
 								{/if}
 							</div>
 						</div>
@@ -304,79 +299,72 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 					<!-- SUBSEQUENT TRAINS -->
 					{#if manhattanSubways.length > 1}
-						<div class="space-y-1.5 pt-1">
-							<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Following Trains</div>
-							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-								{#each manhattanSubways.slice(1) as train (train.id)}
-									<div class="p-2.5 flex items-center justify-between text-xs">
-										<div class="flex items-center gap-2">
-											<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs shrink-0">
-												{train.routeId}
+						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+							{#each manhattanSubways.slice(1) as train (train.id)}
+								<div class="p-2 flex items-center justify-between text-xs">
+									<div class="flex items-center gap-2">
+										<span class="w-3.5 h-3.5 rounded-full bg-orange-500 text-white font-black text-[9px] flex items-center justify-center shadow-2xs shrink-0">
+											{train.routeId}
+										</span>
+										<span class="font-medium text-text-main">{train.headsign}</span>
+										{#if train.scheduleRelationship === 'ADDED'}
+											<span class="inline-flex items-center gap-0.5 px-1 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">
+												<HugeiconsIcon icon={SparklesIcon} size={9} />
+												<span>Extra</span>
 											</span>
-											<span class="font-medium text-text-main">{train.headsign}</span>
-											{#if train.scheduleRelationship === 'ADDED'}
-												<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">
-													<HugeiconsIcon icon={SparklesIcon} size={10} />
-													<span>Extra</span>
-												</span>
-											{/if}
-										</div>
-										<div class="flex items-center gap-3 font-mono">
-											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
-											<span class="font-bold text-text-main">
-												{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-											</span>
-											{#if train.isRealtime}
-												<span title="Live GTFS-RT">
-													<HugeiconsIcon icon={FlashIcon} size={11} class="text-emerald-500" />
-												</span>
-											{/if}
-										</div>
+										{/if}
 									</div>
-								{/each}
-							</div>
+									<div class="flex items-center gap-2.5 font-mono">
+										<span class="text-text-muted text-[10px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
+										<span class="font-bold text-text-main text-[11px]">
+											{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+										</span>
+										{#if train.isRealtime}
+											<span>
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-emerald-500" />
+											</span>
+										{/if}
+									</div>
+								</div>
+							{/each}
 						</div>
 					{/if}
 				{/if}
 			</div>
 
 			<!-- Queens-Bound Column -->
-			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
+			<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-2">
 						<div class="flex items-center gap-1">
-							<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">F</span>
-							<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">M</span>
+							<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">F</span>
+							<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">M</span>
 						</div>
-						<h3 class="text-sm font-bold text-text-main">Uptown / Queens-Bound</h3>
+						<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Queens-Bound</h3>
 					</div>
-					<span class="text-[11px] font-mono text-text-muted">Track B06N</span>
 				</div>
 
 				{#if queensSubways.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted">
-						{isLoading ? 'Loading Queens trains...' : 'No upcoming Queens-bound trains in feed.'}
+					<div class="p-3 text-center text-xs text-text-muted">
+						{isLoading ? 'Loading...' : 'No upcoming Queens trains.'}
 					</div>
 				{:else}
 					<!-- HERO CARD: Next Queens-Bound Train -->
 					{@const nextTrain = queensSubways[0]}
-					<div class="p-4 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-2 relative overflow-hidden shadow-xs">
+					<div class="p-3 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
-							<div class="flex items-center gap-2">
-								<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
-									NEXT TRAIN
-								</span>
-								<span class="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">
+							<div class="flex items-center gap-1.5">
+								<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">
 									{nextTrain.routeId}
 								</span>
 								{#if nextTrain.scheduleRelationship === 'ADDED'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono font-bold text-[10px] uppercase border border-purple-500/30">
-										<HugeiconsIcon icon={SparklesIcon} size={11} />
-										<span>Extra Train</span>
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono text-[9px] uppercase">
+										<HugeiconsIcon icon={SparklesIcon} size={10} />
+										<span>Extra</span>
 									</span>
 								{:else if nextTrain.scheduleRelationship === 'CANCELED'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 text-red-600 dark:text-red-300 font-mono font-bold text-[10px] uppercase border border-red-500/30">
-										<HugeiconsIcon icon={AlertCircleIcon} size={11} />
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-red-500/20 text-red-600 dark:text-red-300 font-mono text-[9px] uppercase">
+										<HugeiconsIcon icon={AlertCircleIcon} size={10} />
 										<span>Canceled</span>
 									</span>
 								{/if}
@@ -385,28 +373,28 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 								{getRelativeTimeLabel(nextTrain.predictedTime || nextTrain.scheduledTime)}
 							</span>
 						</div>
-						<div class="flex items-baseline justify-between pt-1">
+						<div class="flex items-baseline justify-between pt-0.5">
 							<div>
-								<div class="text-base font-extrabold text-text-main leading-tight flex items-center gap-2">
+								<div class="text-sm font-extrabold text-text-main leading-tight flex items-center gap-2">
 									<span>{nextTrain.headsign}</span>
 								</div>
 								{#if nextTrain.originStartTime}
-									<div class="text-[11px] text-text-muted mt-0.5">
-										Dispatched: <span class="font-mono">{nextTrain.originStartTime}</span>
+									<div class="text-[10px] text-text-muted mt-0.5 font-mono">
+										Dispatched: {nextTrain.originStartTime}
 									</div>
 								{/if}
 							</div>
 							<div class="text-right">
-								<div class="font-mono text-xl font-black text-text-main">
+								<div class="font-mono text-lg font-black text-text-main">
 									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextTrain.isRealtime}
-									<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-										<HugeiconsIcon icon={FlashIcon} size={11} class="animate-pulse" />
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-500">
+										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
 								{:else}
-									<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
+									<span class="text-[9px] text-text-muted">Scheduled</span>
 								{/if}
 							</div>
 						</div>
@@ -414,37 +402,34 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 					<!-- SUBSEQUENT TRAINS -->
 					{#if queensSubways.length > 1}
-						<div class="space-y-1.5 pt-1">
-							<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Following Trains</div>
-							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-								{#each queensSubways.slice(1) as train (train.id)}
-									<div class="p-2.5 flex items-center justify-between text-xs">
-										<div class="flex items-center gap-2">
-											<span class="w-4 h-4 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center shadow-2xs shrink-0">
-												{train.routeId}
+						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+							{#each queensSubways.slice(1) as train (train.id)}
+								<div class="p-2 flex items-center justify-between text-xs">
+									<div class="flex items-center gap-2">
+										<span class="w-3.5 h-3.5 rounded-full bg-orange-500 text-white font-black text-[9px] flex items-center justify-center shadow-2xs shrink-0">
+											{train.routeId}
+										</span>
+										<span class="font-medium text-text-main">{train.headsign}</span>
+										{#if train.scheduleRelationship === 'ADDED'}
+											<span class="inline-flex items-center gap-0.5 px-1 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">
+												<HugeiconsIcon icon={SparklesIcon} size={9} />
+												<span>Extra</span>
 											</span>
-											<span class="font-medium text-text-main">{train.headsign}</span>
-											{#if train.scheduleRelationship === 'ADDED'}
-												<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">
-													<HugeiconsIcon icon={SparklesIcon} size={10} />
-													<span>Extra</span>
-												</span>
-											{/if}
-										</div>
-										<div class="flex items-center gap-3 font-mono">
-											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
-											<span class="font-bold text-text-main">
-												{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-											</span>
-											{#if train.isRealtime}
-												<span title="Live GTFS-RT">
-													<HugeiconsIcon icon={FlashIcon} size={11} class="text-emerald-500" />
-												</span>
-											{/if}
-										</div>
+										{/if}
 									</div>
-								{/each}
-							</div>
+									<div class="flex items-center gap-2.5 font-mono">
+										<span class="text-text-muted text-[10px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
+										<span class="font-bold text-text-main text-[11px]">
+											{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+										</span>
+										{#if train.isRealtime}
+											<span>
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-emerald-500" />
+											</span>
+										{/if}
+									</div>
+								</div>
+							{/each}
 						</div>
 					{/if}
 				{/if}
@@ -452,54 +437,45 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		</div>
 	</div>
 
-	<!-- Section: NYC Ferry -->
+	<!-- Section: Ferry -->
 	<div class="space-y-3">
 		<div class="flex items-center justify-between">
 			<h2 class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
 				<HugeiconsIcon icon={FerryBoatIcon} size={16} class="text-sky-500" />
-				<span>NYC Ferry</span>
+				<span>Ferry</span>
 			</h2>
 		</div>
 
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Southbound Column -->
-			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
+			<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5">
 				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-2">
-						<span class="px-2.5 py-0.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono font-black text-xs border border-sky-500/20">
-							FERRY
-						</span>
-						<h3 class="text-sm font-bold text-text-main">Southbound / Wall St Pier 11</h3>
-					</div>
-					<span class="text-[11px] font-mono text-text-muted">Dock 25</span>
+					<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Southbound / Wall St</h3>
 				</div>
 
 				{#if southboundFerries.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted">
-						{isLoading ? 'Loading Southbound ferries...' : 'No upcoming Southbound ferries in feed.'}
+					<div class="p-3 text-center text-xs text-text-muted">
+						{isLoading ? 'Loading...' : 'No upcoming Southbound ferries.'}
 					</div>
 				{:else}
 					<!-- HERO CARD: Next Southbound Ferry -->
 					{@const nextFerry = southboundFerries[0]}
-					<div class="p-4 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
+					<div class="p-3 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
-							<div class="flex items-center gap-2">
-								<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
-									NEXT FERRY
-								</span>
+							<div class="flex items-center gap-1.5">
 								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[10px] uppercase border border-emerald-500/30">
-										<HugeiconsIcon icon={AnchorIcon} size={11} />
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] uppercase font-bold">
+										<HugeiconsIcon icon={AnchorIcon} size={10} />
 										<span>Docked</span>
 									</span>
 								{:else if nextFerry.vesselStatus === 'INCOMING_AT'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono font-bold text-[10px] uppercase border border-amber-500/30">
-										<HugeiconsIcon icon={Navigation01Icon} size={11} />
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono text-[9px] uppercase font-bold">
+										<HugeiconsIcon icon={Navigation01Icon} size={10} />
 										<span>Approaching</span>
 									</span>
 								{:else if nextFerry.vesselStatus === 'IN_TRANSIT_TO'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono font-bold text-[10px] uppercase border border-sky-500/30">
-										<HugeiconsIcon icon={BoatIcon} size={11} />
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono text-[9px] uppercase font-bold">
+										<HugeiconsIcon icon={BoatIcon} size={10} />
 										<span>En Route</span>
 									</span>
 								{/if}
@@ -508,31 +484,31 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
 							</span>
 						</div>
-						<div class="flex items-baseline justify-between pt-1">
+						<div class="flex items-baseline justify-between pt-0.5">
 							<div>
-								<div class="text-base font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
+								<div class="text-sm font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
 								{#if nextFerry.vesselName || (nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0)}
-									<div class="text-[11px] text-text-muted mt-0.5 flex items-center gap-2">
+									<div class="text-[10px] text-text-muted mt-0.5 flex items-center gap-1.5 font-mono">
 										{#if nextFerry.vesselName}
-											<span>Vessel: <strong class="text-text-main font-mono">{nextFerry.vesselName}</strong></span>
+											<span>{nextFerry.vesselName}</span>
 										{/if}
 										{#if nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0}
-											<span>• <strong class="font-mono text-sky-600 dark:text-sky-400">{nextFerry.speedKnots} kts</strong></span>
+											<span>• <strong class="text-sky-600 dark:text-sky-400">{nextFerry.speedKnots} kts</strong></span>
 										{/if}
 									</div>
 								{/if}
 							</div>
 							<div class="text-right">
-								<div class="font-mono text-xl font-black text-text-main">
+								<div class="font-mono text-lg font-black text-text-main">
 									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextFerry.isRealtime}
-									<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-										<HugeiconsIcon icon={FlashIcon} size={11} class="animate-pulse" />
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-500">
+										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
 								{:else}
-									<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
+									<span class="text-[9px] text-text-muted">Scheduled</span>
 								{/if}
 							</div>
 						</div>
@@ -540,74 +516,62 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 					<!-- SUBSEQUENT FERRIES -->
 					{#if southboundFerries.length > 1}
-						<div class="space-y-1.5 pt-1">
-							<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Following Ferries</div>
-							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-								{#each southboundFerries.slice(1) as ferry (ferry.id)}
-									<div class="p-2.5 flex items-center justify-between text-xs">
-										<div class="flex items-center gap-2">
-											<span class="font-medium text-text-main">{ferry.headsign}</span>
-											{#if ferry.vesselName}
-												<span class="text-[10px] font-mono text-text-muted">({ferry.vesselName})</span>
-											{/if}
-										</div>
-										<div class="flex items-center gap-3 font-mono">
-											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
-											<span class="font-bold text-text-main">
-												{new Date(ferry.predictedTime || ferry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-											</span>
-											{#if ferry.isRealtime}
-												<span title="Live GTFS-RT">
-													<HugeiconsIcon icon={FlashIcon} size={11} class="text-emerald-500" />
-												</span>
-											{/if}
-										</div>
+						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+							{#each southboundFerries.slice(1) as ferry (ferry.id)}
+								<div class="p-2 flex items-center justify-between text-xs">
+									<div class="flex items-center gap-2">
+										<span class="font-medium text-text-main">{ferry.headsign}</span>
+										{#if ferry.vesselName}
+											<span class="text-[10px] font-mono text-text-muted">({ferry.vesselName})</span>
+										{/if}
 									</div>
-								{/each}
-							</div>
+									<div class="flex items-center gap-2.5 font-mono">
+										<span class="text-text-muted text-[10px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
+										<span class="font-bold text-text-main text-[11px]">
+											{new Date(ferry.predictedTime || ferry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+										</span>
+										{#if ferry.isRealtime}
+											<span>
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-emerald-500" />
+											</span>
+										{/if}
+									</div>
+								</div>
+							{/each}
 						</div>
 					{/if}
 				{/if}
 			</div>
 
 			<!-- Northbound Column -->
-			<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3">
+			<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5">
 				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-2">
-						<span class="px-2.5 py-0.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono font-black text-xs border border-sky-500/20">
-							FERRY
-						</span>
-						<h3 class="text-sm font-bold text-text-main">Northbound / East 90th St</h3>
-					</div>
-					<span class="text-[11px] font-mono text-text-muted">Dock 25</span>
+					<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Northbound / E 90th St</h3>
 				</div>
 
 				{#if northboundFerries.length === 0}
-					<div class="p-4 text-center text-xs text-text-muted">
-						{isLoading ? 'Loading Northbound ferries...' : 'No upcoming Northbound ferries in feed.'}
+					<div class="p-3 text-center text-xs text-text-muted">
+						{isLoading ? 'Loading...' : 'No upcoming Northbound ferries.'}
 					</div>
 				{:else}
 					<!-- HERO CARD: Next Northbound Ferry -->
 					{@const nextFerry = northboundFerries[0]}
-					<div class="p-4 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-2 relative overflow-hidden shadow-xs">
+					<div class="p-3 rounded-xl bg-linear-to-br from-sky-500/10 via-bg-surface to-bg-surface border border-sky-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
 						<div class="flex items-center justify-between text-xs">
-							<div class="flex items-center gap-2">
-								<span class="px-2 py-0.5 rounded-full bg-sky-500 text-white font-mono font-bold text-[10px] uppercase tracking-wider">
-									NEXT FERRY
-								</span>
+							<div class="flex items-center gap-1.5">
 								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[10px] uppercase border border-emerald-500/30">
-										<HugeiconsIcon icon={AnchorIcon} size={11} />
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] uppercase font-bold">
+										<HugeiconsIcon icon={AnchorIcon} size={10} />
 										<span>Docked</span>
 									</span>
 								{:else if nextFerry.vesselStatus === 'INCOMING_AT'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono font-bold text-[10px] uppercase border border-amber-500/30">
-										<HugeiconsIcon icon={Navigation01Icon} size={11} />
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono text-[9px] uppercase font-bold">
+										<HugeiconsIcon icon={Navigation01Icon} size={10} />
 										<span>Approaching</span>
 									</span>
 								{:else if nextFerry.vesselStatus === 'IN_TRANSIT_TO'}
-									<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono font-bold text-[10px] uppercase border border-sky-500/30">
-										<HugeiconsIcon icon={BoatIcon} size={11} />
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono text-[9px] uppercase font-bold">
+										<HugeiconsIcon icon={BoatIcon} size={10} />
 										<span>En Route</span>
 									</span>
 								{/if}
@@ -616,31 +580,31 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
 							</span>
 						</div>
-						<div class="flex items-baseline justify-between pt-1">
+						<div class="flex items-baseline justify-between pt-0.5">
 							<div>
-								<div class="text-base font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
+								<div class="text-sm font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
 								{#if nextFerry.vesselName || (nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0)}
-									<div class="text-[11px] text-text-muted mt-0.5 flex items-center gap-2">
+									<div class="text-[10px] text-text-muted mt-0.5 flex items-center gap-1.5 font-mono">
 										{#if nextFerry.vesselName}
-											<span>Vessel: <strong class="text-text-main font-mono">{nextFerry.vesselName}</strong></span>
+											<span>{nextFerry.vesselName}</span>
 										{/if}
 										{#if nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0}
-											<span>• <strong class="font-mono text-sky-600 dark:text-sky-400">{nextFerry.speedKnots} kts</strong></span>
+											<span>• <strong class="text-sky-600 dark:text-sky-400">{nextFerry.speedKnots} kts</strong></span>
 										{/if}
 									</div>
 								{/if}
 							</div>
 							<div class="text-right">
-								<div class="font-mono text-xl font-black text-text-main">
+								<div class="font-mono text-lg font-black text-text-main">
 									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextFerry.isRealtime}
-									<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-										<HugeiconsIcon icon={FlashIcon} size={11} class="animate-pulse" />
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-500">
+										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
 								{:else}
-									<span class="text-[10px] text-text-muted">Scheduled Timetable</span>
+									<span class="text-[9px] text-text-muted">Scheduled</span>
 								{/if}
 							</div>
 						</div>
@@ -648,31 +612,28 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 					<!-- SUBSEQUENT FERRIES -->
 					{#if northboundFerries.length > 1}
-						<div class="space-y-1.5 pt-1">
-							<div class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Following Ferries</div>
-							<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-								{#each northboundFerries.slice(1) as ferry (ferry.id)}
-									<div class="p-2.5 flex items-center justify-between text-xs">
-										<div class="flex items-center gap-2">
-											<span class="font-medium text-text-main">{ferry.headsign}</span>
-											{#if ferry.vesselName}
-												<span class="text-[10px] font-mono text-text-muted">({ferry.vesselName})</span>
-											{/if}
-										</div>
-										<div class="flex items-center gap-3 font-mono">
-											<span class="text-text-muted text-[11px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
-											<span class="font-bold text-text-main">
-												{new Date(ferry.predictedTime || ferry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-											</span>
-											{#if ferry.isRealtime}
-												<span title="Live GTFS-RT">
-													<HugeiconsIcon icon={FlashIcon} size={11} class="text-emerald-500" />
-												</span>
-											{/if}
-										</div>
+						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
+							{#each northboundFerries.slice(1) as ferry (ferry.id)}
+								<div class="p-2 flex items-center justify-between text-xs">
+									<div class="flex items-center gap-2">
+										<span class="font-medium text-text-main">{ferry.headsign}</span>
+										{#if ferry.vesselName}
+											<span class="text-[10px] font-mono text-text-muted">({ferry.vesselName})</span>
+										{/if}
 									</div>
-								{/each}
-							</div>
+									<div class="flex items-center gap-2.5 font-mono">
+										<span class="text-text-muted text-[10px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
+										<span class="font-bold text-text-main text-[11px]">
+											{new Date(ferry.predictedTime || ferry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+										</span>
+										{#if ferry.isRealtime}
+											<span>
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-emerald-500" />
+											</span>
+										{/if}
+									</div>
+								</div>
+							{/each}
 						</div>
 					{/if}
 				{/if}
@@ -700,14 +661,14 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 					<span class="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs">
 						<HugeiconsIcon icon={Bicycle01Icon} size={9} />
 					</span>
-					<span>Classic Bike ({totalClassicBikes})</span>
+					<span>Classic ({totalClassicBikes})</span>
 				</div>
 				{#if totalBrokenBikes > 0}
 					<div class="flex items-center gap-1.5">
 						<span class="w-3.5 h-3.5 rounded bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500">
 							<HugeiconsIcon icon={Wrench01Icon} size={9} />
 						</span>
-						<span>Broken Bike ({totalBrokenBikes})</span>
+						<span>Broken ({totalBrokenBikes})</span>
 					</div>
 				{/if}
 				<div class="flex items-center gap-1.5">
@@ -721,17 +682,17 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 		{#if stations.length === 0}
 			<div class="p-6 rounded-xl bg-bg-surface border border-border-default text-center text-xs text-text-muted">
-				{isLoading ? 'Loading GBFS stations...' : 'No Citi Bike station status available.'}
+				{isLoading ? 'Loading...' : 'No Citi Bike status available.'}
 			</div>
 		{:else}
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 				{#each stations as station (station.id)}
 					{@const slots = generateDockSlots(station)}
-					<div class="p-4 rounded-2xl bg-bg-surface border border-border-default space-y-3 flex flex-col justify-between">
+					<div class="p-3.5 rounded-2xl bg-bg-surface border border-border-default space-y-2.5 flex flex-col justify-between">
 						<div>
 							<div class="flex items-start justify-between gap-2">
 								<div>
-									<h3 class="font-bold text-sm text-text-main leading-tight">{station.name}</h3>
+									<h3 class="font-bold text-xs text-text-main leading-tight">{station.name}</h3>
 									<div class="text-[11px] text-text-muted mt-0.5 flex flex-wrap items-center gap-1.5">
 										<strong class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{station.bikesAvailable.total} bikes</strong>
 										<span class="inline-flex items-center gap-0.5 font-mono text-sky-600 dark:text-sky-400">
@@ -749,43 +710,43 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 							</div>
 
 							<!-- Visual Dock Slot Grid -->
-							<div class="mt-3 pt-3 border-t border-border-subtle/80">
-								<div class="flex flex-wrap gap-1.5">
+							<div class="mt-2.5 pt-2.5 border-t border-border-subtle/80">
+								<div class="flex flex-wrap gap-1">
 									{#each slots as slot, i}
 										{#if slot === 'ebike'}
 											<div
-												class="w-4 h-4 rounded bg-sky-500 flex items-center justify-center text-white shadow-2xs"
-												title="Slot #{i + 1}: E-Bike Available"
+												class="w-3.5 h-3.5 rounded bg-sky-500 flex items-center justify-center text-white shadow-2xs"
+												title="Slot #{i + 1}: E-Bike"
 											>
-												<HugeiconsIcon icon={FlashIcon} size={10} />
+												<HugeiconsIcon icon={FlashIcon} size={9} />
 											</div>
 										{:else if slot === 'classic'}
 											<div
-												class="w-4 h-4 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs"
-												title="Slot #{i + 1}: Classic Bike Available"
+												class="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs"
+												title="Slot #{i + 1}: Classic Bike"
 											>
-												<HugeiconsIcon icon={Bicycle01Icon} size={10} />
+												<HugeiconsIcon icon={Bicycle01Icon} size={9} />
 											</div>
 										{:else if slot === 'broken_bike'}
 											<div
-												class="w-4 h-4 rounded bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 shadow-2xs"
-												title="Slot #{i + 1}: Broken Bike Locked in Dock"
+												class="w-3.5 h-3.5 rounded bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 shadow-2xs"
+												title="Slot #{i + 1}: Broken Bike"
 											>
-												<HugeiconsIcon icon={Wrench01Icon} size={9} />
+												<HugeiconsIcon icon={Wrench01Icon} size={8} />
 											</div>
 										{:else if slot === 'disabled_dock'}
 											<div
-												class="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-500"
-												title="Slot #{i + 1}: Disabled Hardware Dock Slot"
+												class="w-3.5 h-3.5 rounded bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-500"
+												title="Slot #{i + 1}: Disabled Dock"
 											>
-												<HugeiconsIcon icon={AlertCircleIcon} size={9} />
+												<HugeiconsIcon icon={AlertCircleIcon} size={8} />
 											</div>
 										{:else}
 											<div
-												class="w-4 h-4 rounded bg-bg-elevated/60 border border-border-default/80 flex items-center justify-center text-text-muted/40"
-												title="Slot #{i + 1}: Open Dock Slot"
+												class="w-3.5 h-3.5 rounded bg-bg-elevated/60 border border-border-default/80 flex items-center justify-center text-text-muted/40"
+												title="Slot #{i + 1}: Open Dock"
 											>
-												<HugeiconsIcon icon={SquareIcon} size={8} />
+												<HugeiconsIcon icon={SquareIcon} size={7} />
 											</div>
 										{/if}
 									{/each}

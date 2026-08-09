@@ -11,15 +11,13 @@ let { children }: { children: Snippet } = $props();
 <div class="min-h-screen flex flex-col bg-bg-base text-text-main font-sans selection:bg-primary selection:text-primary-fg">
 	<!-- Top Application Navigation Bar -->
 	<header class="sticky top-0 z-50 backdrop-blur-md bg-bg-surface/80 border-b border-border-subtle transition-colors">
-		<div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
 			<!-- Logo / Brand -->
-			<a href="/" class="flex items-center gap-2.5 font-bold text-lg tracking-tight text-text-main hover:opacity-90 transition-opacity">
-				<div class="p-2 rounded-xl bg-primary text-primary-fg shadow-xs flex items-center justify-center">
-					<HugeiconsIcon icon={Train01Icon} size={20} strokeWidth={2.5} />
+			<a href="/" class="flex items-center gap-2 font-bold text-base tracking-tight text-text-main hover:opacity-90 transition-opacity">
+				<div class="p-1.5 rounded-lg bg-primary text-primary-fg shadow-xs flex items-center justify-center">
+					<HugeiconsIcon icon={Train01Icon} size={18} strokeWidth={2.5} />
 				</div>
-				<div class="flex items-center gap-2">
-					<span class="font-extrabold tracking-tight">Roosevelt Island Transit</span>
-				</div>
+				<span class="font-black tracking-tight">Roosevelt Island Transit</span>
 			</a>
 
 			<!-- Theme Toggle -->
@@ -35,14 +33,14 @@ let { children }: { children: Snippet } = $props();
 	</main>
 
 	<!-- Footer -->
-	<footer class="border-t border-border-subtle bg-bg-surface/50 py-8 transition-colors mt-12">
-		<div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
+	<footer class="border-t border-border-subtle bg-bg-surface/50 py-6 transition-colors mt-8">
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-text-muted">
 			<div class="flex items-center gap-2">
-				<HugeiconsIcon icon={BoatIcon} size={15} strokeWidth={2} />
-				<span>Roosevelt Island Live Public Transit Tracker</span>
+				<HugeiconsIcon icon={BoatIcon} size={14} strokeWidth={2} />
+				<span>Roosevelt Island Transit</span>
 			</div>
 			<div class="font-mono text-[11px]">
-				MTA Subway (F/M) • NYC Ferry (Astoria Line) • Citi Bike GBFS
+				Subway • Ferry • Citi Bike
 			</div>
 		</div>
 	</footer>
