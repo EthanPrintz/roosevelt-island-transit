@@ -60,7 +60,7 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 			<span class="font-mono font-bold text-text-main">{station.bikesAvailable.classic || 0}</span>
 		</div>
 		<div class="p-2 rounded-lg bg-bg-surface border border-border-default flex items-center justify-between">
-			<span class="text-text-muted flex items-center gap-1 text-blue-600 dark:text-blue-400">
+			<span class="flex items-center gap-1 text-blue-600 dark:text-blue-400">
 				<HugeiconsIcon icon={FlashIcon} size={14} />
 				<span>E-Bikes</span>
 			</span>
