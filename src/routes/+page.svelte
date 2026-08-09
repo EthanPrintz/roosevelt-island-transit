@@ -15,6 +15,7 @@ import {
 	Wrench01Icon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
+import DirectionHeader from '$lib/components/DirectionHeader.svelte';
 import SegmentedControl from '$lib/components/SegmentedControl.svelte';
 import type { SegmentOption } from '$lib/components/segmented-control.types';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
@@ -206,15 +207,14 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Manhattan-Bound Column -->
 			<div class="panel-card">
-				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-2">
-						<div class="flex items-center gap-1">
-							<span class="bullet-subway text-[9px]">F</span>
-							<span class="bullet-subway text-[9px]">M</span>
-						</div>
-						<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Manhattan-Bound</h3>
-					</div>
-				</div>
+				<DirectionHeader
+					title="Manhattan-Bound"
+					subtitle="via 63rd St & 6th Ave"
+					badges={[
+						{ text: 'F', bgClass: 'bullet-subway text-[9px]' },
+						{ text: 'M', bgClass: 'bullet-subway text-[9px]' }
+					]}
+				/>
 
 				{#if manhattanSubways.length === 0}
 					<div class="p-3 text-center text-xs text-text-muted">
@@ -309,15 +309,14 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 			<!-- Queens-Bound Column -->
 			<div class="panel-card">
-				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-2">
-						<div class="flex items-center gap-1">
-							<span class="bullet-subway text-[9px]">F</span>
-							<span class="bullet-subway text-[9px]">M</span>
-						</div>
-						<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Queens-Bound</h3>
-					</div>
-				</div>
+				<DirectionHeader
+					title="Queens-Bound"
+					subtitle="via Jamaica & Forest Hills"
+					badges={[
+						{ text: 'F', bgClass: 'bullet-subway text-[9px]' },
+						{ text: 'M', bgClass: 'bullet-subway text-[9px]' }
+					]}
+				/>
 
 				{#if queensSubways.length === 0}
 					<div class="p-3 text-center text-xs text-text-muted">
@@ -442,13 +441,11 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 			<!-- Direction: Manhattan-Bound (59th St) -->
 			<div class="panel-card space-y-3">
-				<div class="flex items-center justify-between border-b border-border-default pb-2">
-					<h3 class="font-bold text-xs text-text-main flex items-center gap-1.5">
-						<span class="w-2 h-2 rounded-full bg-rose-500"></span>
-						<span>Manhattan-Bound</span>
-					</h3>
-					<span class="text-[10px] text-text-muted font-mono">59th St & 2nd Ave</span>
-				</div>
+				<DirectionHeader
+					title="Manhattan-Bound"
+					subtitle="59th St & 2nd Ave"
+					dotColorClass="bg-rose-500"
+				/>
 
 				{#if manhattanTrams.length === 0}
 					<p class="text-xs text-text-muted italic py-3 text-center">No upcoming tram departures scheduled.</p>
@@ -506,13 +503,11 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 			<!-- Direction: Roosevelt Island Landing -->
 			<div class="panel-card space-y-3">
-				<div class="flex items-center justify-between border-b border-border-default pb-2">
-					<h3 class="font-bold text-xs text-text-main flex items-center gap-1.5">
-						<span class="w-2 h-2 rounded-full bg-rose-500"></span>
-						<span>Island-Bound</span>
-					</h3>
-					<span class="text-[10px] text-text-muted font-mono">Roosevelt Island Station</span>
-				</div>
+				<DirectionHeader
+					title="Island-Bound"
+					subtitle="Roosevelt Island Station"
+					dotColorClass="bg-rose-500"
+				/>
 
 				{#if islandTrams.length === 0}
 					<p class="text-xs text-text-muted italic py-3 text-center">No upcoming tram departures scheduled.</p>
@@ -596,9 +591,11 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Southbound Column -->
 			<div class="panel-card">
-				<div class="flex items-center justify-between">
-					<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Southbound / Wall St</h3>
-				</div>
+				<DirectionHeader
+					title="Southbound"
+					subtitle="Wall St / Pier 11"
+					dotColorClass="bg-cyan-500"
+				/>
 
 				{#if southboundFerries.length === 0}
 					<div class="p-3 text-center text-xs text-text-muted">
@@ -692,9 +689,11 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 			<!-- Northbound Column -->
 			<div class="panel-card">
-				<div class="flex items-center justify-between">
-					<h3 class="text-xs font-bold text-text-main uppercase tracking-wider">Northbound / E 90th St</h3>
-				</div>
+				<DirectionHeader
+					title="Northbound"
+					subtitle="East 90th St / UES"
+					dotColorClass="bg-cyan-500"
+				/>
 
 				{#if northboundFerries.length === 0}
 					<div class="p-3 text-center text-xs text-text-muted">
