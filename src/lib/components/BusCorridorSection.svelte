@@ -105,11 +105,15 @@ let subwayPlazaSouth = $derived(
 );
 
 let southtownDepartures = $derived(
-	filterStop(southboundDepartures, ['southtown', 'cornell', 'tech', '10 river', 'motorgate'], true),
+	filterStop(
+		southboundDepartures,
+		['southtown', 'cornell', 'tech', '10 river', 'motorgate'],
+		false,
+	),
 );
 
 let octagonDepartures = $derived(
-	filterStop(southboundDepartures, ['octagon', 'coler', 'east rd', '546 main'], true),
+	filterStop(southboundDepartures, ['octagon', 'coler', 'east rd', '546 main'], false),
 );
 </script>
 
@@ -233,21 +237,9 @@ let octagonDepartures = $derived(
 		</div>
 	</div>
 
-	<!-- 2. Bottom 2 Single-Wide Cards: Southtown/Tech & Octagon/Coler -->
+	<!-- 2. Bottom 2 Single-Wide Cards: Octagon/Coler & Southtown/Tech in Chronological Order -->
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-		<!-- Southtown / Tech Card -->
-		<div class="panel-card p-4 space-y-3">
-			<div class="border-b border-border-default/40 pb-2">
-				<h3 class="text-sm font-black tracking-tight text-text-main">Southtown / Tech</h3>
-			</div>
-			{@render stopNode(
-				'',
-				southtownDepartures,
-				'No upcoming Southtown / Tech departures.',
-			)}
-		</div>
-
-		<!-- Octagon / Coler Card -->
+		<!-- Octagon / Coler Card (First stop on Coler loop) -->
 		<div class="panel-card p-4 space-y-3">
 			<div class="border-b border-border-default/40 pb-2">
 				<h3 class="text-sm font-black tracking-tight text-text-main">Octagon / Coler</h3>
@@ -256,6 +248,18 @@ let octagonDepartures = $derived(
 				'',
 				octagonDepartures,
 				'No upcoming Octagon / Coler departures.',
+			)}
+		</div>
+
+		<!-- Southtown / Tech Card (Second stop on Coler loop) -->
+		<div class="panel-card p-4 space-y-3">
+			<div class="border-b border-border-default/40 pb-2">
+				<h3 class="text-sm font-black tracking-tight text-text-main">Southtown / Tech</h3>
+			</div>
+			{@render stopNode(
+				'',
+				southtownDepartures,
+				'No upcoming Southtown / Tech departures.',
 			)}
 		</div>
 	</div>
