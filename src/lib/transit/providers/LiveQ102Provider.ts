@@ -3,6 +3,7 @@ import { gtfsStaticStore, type ScheduledDeparture } from '$lib/server/gtfs-stati
 import type { DepartureOptions, ProviderCapability, TransitProvider } from '../domain/provider';
 import type {
 	BusDeparture,
+	LiveVehiclePosition,
 	ProviderResult,
 	TransitAlert,
 	TransitMode,
@@ -175,6 +176,72 @@ export class LiveQ102Provider implements TransitProvider {
 						new Date(a.predictedTime || a.scheduledTime).getTime() -
 						new Date(b.predictedTime || b.scheduledTime).getTime(),
 				),
+				fetchedAt: new Date().toISOString(),
+				isCached: false,
+			};
+		} catch (err) {
+			return {
+				data: [],
+				fetchedAt: new Date().toISOString(),
+				isCached: false,
+				error: String(err),
+			};
+		}
+	}
+
+	async getVehicles(): Promise<ProviderResult<LiveVehiclePosition>> {
+		try {
+			const apiKey = env.MTA_BUS_TIME_API_KEY || '3fff4736-ddbb-443a-baab-c66a72bdc4c1';
+			const siriUrl = `${MTA_BUS_SIRI_VM_URL}?key=${encodeURIComponent(apiKey)}&version=2&LineRef=Q102`;
+			const res = await fetch(siriUrl).catch(() => null);
+
+			const vehicles: LiveVehiclePosition[] = [];
+
+			if (res?.ok) {
+				const json = await res.json();
+				const activities =
+					json?.Siri?.ServiceDelivery?.VehicleMonitoringDelivery?.[0]?.VehicleActivity || [];
+
+				for (const act of activities) {
+					const journey = act?.MonitoredVehicleJourney;
+					if (!journey) continue;
+
+					const dirRef = journey.DirectionRef || '0';
+					const isAstoriaBound =
+						dirRef === '1' ||
+						String(journey.DestinationName?.[0] || '')
+							.toLowerCase()
+							.includes('astoria');
+
+					const vehicleId = journey.VehicleRef
+						? String(journey.VehicleRef).replace('MTABC_', '')
+						: '7400';
+
+					const call = journey.MonitoredCall;
+					const nextStopName =
+						call?.ArrivalProximityText ||
+						(call?.NumberOfStopsAway !== undefined
+							? `${call.NumberOfStopsAway} stops away`
+							: undefined);
+
+					vehicles.push({
+						id: `q102-veh-${vehicleId}`,
+						vehicleId,
+						mode: 'q102_bus',
+						routeId: 'Q102',
+						direction: isAstoriaBound ? 'queens_bound' : 'northbound',
+						lat: journey.VehicleLocation?.Latitude || 40.76,
+						lng: journey.VehicleLocation?.Longitude || -73.95,
+						bearing: journey.Bearing,
+						nextStopName,
+						destinationName: isAstoriaBound ? 'Astoria' : 'Coler Hospital',
+						updatedAt: act.RecordedAtTime || new Date().toISOString(),
+					});
+				}
+			}
+
+			return {
+				data: vehicles,
 				fetchedAt: new Date().toISOString(),
 				isCached: false,
 			};

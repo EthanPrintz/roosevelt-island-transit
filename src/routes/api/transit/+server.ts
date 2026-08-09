@@ -28,16 +28,18 @@ export const GET: RequestHandler = async ({ url }) => {
 	const ttlMs = 15000; // 15 seconds server-side cache
 
 	const { data, isCached } = await serverCache.getOrFetch(cacheKey, ttlMs, async () => {
-		const [departures, alerts, stations] = await Promise.all([
+		const [departures, alerts, stations, vehicles] = await Promise.all([
 			aggregator.getAllDepartures(modeParam, { windowMinutes }),
 			aggregator.getAllAlerts(modeParam),
 			aggregator.getBikeStations(modeParam),
+			aggregator.getAllVehicles(modeParam),
 		]);
 
 		return {
 			departures,
 			alerts,
 			stations,
+			vehicles,
 			fetchedAt: new Date().toISOString(),
 		};
 	});

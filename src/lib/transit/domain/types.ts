@@ -45,6 +45,25 @@ export interface VehicleLocation {
 }
 
 /**
+ * Live Active Vehicle Position on Roosevelt Island Spine
+ */
+export interface LiveVehiclePosition {
+	id: string;
+	vehicleId: string;
+	mode: TransitMode;
+	routeId: string;
+	direction: TransitDirection;
+	lat: number;
+	lng: number;
+	bearing?: number;
+	speedMps?: number;
+	nextStopName?: string;
+	destinationName?: string;
+	occupancy?: VehicleOccupancy;
+	updatedAt: string;
+}
+
+/**
  * Base Transit Departure Record (GTFS-RT / SIRI Aligned)
  */
 export interface BaseDeparture {

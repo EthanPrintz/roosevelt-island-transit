@@ -1,5 +1,11 @@
 import type { DepartureOptions, TransitProvider } from '../domain/provider';
-import type { BikeStation, TransitAlert, TransitDeparture, TransitMode } from '../domain/types';
+import type {
+	BikeStation,
+	LiveVehiclePosition,
+	TransitAlert,
+	TransitDeparture,
+	TransitMode,
+} from '../domain/types';
 
 export class TransitAggregator {
 	private providers: Map<TransitMode, TransitProvider> = new Map();
@@ -51,6 +57,23 @@ export class TransitAggregator {
 			targetProviders.map(async (provider) => {
 				if (!provider.getAlerts || !provider.capabilities.has('alerts')) return [];
 				const res = await provider.getAlerts();
+				return res.data;
+			}),
+		);
+
+		return results.flat();
+	}
+
+	async getAllVehicles(modeFilter: TransitMode | 'all' = 'all'): Promise<LiveVehiclePosition[]> {
+		const targetProviders =
+			modeFilter === 'all'
+				? Array.from(this.providers.values())
+				: [this.providers.get(modeFilter)].filter((p): p is TransitProvider => Boolean(p));
+
+		const results = await Promise.all(
+			targetProviders.map(async (provider) => {
+				if (!provider.getVehicles) return [];
+				const res = await provider.getVehicles();
 				return res.data;
 			}),
 		);

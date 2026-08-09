@@ -7,6 +7,7 @@ import {
 	Navigation01Icon,
 	Train01Icon,
 } from '@hugeicons/core-free-icons';
+import BusCorridorSection from '$lib/components/BusCorridorSection.svelte';
 import CitiBikeSection from '$lib/components/CitiBikeSection.svelte';
 import ModeSectionHeader from '$lib/components/ModeSectionHeader.svelte';
 import SegmentedControl from '$lib/components/SegmentedControl.svelte';
@@ -15,8 +16,8 @@ import TransitColumn from '$lib/components/TransitColumn.svelte';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
 import type {
 	BikeStation,
-	BusDeparture,
 	FerryDeparture,
+	LiveVehiclePosition,
 	SubwayDeparture,
 	TransitAlert,
 	TransitDeparture,
@@ -25,6 +26,7 @@ import type {
 let departures = $state<TransitDeparture[]>([]);
 let alerts = $state<TransitAlert[]>([]);
 let stations = $state<BikeStation[]>([]);
+let vehicles = $state<LiveVehiclePosition[]>([]);
 
 const windowOptions: SegmentOption<number>[] = [
 	{ value: 120, label: '2h' },
@@ -58,6 +60,7 @@ async function loadLiveData() {
 			departures = json.departures || [];
 			alerts = json.alerts || [];
 			stations = json.stations || [];
+			vehicles = json.vehicles || [];
 			transitSettings.fetchedAt = json.fetchedAt || '';
 		}
 	} catch (_err) {
@@ -101,12 +104,10 @@ let manhattanTrams = $derived(tramDepartures.filter((d) => d.direction === 'manh
 let islandTrams = $derived(tramDepartures.filter((d) => d.direction === 'queens_bound'));
 
 let q102Departures = $derived(departures.filter((d) => d.mode === 'q102_bus'));
-let astoriaQ102 = $derived(q102Departures.filter((d) => d.direction === 'queens_bound'));
-let colerQ102 = $derived(q102Departures.filter((d) => d.direction === 'northbound'));
-
 let redBusDepartures = $derived(departures.filter((d) => d.mode === 'red_bus'));
-let northboundRedBus = $derived(redBusDepartures.filter((d) => d.direction === 'northbound'));
-let southboundRedBus = $derived(redBusDepartures.filter((d) => d.direction === 'southbound'));
+
+let q102Vehicles = $derived(vehicles.filter((v) => v.mode === 'q102_bus'));
+let redBusVehicles = $derived(vehicles.filter((v) => v.mode === 'red_bus'));
 
 let subwayAlerts = $derived(alerts.filter((a) => a.mode === 'subway'));
 let tramAlerts = $derived(alerts.filter((a) => a.mode === 'tram'));
@@ -263,90 +264,38 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 	</div>
 
 	<!-- Section 4: City Bus -->
-	<div class="space-y-2.5">
-		<ModeSectionHeader
-			title="City Bus"
-			icon={Train01Icon}
-			iconBgClass="bg-blue-500/10 text-blue-500"
-			alerts={q102Alerts}
-		/>
-
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<TransitColumn
-				title="Astoria-Bound"
-				subtitle="27 Ave via RI Bridge"
-				departures={astoriaQ102}
-				accentColor="blue"
-				emptyMessage="No upcoming Astoria-bound City Buses (Q102)."
-				subDetailsFn={(dep) => {
-					const b = dep as BusDeparture;
-					return b.nextStopName
-						? b.vehicleId
-							? `Bus #${b.vehicleId} • ${b.nextStopName}`
-							: b.nextStopName
-						: b.vehicleId
-							? `Bus #${b.vehicleId}`
-							: 'Main St Stop';
-				}}
-				badgeTextFn={(dep) => {
-					const b = dep as BusDeparture;
-					return b.nextStopName || (b.vehicleId ? `Bus #${b.vehicleId}` : undefined);
-				}}
-			/>
-
-			<TransitColumn
-				title="Coler Hospital-Bound"
-				subtitle="Southtown & North Loop"
-				departures={colerQ102}
-				accentColor="blue"
-				emptyMessage="No upcoming Coler-bound City Buses (Q102)."
-				subDetailsFn={(dep) => {
-					const b = dep as BusDeparture;
-					return b.nextStopName
-						? b.vehicleId
-							? `Bus #${b.vehicleId} • ${b.nextStopName}`
-							: b.nextStopName
-						: b.vehicleId
-							? `Bus #${b.vehicleId}`
-							: 'Main St Stop';
-				}}
-				badgeTextFn={(dep) => {
-					const b = dep as BusDeparture;
-					return b.nextStopName || (b.vehicleId ? `Bus #${b.vehicleId}` : undefined);
-				}}
-			/>
-		</div>
-	</div>
+	<BusCorridorSection
+		title="City Bus"
+		icon={Train01Icon}
+		iconBgClass="bg-blue-500/10 text-blue-500"
+		accentColor="blue"
+		departures={q102Departures}
+		vehicles={q102Vehicles}
+		alerts={q102Alerts}
+		northboundTitle="Astoria-Bound"
+		northboundSubtitle="27 Ave via RI Bridge"
+		southboundTitle="Coler Hospital-Bound"
+		southboundSubtitle="Southtown & North Loop"
+		emptyMessageNorth="No upcoming Astoria-bound City Buses (Q102)."
+		emptyMessageSouth="No upcoming Coler-bound City Buses (Q102)."
+	/>
 
 	<!-- Section 5: Red Bus -->
-	<div class="space-y-2.5">
-		<ModeSectionHeader
-			title="Red Bus"
-			icon={Train01Icon}
-			iconBgClass="bg-rose-600/10 text-rose-600 dark:text-rose-400"
-			alerts={redBusAlerts}
-		/>
-
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<TransitColumn
-				title="Northbound"
-				subtitle="Octagon via Main St"
-				departures={northboundRedBus}
-				accentColor="rose"
-				emptyMessage="No live Red Bus tracking data available."
-				subDetailsFn={(dep) => dep.stopName || 'Octagon Shuttle'}
-			/>
-
-			<TransitColumn
-				title="Southbound"
-				subtitle="Southtown & Cornell Tech"
-				departures={southboundRedBus}
-				accentColor="rose"
-				emptyMessage="No live Red Bus tracking data available."
-				subDetailsFn={(dep) => dep.stopName || 'Southtown Express'}
-			/>
-		</div>
-	</div>
+	<BusCorridorSection
+		title="Red Bus"
+		icon={Train01Icon}
+		iconBgClass="bg-rose-600/10 text-rose-600 dark:text-rose-400"
+		accentColor="rose"
+		departures={redBusDepartures}
+		vehicles={redBusVehicles}
+		alerts={redBusAlerts}
+		northboundTitle="Northbound"
+		northboundSubtitle="Octagon via Main St"
+		southboundTitle="Southbound"
+		southboundSubtitle="Southtown & Cornell Tech"
+		emptyMessageNorth="No live Red Bus tracking data available."
+		emptyMessageSouth="No live Red Bus tracking data available."
+	/>
 
 	<!-- Section 6: Citi Bike -->
 	<CitiBikeSection {stations} alerts={citibikeAlerts} />
