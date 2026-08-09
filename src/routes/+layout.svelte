@@ -66,7 +66,7 @@ let { children }: { children: Snippet } = $props();
 				<span>Roosevelt Island Transit</span>
 			</div>
 			<div class="font-mono text-[11px]">
-				Subway • Ferry • Citi Bike
+				Subway • Tram • Ferry • Citi Bike
 			</div>
 		</div>
 	</footer>

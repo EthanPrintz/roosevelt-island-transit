@@ -4,12 +4,14 @@ import {
 	LiveCitiBikeProvider,
 	LiveFerryProvider,
 	LiveSubwayProvider,
+	LiveTramProvider,
 	TransitAggregator,
 } from '$lib/transit';
 import type { TransitMode } from '$lib/transit/domain/types';
 
 const aggregator = new TransitAggregator();
 aggregator.registerProvider(new LiveSubwayProvider());
+aggregator.registerProvider(new LiveTramProvider());
 aggregator.registerProvider(new LiveFerryProvider());
 aggregator.registerProvider(new LiveCitiBikeProvider());
 
