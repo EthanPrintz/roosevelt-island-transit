@@ -72,7 +72,7 @@ let vehiclePositions = $derived.by(() => {
 		<div class="flex justify-between items-center text-[10px] font-mono text-text-muted mt-2.5">
 			<span class="flex items-center gap-1.5">
 				<span class="w-2 h-2 rounded-full bg-border-default"></span>
-				Southtown / Tech
+				Southtown / Chapel
 			</span>
 			<span class="flex items-center gap-1.5 font-bold text-text-main">
 				<span class="w-2.5 h-2.5 rounded-full bg-primary shadow-2xs"></span>

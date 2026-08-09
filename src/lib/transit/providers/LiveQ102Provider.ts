@@ -47,11 +47,11 @@ export class LiveQ102Provider implements TransitProvider {
 					{ id: '450151', name: 'Subway Plaza', isOff: false },
 					{ id: '450152', name: 'Octagon / Coler', isOff: false },
 					{ id: '450150', name: 'Octagon / Coler', isOff: false },
-					{ id: '450141', name: 'Southtown / Tech', isOff: false },
+					{ id: '450141', name: 'Southtown / Chapel', isOff: false },
 
 					// Astoria-Bound (Direction 1)
 					{ id: '450142', name: 'Subway Plaza', isOff: false },
-					{ id: '450069', name: 'Southtown / Tech', isOff: false },
+					{ id: '450069', name: 'Southtown / Chapel', isOff: false },
 					{ id: '450074', name: 'Octagon / Coler', isOff: false },
 				];
 

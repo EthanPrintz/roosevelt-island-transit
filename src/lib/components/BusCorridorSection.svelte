@@ -245,10 +245,10 @@ let octagonSouth = $derived(
 		</div>
 	</div>
 
-	<!-- 2. Southtown / Tech -->
-	<div class="panel-card p-4 space-y-3">
-		<div class="border-b border-border-default/40 pb-2">
-			<h3 class="text-sm font-black tracking-tight text-text-main">Southtown / Tech</h3>
+	<!-- 2. Southtown / Chapel -->
+	<div class="space-y-2">
+		<div class="flex items-center justify-between">
+			<h3 class="text-sm font-black tracking-tight text-text-main">Southtown / Chapel</h3>
 		</div>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
