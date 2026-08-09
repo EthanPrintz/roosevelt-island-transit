@@ -20,23 +20,37 @@ const bgHeader = $derived(
 		: 'bg-rose-500/15 border-rose-500/30 text-rose-400',
 );
 
-// Group departures by stop location
+function normalizeStopName(raw: string): { name: string; isOffIsland: boolean } {
+	const text = (raw || '').toLowerCase();
+
+	if (text.includes('vernon') || text.includes('36 ave')) {
+		return { name: 'Vernon Blvd (LIC)', isOffIsland: true };
+	}
+	if (text.includes('27 ave') || text.includes('astoria') || text.includes('2nd st')) {
+		return { name: 'Astoria 27 Ave Terminal', isOffIsland: true };
+	}
+	if (text.includes('octagon') || text.includes('coler')) {
+		return { name: 'Octagon / Coler', isOffIsland: false };
+	}
+	if (text.includes('southtown') || text.includes('cornell') || text.includes('tech')) {
+		return { name: 'Southtown / Tech', isOffIsland: false };
+	}
+	return { name: 'Subway Plaza', isOffIsland: false };
+}
+
+// Group departures by canonical stop location
 let groupedStops = $derived.by(() => {
 	const map = new Map<string, { name: string; isOffIsland: boolean; departures: BusDeparture[] }>();
 
 	for (const dep of departures) {
 		const b = dep as BusDeparture;
-		const name = b.stopName || 'Subway Plaza';
-		const isOff = Boolean(
-			b.isOffIsland ||
-				name.toLowerCase().includes('vernon') ||
-				name.toLowerCase().includes('astoria'),
-		);
+		const norm = normalizeStopName(b.stopName || 'Subway Plaza');
+		const key = norm.name;
 
-		if (!map.has(name)) {
-			map.set(name, { name, isOffIsland: isOff, departures: [] });
+		if (!map.has(key)) {
+			map.set(key, { name: norm.name, isOffIsland: norm.isOffIsland, departures: [] });
 		}
-		map.get(name)!.departures.push(b);
+		map.get(key)!.departures.push(b);
 	}
 
 	return Array.from(map.values());
@@ -73,10 +87,10 @@ let groupedStops = $derived.by(() => {
 		<div class="space-y-3">
 			{#each groupedStops as group (group.name)}
 				{@const nextDep = group.departures[0]}
-				{@const remainingCount = group.departures.length - 1}
+				{@const followUps = group.departures.slice(1, 5)}
 				
-				<div class="p-3 rounded-xl border transition-all bg-bg-surface/80 border-border-default/70 hover:border-border-default space-y-2.5">
-					<!-- Stop Header with On-Island vs Off-Island Badge -->
+				<div class="p-3.5 rounded-xl border bg-bg-surface/90 border-border-default/80 space-y-3 shadow-2xs">
+					<!-- Stop Card Header -->
 					<div class="flex items-center justify-between">
 						<div class="flex items-center gap-2">
 							{#if group.isOffIsland}
@@ -90,36 +104,61 @@ let groupedStops = $derived.by(() => {
 									Roosevelt Island
 								</span>
 							{/if}
-							<span class="text-xs font-bold text-text-main">{group.name}</span>
+							<span class="text-xs font-extrabold text-text-main">{group.name}</span>
 						</div>
 					</div>
 
-					<!-- Standardized Timetable Departure List for this Stop -->
-					<div class="space-y-1.5 pt-1 border-t border-border-default/40">
-						{#each group.departures.slice(0, 5) as dep (dep.id)}
-							{@const t = dep.predictedTime || dep.scheduledTime}
-							<div class="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-bg-elevated/40 hover:bg-bg-elevated/70 text-xs font-mono transition-colors border border-border-default/30">
-								<div class="flex items-center gap-2 truncate">
-									{@render statusBadge(dep.isRealtime)}
-									<span class="text-text-main truncate text-[11px] font-medium">
-										{dep.vehicleId ? `Bus #${dep.vehicleId} • ${dep.headsign}` : dep.headsign}
-									</span>
-									{#if dep.nextStopName}
-										<span class="italic text-[10px] text-text-muted truncate">({dep.nextStopName})</span>
-									{/if}
-								</div>
-
-								<div class="flex items-center gap-3 shrink-0">
-									<span class="text-[11px] font-bold text-primary">
-										{formatRelativeTime(t)}
-									</span>
-									<span class="font-extrabold text-text-main text-[11px]">
-										{formatClockTime(t)}
+					<!-- Hero Next Arrival Card -->
+					{#if nextDep}
+						{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
+						<div class="p-3 rounded-lg bg-bg-elevated/60 border border-border-default/50 space-y-1.5">
+							<div class="flex items-center justify-between gap-2">
+								<div class="flex items-center gap-1.5 truncate">
+									{@render statusBadge(nextDep.isRealtime)}
+									<span class="text-xs font-bold text-text-main truncate">
+										{nextDep.vehicleId ? `Bus #${nextDep.vehicleId}` : nextDep.headsign}
 									</span>
 								</div>
+								<span class="text-xs font-mono font-extrabold text-primary shrink-0">
+									{formatRelativeTime(targetTime)}
+								</span>
 							</div>
-						{/each}
-					</div>
+
+							<div class="flex items-center justify-between text-[11px] font-mono text-text-muted gap-2">
+								<span class="truncate">
+									{nextDep.headsign}
+									{#if nextDep.nextStopName}
+										<span class="italic opacity-80 truncate">({nextDep.nextStopName})</span>
+									{/if}
+								</span>
+								<span class="font-bold text-text-main text-xs shrink-0">{formatClockTime(targetTime)}</span>
+							</div>
+						</div>
+					{/if}
+
+					<!-- Follow-up Departures Timetable -->
+					{#if followUps.length > 0}
+						<div class="space-y-1 pt-1 border-t border-border-default/40">
+							<div class="text-[10px] font-mono font-bold text-text-muted px-1 uppercase tracking-wider">
+								Upcoming Schedule
+							</div>
+							<div class="grid grid-cols-1 gap-1">
+								{#each followUps as dep (dep.id)}
+									{@const t = dep.predictedTime || dep.scheduledTime}
+									<div class="flex items-center justify-between py-1 px-2 rounded-md bg-bg-elevated/30 text-xs font-mono">
+										<div class="flex items-center gap-1.5 truncate">
+											{@render statusBadge(dep.isRealtime)}
+											<span class="text-text-muted text-[11px] truncate">{dep.headsign}</span>
+										</div>
+										<div class="flex items-center gap-2.5 shrink-0 text-[11px]">
+											<span class="text-text-muted">{formatRelativeTime(t)}</span>
+											<span class="font-bold text-text-main">{formatClockTime(t)}</span>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
 				</div>
 			{/each}
 		</div>
