@@ -6,7 +6,6 @@ import type {
 	TransitDeparture,
 } from '$lib/transit/domain/types';
 import ModeSectionHeader from './ModeSectionHeader.svelte';
-import StopSelectorPills, { type IslandStopNode } from './StopSelectorPills.svelte';
 import TransitColumn from './TransitColumn.svelte';
 import VehicleCorridorTracker from './VehicleCorridorTracker.svelte';
 
@@ -43,38 +42,10 @@ let {
 	emptyMessageNorth,
 	emptyMessageSouth,
 }: Props = $props();
-
-let selectedStop = $state<IslandStopNode>('subway_plaza');
-
-let currentStopLabel = $derived(
-	selectedStop === 'north_island'
-		? 'Octagon / Coler Stop'
-		: selectedStop === 'south_island'
-			? 'Southtown / Tech Stop'
-			: 'Subway Plaza Stop',
-);
-
-let activeNorthSubtitle = $derived(
-	selectedStop === 'north_island'
-		? `${northboundSubtitle} @ Octagon / Coler`
-		: selectedStop === 'south_island'
-			? `${northboundSubtitle} @ Southtown / Tech`
-			: `${northboundSubtitle} @ Subway Plaza`,
-);
-
-let activeSouthSubtitle = $derived(
-	selectedStop === 'north_island'
-		? `${southboundSubtitle} @ Coler Terminal`
-		: selectedStop === 'south_island'
-			? `${southboundSubtitle} @ Southtown Loop`
-			: `${southboundSubtitle} @ Subway Plaza`,
-);
 </script>
 
 <div class="space-y-2.5">
-	<ModeSectionHeader {title} {icon} {iconBgClass} {alerts}>
-		<StopSelectorPills {selectedStop} onSelectStop={(st) => (selectedStop = st)} />
-	</ModeSectionHeader>
+	<ModeSectionHeader {title} {icon} {iconBgClass} {alerts} />
 
 	<!-- Live Corridor Radar Track -->
 	<VehicleCorridorTracker {vehicles} {accentColor} />
@@ -83,7 +54,7 @@ let activeSouthSubtitle = $derived(
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<TransitColumn
 			title={northboundTitle}
-			subtitle={activeNorthSubtitle}
+			subtitle={northboundSubtitle}
 			departures={northboundDepartures}
 			{accentColor}
 			emptyMessage={emptyMessageNorth}
@@ -97,7 +68,7 @@ let activeSouthSubtitle = $derived(
 
 		<TransitColumn
 			title={southboundTitle}
-			subtitle={activeSouthSubtitle}
+			subtitle={southboundSubtitle}
 			departures={southboundDepartures}
 			{accentColor}
 			emptyMessage={emptyMessageSouth}
