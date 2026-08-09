@@ -112,14 +112,32 @@ let groupedStops = $derived.by(() => {
 						</div>
 					{/if}
 
-					<!-- Follow-up Times for this Stop Node -->
+					<!-- Follow-up Timetable List for this Stop Node -->
 					{#if remainingCount > 0}
-						<div class="flex flex-wrap gap-1.5 pt-1">
-							{#each group.departures.slice(1, 4) as dep (dep.id)}
+						<div class="pt-1.5 space-y-1 border-t border-border-default/30">
+							{#each group.departures.slice(1, 5) as dep (dep.id)}
 								{@const t = dep.predictedTime || dep.scheduledTime}
-								<span class="px-2 py-0.5 rounded bg-bg-elevated/70 border border-border-default/50 text-[10px] font-mono text-text-muted">
-									{formatClockTime(t)} ({formatRelativeTime(t)})
-								</span>
+								<div class="flex items-center justify-between py-1 px-2 rounded-lg bg-bg-elevated/40 hover:bg-bg-elevated/70 text-xs font-mono transition-colors">
+									<div class="flex items-center gap-1.5 truncate">
+										{#if dep.isRealtime}
+											<HugeiconsIcon icon={FlashIcon} size={10} class="text-blue-400 shrink-0" />
+										{:else}
+											<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted shrink-0" />
+										{/if}
+										<span class="text-text-main truncate text-[11px]">
+											{dep.headsign}
+										</span>
+									</div>
+
+									<div class="flex items-center gap-3 shrink-0 text-text-muted">
+										<span class="text-[11px] font-semibold text-text-muted">
+											{formatRelativeTime(t)}
+										</span>
+										<span class="font-bold text-text-main text-[11px]">
+											{formatClockTime(t)}
+										</span>
+									</div>
+								</div>
 							{/each}
 						</div>
 					{/if}
