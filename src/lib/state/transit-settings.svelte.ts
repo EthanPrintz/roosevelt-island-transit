@@ -1,5 +1,5 @@
 class TransitSettingsState {
-	selectedWindow = $state<number>(240); // Default 4 hours
+	selectedWindow = $state<number>(120); // Default 2 hours
 	isLoading = $state<boolean>(false);
 	fetchedAt = $state<string>('');
 	refreshTrigger = $state<number>(0);
