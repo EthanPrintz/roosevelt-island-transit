@@ -306,8 +306,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			title="RI Tramway"
 			icon={CableCarIcon}
 			iconBgClass="bg-rose-500/10 text-rose-500"
-			badgeText={tramStatus.label}
-			badgeClass="bg-rose-500/10 text-rose-500 border-rose-500/20"
 			alerts={tramAlerts}
 		/>
 
@@ -456,7 +454,6 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			title="MTA Q102 Bus"
 			icon={Train01Icon}
 			iconBgClass="bg-blue-500/10 text-blue-500"
-			badgeText="Astoria - Roosevelt Island Loop"
 			alerts={q102Alerts}
 		/>
 
