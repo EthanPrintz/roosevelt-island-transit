@@ -244,7 +244,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextTrain.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-500">
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-orange-500">
 										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
@@ -279,7 +279,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 										</span>
 										{#if train.isRealtime}
 											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-emerald-500" />
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-orange-500" />
 											</span>
 										{/if}
 									</div>
@@ -347,7 +347,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextTrain.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-500">
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-orange-500">
 										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
@@ -382,7 +382,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 										</span>
 										{#if train.isRealtime}
 											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-emerald-500" />
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-orange-500" />
 											</span>
 										{/if}
 									</div>
@@ -591,7 +591,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						<div class="flex items-center justify-between text-xs">
 							<div class="flex items-center gap-1.5">
 								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] uppercase font-bold">
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono text-[9px] uppercase font-bold">
 										<HugeiconsIcon icon={AnchorIcon} size={10} />
 										<span>Docked</span>
 									</span>
@@ -630,7 +630,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextFerry.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-500">
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-sky-500">
 										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
@@ -659,7 +659,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 										</span>
 										{#if ferry.isRealtime}
 											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-emerald-500" />
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-sky-500" />
 											</span>
 										{/if}
 									</div>
@@ -687,7 +687,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						<div class="flex items-center justify-between text-xs">
 							<div class="flex items-center gap-1.5">
 								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] uppercase font-bold">
+									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-400 font-mono text-[9px] uppercase font-bold">
 										<HugeiconsIcon icon={AnchorIcon} size={10} />
 										<span>Docked</span>
 									</span>
@@ -726,7 +726,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</div>
 								{#if nextFerry.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-500">
+									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-sky-500">
 										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
 										<span>Live GTFS-RT</span>
 									</span>
@@ -755,7 +755,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 										</span>
 										{#if ferry.isRealtime}
 											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-emerald-500" />
+												<HugeiconsIcon icon={FlashIcon} size={10} class="text-sky-500" />
 											</span>
 										{/if}
 									</div>
