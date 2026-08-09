@@ -17,11 +17,18 @@ import {
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import BikeStationCard from '$lib/components/BikeStationCard.svelte';
 import DirectionHeader from '$lib/components/DirectionHeader.svelte';
+import HeroDepartureCard from '$lib/components/HeroDepartureCard.svelte';
 import ModeSectionHeader from '$lib/components/ModeSectionHeader.svelte';
 import SegmentedControl from '$lib/components/SegmentedControl.svelte';
 import type { SegmentOption } from '$lib/components/segmented-control.types';
+import TimetableList from '$lib/components/TimetableList.svelte';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
-import type { BikeStation, TransitAlert, TransitDeparture } from '$lib/transit/domain/types';
+import type {
+	BikeStation,
+	FerryDeparture,
+	TransitAlert,
+	TransitDeparture,
+} from '$lib/transit/domain/types';
 import { formatRelativeTime } from '$lib/utils/time-format';
 
 let departures = $state<TransitDeparture[]>([]);
@@ -73,6 +80,28 @@ async function loadLiveData() {
 
 function getRelativeTimeLabel(isoString: string): string {
 	return formatRelativeTime(isoString);
+}
+
+function getFerryBadge(ferry: FerryDeparture) {
+	if (ferry.vesselStatus === 'STOPPED_AT') {
+		return {
+			label: 'Docked',
+			icon: AnchorIcon,
+			class: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400',
+		};
+	}
+	if (ferry.vesselStatus === 'INCOMING_AT') {
+		return {
+			label: 'Approaching',
+			icon: Navigation01Icon,
+			class: 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
+		};
+	}
+	return {
+		label: 'En Route',
+		icon: BoatIcon,
+		class: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400',
+	};
 }
 
 type DockSlotType = 'ebike' | 'classic' | 'broken_bike' | 'disabled_dock' | 'empty';
@@ -191,7 +220,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Manhattan-Bound Column -->
-			<div class="panel-card">
+			<div class="panel-card space-y-3">
 				<DirectionHeader
 					title="Manhattan-Bound"
 					subtitle="via 63rd St & 6th Ave"
@@ -202,94 +231,24 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Manhattan trains.'}
 					</div>
 				{:else}
-					<!-- HERO CARD: Next Manhattan-Bound Train -->
-					{@const nextTrain = manhattanSubways[0]}
-					<div class="p-3 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
-						<div class="flex items-center justify-between text-xs">
-							<div class="flex items-center gap-1.5">
-								<span class="bullet-subway text-[9px]">
-									{nextTrain.routeId}
-								</span>
-								{#if nextTrain.scheduleRelationship === 'ADDED'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono text-[9px] uppercase">
-										<HugeiconsIcon icon={SparklesIcon} size={10} />
-										<span>Extra</span>
-									</span>
-								{:else if nextTrain.scheduleRelationship === 'CANCELED'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-red-500/20 text-red-600 dark:text-red-300 font-mono text-[9px] uppercase">
-										<HugeiconsIcon icon={AlertCircleIcon} size={10} />
-										<span>Canceled</span>
-									</span>
-								{/if}
-							</div>
-							<span class="font-mono text-xs font-bold text-orange-600 dark:text-orange-400">
-								{getRelativeTimeLabel(nextTrain.predictedTime || nextTrain.scheduledTime)}
-							</span>
-						</div>
-						<div class="flex items-baseline justify-between pt-0.5">
-							<div>
-								<div class="text-sm font-extrabold text-text-main leading-tight flex items-center gap-2">
-									<span>{nextTrain.headsign}</span>
-								</div>
-								{#if nextTrain.originStartTime}
-									<div class="text-[10px] text-text-muted mt-0.5 font-mono">
-										Dispatched: {nextTrain.originStartTime}
-									</div>
-								{/if}
-							</div>
-							<div class="text-right">
-								<div class="font-mono text-lg font-black text-text-main">
-									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-								</div>
-								{#if nextTrain.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-orange-500">
-										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
-										<span>Live GTFS-RT</span>
-									</span>
-								{:else}
-									<span class="text-[9px] text-text-muted">Scheduled</span>
-								{/if}
-							</div>
-						</div>
-					</div>
+					<HeroDepartureCard
+						departure={manhattanSubways[0]}
+						accentColor="orange"
+						badgeText={manhattanSubways[0].routeId}
+						secondaryDetails={manhattanSubways[0].originStartTime ? `Dispatched: ${manhattanSubways[0].originStartTime}` : undefined}
+					/>
 
-					<!-- SUBSEQUENT TRAINS -->
 					{#if manhattanSubways.length > 1}
-						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-							{#each manhattanSubways.slice(1) as train (train.id)}
-								<div class="p-2 flex items-center justify-between text-xs">
-									<div class="flex items-center gap-2">
-										<span class="bullet-subway text-[9px]">
-											{train.routeId}
-										</span>
-										<span class="font-medium text-text-main">{train.headsign}</span>
-										{#if train.scheduleRelationship === 'ADDED'}
-											<span class="inline-flex items-center gap-0.5 px-1 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">
-												<HugeiconsIcon icon={SparklesIcon} size={9} />
-												<span>Extra</span>
-											</span>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2.5 font-mono">
-										<span class="text-text-muted text-[10px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
-										<span class="font-bold text-text-main text-[11px]">
-											{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-										</span>
-										{#if train.isRealtime}
-											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-orange-500" />
-											</span>
-										{/if}
-									</div>
-								</div>
-							{/each}
-						</div>
+						<TimetableList
+							departures={manhattanSubways.slice(1)}
+							accentColor="orange"
+						/>
 					{/if}
 				{/if}
 			</div>
 
 			<!-- Queens-Bound Column -->
-			<div class="panel-card">
+			<div class="panel-card space-y-3">
 				<DirectionHeader
 					title="Queens-Bound"
 					subtitle="via Jamaica & Forest Hills"
@@ -300,88 +259,18 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Queens trains.'}
 					</div>
 				{:else}
-					<!-- HERO CARD: Next Queens-Bound Train -->
-					{@const nextTrain = queensSubways[0]}
-					<div class="p-3 rounded-xl bg-linear-to-br from-orange-500/10 via-bg-surface to-bg-surface border border-orange-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
-						<div class="flex items-center justify-between text-xs">
-							<div class="flex items-center gap-1.5">
-								<span class="bullet-subway text-[9px]">
-									{nextTrain.routeId}
-								</span>
-								{#if nextTrain.scheduleRelationship === 'ADDED'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono text-[9px] uppercase">
-										<HugeiconsIcon icon={SparklesIcon} size={10} />
-										<span>Extra</span>
-									</span>
-								{:else if nextTrain.scheduleRelationship === 'CANCELED'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-red-500/20 text-red-600 dark:text-red-300 font-mono text-[9px] uppercase">
-										<HugeiconsIcon icon={AlertCircleIcon} size={10} />
-										<span>Canceled</span>
-									</span>
-								{/if}
-							</div>
-							<span class="font-mono text-xs font-bold text-orange-600 dark:text-orange-400">
-								{getRelativeTimeLabel(nextTrain.predictedTime || nextTrain.scheduledTime)}
-							</span>
-						</div>
-						<div class="flex items-baseline justify-between pt-0.5">
-							<div>
-								<div class="text-sm font-extrabold text-text-main leading-tight flex items-center gap-2">
-									<span>{nextTrain.headsign}</span>
-								</div>
-								{#if nextTrain.originStartTime}
-									<div class="text-[10px] text-text-muted mt-0.5 font-mono">
-										Dispatched: {nextTrain.originStartTime}
-									</div>
-								{/if}
-							</div>
-							<div class="text-right">
-								<div class="font-mono text-lg font-black text-text-main">
-									{new Date(nextTrain.predictedTime || nextTrain.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-								</div>
-								{#if nextTrain.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-orange-500">
-										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
-										<span>Live GTFS-RT</span>
-									</span>
-								{:else}
-									<span class="text-[9px] text-text-muted">Scheduled</span>
-								{/if}
-							</div>
-						</div>
-					</div>
+					<HeroDepartureCard
+						departure={queensSubways[0]}
+						accentColor="orange"
+						badgeText={queensSubways[0].routeId}
+						secondaryDetails={queensSubways[0].originStartTime ? `Dispatched: ${queensSubways[0].originStartTime}` : undefined}
+					/>
 
-					<!-- SUBSEQUENT TRAINS -->
 					{#if queensSubways.length > 1}
-						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-							{#each queensSubways.slice(1) as train (train.id)}
-								<div class="p-2 flex items-center justify-between text-xs">
-									<div class="flex items-center gap-2">
-										<span class="bullet-subway text-[9px]">
-											{train.routeId}
-										</span>
-										<span class="font-medium text-text-main">{train.headsign}</span>
-										{#if train.scheduleRelationship === 'ADDED'}
-											<span class="inline-flex items-center gap-0.5 px-1 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px]">
-												<HugeiconsIcon icon={SparklesIcon} size={9} />
-												<span>Extra</span>
-											</span>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2.5 font-mono">
-										<span class="text-text-muted text-[10px]">{getRelativeTimeLabel(train.predictedTime || train.scheduledTime)}</span>
-										<span class="font-bold text-text-main text-[11px]">
-											{new Date(train.predictedTime || train.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-										</span>
-										{#if train.isRealtime}
-											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-orange-500" />
-											</span>
-										{/if}
-									</div>
-								</div>
-							{/each}
-						</div>
+						<TimetableList
+							departures={queensSubways.slice(1)}
+							accentColor="orange"
+						/>
 					{/if}
 				{/if}
 			</div>
@@ -410,52 +299,20 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				{#if manhattanTrams.length === 0}
 					<p class="text-xs text-text-muted italic py-3 text-center">No upcoming tram departures scheduled.</p>
 				{:else}
-					<!-- Immediate Hero Departure -->
-					{@const hero = manhattanTrams[0]}
-					<div class="p-3 rounded-xl bg-bg-surface border border-border-default space-y-2">
-						<div class="flex items-center justify-between">
-							<div class="flex items-center gap-1.5">
-								<span class="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 font-mono text-[10px] font-bold">
-									{hero.cabin || 'Tram Cabin'}
-								</span>
-								{#if hero.isBoarding}
-									<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-500 font-mono text-[9px] uppercase font-bold animate-pulse">
-										<span>Departing Soon</span>
-									</span>
-								{/if}
-							</div>
-							<span class="font-mono text-xs font-bold text-primary">
-								{getRelativeTimeLabel(hero.predictedTime || hero.scheduledTime)}
-							</span>
-						</div>
+					<HeroDepartureCard
+						departure={manhattanTrams[0]}
+						accentColor="rose"
+						badgeText={(manhattanTrams[0] as any).cabin || 'Tram Cabin'}
+						badgeClass="bg-rose-500/10 text-rose-500 font-mono text-[10px] font-bold"
+						secondaryDetails={(manhattanTrams[0] as any).isBoarding ? 'Boarding at Roosevelt Island Terminal' : 'Manhattan Direct'}
+					/>
 
-						<div class="flex items-center justify-between text-xs pt-1">
-							<span class="text-text-muted">{hero.headsign}</span>
-							<span class="font-mono text-[10px] text-text-muted">
-								{new Date(hero.predictedTime || hero.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-							</span>
-						</div>
-					</div>
-
-					<!-- Subsequent Departures List -->
 					{#if manhattanTrams.length > 1}
-						<div class="space-y-1.5 pt-1">
-							{#each manhattanTrams.slice(1, 5) as dep (dep.id)}
-								<div class="flex items-center justify-between text-xs py-1 px-2 rounded-lg hover:bg-bg-surface/50 transition-colors">
-									<div class="flex items-center gap-2">
-										<span class="text-text-muted font-mono text-[11px]">{dep.cabin || 'Tram'}</span>
-									</div>
-									<div class="flex items-center gap-3">
-										<span class="font-mono text-[10px] text-text-muted">
-											{new Date(dep.predictedTime || dep.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-										</span>
-										<span class="font-mono text-[11px] font-bold text-text-main">
-											{getRelativeTimeLabel(dep.predictedTime || dep.scheduledTime)}
-										</span>
-									</div>
-								</div>
-							{/each}
-						</div>
+						<TimetableList
+							departures={manhattanTrams.slice(1, 5)}
+							accentColor="rose"
+							badgeTextFn={(dep) => (dep as any).cabin || 'Tram'}
+						/>
 					{/if}
 				{/if}
 			</div>
@@ -470,52 +327,20 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 				{#if islandTrams.length === 0}
 					<p class="text-xs text-text-muted italic py-3 text-center">No upcoming tram departures scheduled.</p>
 				{:else}
-					<!-- Immediate Hero Departure -->
-					{@const hero = islandTrams[0]}
-					<div class="p-3 rounded-xl bg-bg-surface border border-border-default space-y-2">
-						<div class="flex items-center justify-between">
-							<div class="flex items-center gap-1.5">
-								<span class="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 font-mono text-[10px] font-bold">
-									{hero.cabin || 'Tram Cabin'}
-								</span>
-								{#if hero.isBoarding}
-									<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-500 font-mono text-[9px] uppercase font-bold animate-pulse">
-										<span>Departing Soon</span>
-									</span>
-								{/if}
-							</div>
-							<span class="font-mono text-xs font-bold text-primary">
-								{getRelativeTimeLabel(hero.predictedTime || hero.scheduledTime)}
-							</span>
-						</div>
+					<HeroDepartureCard
+						departure={islandTrams[0]}
+						accentColor="rose"
+						badgeText={(islandTrams[0] as any).cabin || 'Tram Cabin'}
+						badgeClass="bg-rose-500/10 text-rose-500 font-mono text-[10px] font-bold"
+						secondaryDetails={(islandTrams[0] as any).isBoarding ? 'Boarding at Manhattan 59th St' : 'Island Direct'}
+					/>
 
-						<div class="flex items-center justify-between text-xs pt-1">
-							<span class="text-text-muted">{hero.headsign}</span>
-							<span class="font-mono text-[10px] text-text-muted">
-								{new Date(hero.predictedTime || hero.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-							</span>
-						</div>
-					</div>
-
-					<!-- Subsequent Departures List -->
 					{#if islandTrams.length > 1}
-						<div class="space-y-1.5 pt-1">
-							{#each islandTrams.slice(1, 5) as dep (dep.id)}
-								<div class="flex items-center justify-between text-xs py-1 px-2 rounded-lg hover:bg-bg-surface/50 transition-colors">
-									<div class="flex items-center gap-2">
-										<span class="text-text-muted font-mono text-[11px]">{dep.cabin || 'Tram'}</span>
-									</div>
-									<div class="flex items-center gap-3">
-										<span class="font-mono text-[10px] text-text-muted">
-											{new Date(dep.predictedTime || dep.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-										</span>
-										<span class="font-mono text-[11px] font-bold text-text-main">
-											{getRelativeTimeLabel(dep.predictedTime || dep.scheduledTime)}
-										</span>
-									</div>
-								</div>
-							{/each}
-						</div>
+						<TimetableList
+							departures={islandTrams.slice(1, 5)}
+							accentColor="rose"
+							badgeTextFn={(dep) => (dep as any).cabin || 'Tram'}
+						/>
 					{/if}
 				{/if}
 			</div>
@@ -533,7 +358,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<!-- Southbound Column -->
-			<div class="panel-card">
+			<div class="panel-card space-y-3">
 				<DirectionHeader
 					title="Southbound"
 					subtitle="Wall St / Pier 11"
@@ -544,93 +369,30 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Southbound ferries.'}
 					</div>
 				{:else}
-					<!-- HERO CARD: Next Southbound Ferry -->
 					{@const nextFerry = southboundFerries[0]}
-					<div class="p-3 rounded-xl bg-linear-to-br from-cyan-500/10 via-bg-surface to-bg-surface border border-cyan-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
-						<div class="flex items-center justify-between text-xs">
-							<div class="flex items-center gap-1.5">
-								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-[9px] uppercase font-bold">
-										<HugeiconsIcon icon={AnchorIcon} size={10} />
-										<span>Docked</span>
-									</span>
-								{:else if nextFerry.vesselStatus === 'INCOMING_AT'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono text-[9px] uppercase font-bold">
-										<HugeiconsIcon icon={Navigation01Icon} size={10} />
-										<span>Approaching</span>
-									</span>
-								{:else if nextFerry.vesselStatus === 'IN_TRANSIT_TO'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-[9px] uppercase font-bold">
-										<HugeiconsIcon icon={BoatIcon} size={10} />
-										<span>En Route</span>
-									</span>
-								{/if}
-							</div>
-							<span class="font-mono text-xs font-bold text-cyan-600 dark:text-cyan-400">
-								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
-							</span>
-						</div>
-						<div class="flex items-baseline justify-between pt-0.5">
-							<div>
-								<div class="text-sm font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
-								{#if nextFerry.vesselName || (nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0)}
-									<div class="text-[10px] text-text-muted mt-0.5 flex items-center gap-1.5 font-mono">
-										{#if nextFerry.vesselName}
-											<span>{nextFerry.vesselName}</span>
-										{/if}
-										{#if nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0}
-											<span>• <strong class="text-cyan-600 dark:text-cyan-400">{nextFerry.speedKnots} kts</strong></span>
-										{/if}
-									</div>
-								{/if}
-							</div>
-							<div class="text-right">
-								<div class="font-mono text-lg font-black text-text-main">
-									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-								</div>
-								{#if nextFerry.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-cyan-500">
-										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
-										<span>Live GTFS-RT</span>
-									</span>
-								{:else}
-									<span class="text-[9px] text-text-muted">Scheduled</span>
-								{/if}
-							</div>
-						</div>
-					</div>
+					{@const ferryBadge = getFerryBadge(nextFerry)}
 
-					<!-- SUBSEQUENT FERRIES -->
+					<HeroDepartureCard
+						departure={nextFerry}
+						accentColor="cyan"
+						badgeText={ferryBadge.label}
+						badgeIcon={ferryBadge.icon}
+						badgeClass={ferryBadge.class}
+						secondaryDetails={nextFerry.vesselName ? (nextFerry.speedKnots ? `${nextFerry.vesselName} • ${nextFerry.speedKnots} kts` : nextFerry.vesselName) : undefined}
+					/>
+
 					{#if southboundFerries.length > 1}
-						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-							{#each southboundFerries.slice(1) as ferry (ferry.id)}
-								<div class="p-2 flex items-center justify-between text-xs">
-									<div class="flex items-center gap-2">
-										<span class="font-medium text-text-main">{ferry.headsign}</span>
-										{#if ferry.vesselName}
-											<span class="text-[10px] font-mono text-text-muted">({ferry.vesselName})</span>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2.5 font-mono">
-										<span class="text-text-muted text-[10px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
-										<span class="font-bold text-text-main text-[11px]">
-											{new Date(ferry.predictedTime || ferry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-										</span>
-										{#if ferry.isRealtime}
-											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-cyan-500" />
-											</span>
-										{/if}
-									</div>
-								</div>
-							{/each}
-						</div>
+						<TimetableList
+							departures={southboundFerries.slice(1)}
+							accentColor="cyan"
+							badgeTextFn={(dep) => (dep as any).vesselName}
+						/>
 					{/if}
 				{/if}
 			</div>
 
 			<!-- Northbound Column -->
-			<div class="panel-card">
+			<div class="panel-card space-y-3">
 				<DirectionHeader
 					title="Northbound"
 					subtitle="East 90th St / UES"
@@ -641,87 +403,24 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 						{transitSettings.isLoading ? 'Loading...' : 'No upcoming Northbound ferries.'}
 					</div>
 				{:else}
-					<!-- HERO CARD: Next Northbound Ferry -->
 					{@const nextFerry = northboundFerries[0]}
-					<div class="p-3 rounded-xl bg-linear-to-br from-cyan-500/10 via-bg-surface to-bg-surface border border-cyan-500/30 space-y-1.5 relative overflow-hidden shadow-xs">
-						<div class="flex items-center justify-between text-xs">
-							<div class="flex items-center gap-1.5">
-								{#if nextFerry.vesselStatus === 'STOPPED_AT'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-[9px] uppercase font-bold">
-										<HugeiconsIcon icon={AnchorIcon} size={10} />
-										<span>Docked</span>
-									</span>
-								{:else if nextFerry.vesselStatus === 'INCOMING_AT'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono text-[9px] uppercase font-bold">
-										<HugeiconsIcon icon={Navigation01Icon} size={10} />
-										<span>Approaching</span>
-									</span>
-								{:else if nextFerry.vesselStatus === 'IN_TRANSIT_TO'}
-									<span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-[9px] uppercase font-bold">
-										<HugeiconsIcon icon={BoatIcon} size={10} />
-										<span>En Route</span>
-									</span>
-								{/if}
-							</div>
-							<span class="font-mono text-xs font-bold text-cyan-600 dark:text-cyan-400">
-								{getRelativeTimeLabel(nextFerry.predictedTime || nextFerry.scheduledTime)}
-							</span>
-						</div>
-						<div class="flex items-baseline justify-between pt-0.5">
-							<div>
-								<div class="text-sm font-extrabold text-text-main leading-tight">{nextFerry.headsign}</div>
-								{#if nextFerry.vesselName || (nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0)}
-									<div class="text-[10px] text-text-muted mt-0.5 flex items-center gap-1.5 font-mono">
-										{#if nextFerry.vesselName}
-											<span>{nextFerry.vesselName}</span>
-										{/if}
-										{#if nextFerry.speedKnots !== undefined && nextFerry.speedKnots > 0}
-											<span>• <strong class="text-cyan-600 dark:text-cyan-400">{nextFerry.speedKnots} kts</strong></span>
-										{/if}
-									</div>
-								{/if}
-							</div>
-							<div class="text-right">
-								<div class="font-mono text-lg font-black text-text-main">
-									{new Date(nextFerry.predictedTime || nextFerry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-								</div>
-								{#if nextFerry.isRealtime}
-									<span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-cyan-500">
-										<HugeiconsIcon icon={FlashIcon} size={10} class="animate-pulse" />
-										<span>Live GTFS-RT</span>
-									</span>
-								{:else}
-									<span class="text-[9px] text-text-muted">Scheduled</span>
-								{/if}
-							</div>
-						</div>
-					</div>
+					{@const ferryBadge = getFerryBadge(nextFerry)}
 
-					<!-- SUBSEQUENT FERRIES -->
+					<HeroDepartureCard
+						departure={nextFerry}
+						accentColor="cyan"
+						badgeText={ferryBadge.label}
+						badgeIcon={ferryBadge.icon}
+						badgeClass={ferryBadge.class}
+						secondaryDetails={nextFerry.vesselName ? (nextFerry.speedKnots ? `${nextFerry.vesselName} • ${nextFerry.speedKnots} kts` : nextFerry.vesselName) : undefined}
+					/>
+
 					{#if northboundFerries.length > 1}
-						<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-							{#each northboundFerries.slice(1) as ferry (ferry.id)}
-								<div class="p-2 flex items-center justify-between text-xs">
-									<div class="flex items-center gap-2">
-										<span class="font-medium text-text-main">{ferry.headsign}</span>
-										{#if ferry.vesselName}
-											<span class="text-[10px] font-mono text-text-muted">({ferry.vesselName})</span>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2.5 font-mono">
-										<span class="text-text-muted text-[10px]">{getRelativeTimeLabel(ferry.predictedTime || ferry.scheduledTime)}</span>
-										<span class="font-bold text-text-main text-[11px]">
-											{new Date(ferry.predictedTime || ferry.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-										</span>
-										{#if ferry.isRealtime}
-											<span>
-												<HugeiconsIcon icon={FlashIcon} size={10} class="text-cyan-500" />
-											</span>
-										{/if}
-									</div>
-								</div>
-							{/each}
-						</div>
+						<TimetableList
+							departures={northboundFerries.slice(1)}
+							accentColor="cyan"
+							badgeTextFn={(dep) => (dep as any).vesselName}
+						/>
 					{/if}
 				{/if}
 			</div>
