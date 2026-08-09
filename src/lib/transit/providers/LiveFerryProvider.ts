@@ -145,15 +145,14 @@ export class LiveFerryProvider implements TransitProvider {
 				processedTripIds.add(stat.tripId);
 
 				const rt = liveUpdates.get(stat.tripId);
-				const isRealtime = Boolean(rt);
-				const predictedTime = rt ? rt.time : stat.scheduledTime;
-				const delaySec = rt ? rt.delay : 0;
-				const isSouthbound = stat.directionId === 0 || stat.headsign.toLowerCase().includes('wall');
-
 				const vesselLabel = rt?.vessel;
 				const telem =
 					vehicleTelemetryMap.get(`trip-${stat.tripId}`) ||
 					(vesselLabel ? vehicleTelemetryMap.get(`label-${vesselLabel}`) : undefined);
+				const isRealtime = Boolean(rt || telem);
+				const predictedTime = rt ? rt.time : stat.scheduledTime;
+				const delaySec = rt ? rt.delay : 0;
+				const isSouthbound = stat.directionId === 0 || stat.headsign.toLowerCase().includes('wall');
 
 				departures.push({
 					id: `ferry-live-${stat.tripId}-${stat.stopId}`,
