@@ -153,7 +153,7 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 					<button
 						onclick={() => changeWindow(win)}
 						class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {selectedWindow === win
-							? 'bg-primary text-white shadow-xs'
+							? 'bg-primary text-primary-fg shadow-xs'
 							: 'text-text-muted hover:text-text-main'}"
 					>
 						{win / 60}h
@@ -164,7 +164,7 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 			<button
 				onclick={loadLiveData}
 				disabled={isLoading}
-				class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
+				class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-primary-fg text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-xs cursor-pointer"
 			>
 				<HugeiconsIcon icon={RefreshIcon} size={14} class={isLoading ? 'animate-spin' : ''} />
 				<span>{isLoading ? 'Refreshing...' : 'Refresh Now'}</span>
@@ -215,7 +215,7 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 				<button
 					onclick={() => (subwayRouteFilter = 'ALL')}
 					class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer {subwayRouteFilter === 'ALL'
-						? 'bg-primary text-white shadow-xs'
+						? 'bg-primary text-primary-fg shadow-xs'
 						: 'text-text-muted hover:text-text-main'}"
 				>
 					All
@@ -711,7 +711,7 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 					<span>E-Bike ({totalEbikes})</span>
 				</div>
 				<div class="flex items-center gap-1.5">
-					<span class="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-white shadow-2xs">
+					<span class="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs">
 						<HugeiconsIcon icon={Bicycle01Icon} size={9} />
 					</span>
 					<span>Classic Bike ({totalClassicBikes})</span>
@@ -769,7 +769,7 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 											</div>
 										{:else if slot === 'classic'}
 											<div
-												class="w-4 h-4 rounded bg-primary flex items-center justify-center text-white shadow-2xs"
+												class="w-4 h-4 rounded bg-primary flex items-center justify-center text-primary-fg shadow-2xs"
 												title="Slot #{i + 1}: Classic Bike Available"
 											>
 												<HugeiconsIcon icon={Bicycle01Icon} size={10} />
