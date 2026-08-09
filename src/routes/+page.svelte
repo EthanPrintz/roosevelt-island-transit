@@ -137,12 +137,8 @@ let totalOpenDocks = $derived(stations.reduce((sum, s) => sum + (s.docksAvailabl
 		<!-- Top Bar: Title & Primary Controls -->
 		<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
 			<div class="space-y-1">
-				<div class="flex items-center gap-2">
+				<div>
 					<h1 class="text-xl sm:text-2xl font-black text-text-main tracking-tight">Roosevelt Island Transit Core</h1>
-					<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold border border-emerald-500/20 shrink-0">
-						<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-						LIVE ({autoRefreshSeconds}s)
-					</span>
 				</div>
 				<p class="text-xs text-text-muted">Real-time GTFS-RT subway, NYC Ferry & GBFS bikeshare streams with live telemetry.</p>
 			</div>
