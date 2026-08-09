@@ -1,4 +1,5 @@
 import {
+	AnchorIcon,
 	CheckmarkCircle01Icon,
 	Clock01Icon,
 	FlashIcon,
@@ -23,10 +24,11 @@ const ACCENT_CLASSES: Record<'orange' | 'rose' | 'cyan' | 'blue', string> = {
 /**
  * Pure, centralized resolver for Hero Card Status Pills across all transit modes.
  * Enforces standardized operational states:
- * - BOARDING / AT DOCK (CheckmarkCircle01Icon)
- * - APPROACHING (Navigation01Icon)
- * - EN ROUTE (FlashIcon)
- * - SCHEDULED (Clock01Icon)
+ * - AT DOCK: AnchorIcon
+ * - BOARDING: CheckmarkCircle01Icon
+ * - APPROACHING: Navigation01Icon
+ * - EN ROUTE: FlashIcon
+ * - SCHEDULED: Clock01Icon
  */
 export function resolveHeroStatusPill(
 	departure: TransitDeparture,
@@ -50,7 +52,7 @@ export function resolveHeroStatusPill(
 			if (f.speedKnots < 1) {
 				return {
 					label: 'At Dock',
-					icon: CheckmarkCircle01Icon,
+					icon: AnchorIcon,
 					pillClass: defaultClass,
 				};
 			}

@@ -1,3 +1,9 @@
+import {
+	AnchorIcon,
+	CheckmarkCircle01Icon,
+	Clock01Icon,
+	FlashIcon,
+} from '@hugeicons/core-free-icons';
 import { describe, expect, it } from 'vitest';
 import type { FerryDeparture, TramDeparture, TransitDeparture } from '../domain/types';
 import { resolveHeroStatusPill } from './status-pill';
@@ -22,6 +28,7 @@ describe('resolveHeroStatusPill', () => {
 
 		const result = resolveHeroStatusPill(tram, 'rose');
 		expect(result.label).toBe('Boarding');
+		expect(result.icon).toBe(CheckmarkCircle01Icon);
 		expect(result.pillClass).toContain('bg-rose-500/15');
 	});
 
@@ -45,6 +52,7 @@ describe('resolveHeroStatusPill', () => {
 
 		const result = resolveHeroStatusPill(ferry, 'cyan');
 		expect(result.label).toBe('At Dock');
+		expect(result.icon).toBe(AnchorIcon);
 		expect(result.pillClass).toContain('bg-cyan-500/15');
 	});
 
@@ -65,6 +73,7 @@ describe('resolveHeroStatusPill', () => {
 
 		const result = resolveHeroStatusPill(bus, 'blue');
 		expect(result.label).toBe('En Route');
+		expect(result.icon).toBe(FlashIcon);
 		expect(result.pillClass).toContain('bg-blue-500/15');
 	});
 
@@ -85,6 +94,7 @@ describe('resolveHeroStatusPill', () => {
 
 		const result = resolveHeroStatusPill(bus, 'orange');
 		expect(result.label).toBe('Scheduled');
+		expect(result.icon).toBe(Clock01Icon);
 		expect(result.pillClass).toContain('bg-orange-500/15');
 	});
 });
