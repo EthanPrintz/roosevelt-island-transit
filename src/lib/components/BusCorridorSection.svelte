@@ -188,35 +188,37 @@ let octagonSouth = $derived(
 				</div>
 			{/if}
 
-			<!-- Follow-Up Departures List -->
+			<!-- Follow-Up Departures: Compact Horizontal Arrival Chips -->
 			{#if followUps.length > 0}
-				<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
-					{#each followUps as dep (dep.id)}
-						{@const b = dep as BusDeparture}
-						{@const t = b.predictedTime || b.scheduledTime}
-						{@const shortHeadsign = cleanHeadsign(b.headsign)}
+				<div class="pt-0.5 space-y-1.5">
+					<div class="text-[10px] font-mono font-bold text-text-muted uppercase tracking-wider px-0.5">
+						Upcoming Departures
+					</div>
+					<div class="flex flex-wrap items-center gap-1.5">
+						{#each followUps as dep (dep.id)}
+							{@const b = dep as BusDeparture}
+							{@const t = b.predictedTime || b.scheduledTime}
+							{@const relTime = formatRelativeTime(t)}
+							{@const absTime = formatClockTime(t)}
 
-						<div class="p-2 flex items-center justify-between text-xs gap-2 hover:bg-bg-surface/50 transition-colors">
-							<!-- Left Side: Bus Tag + Destination -->
-							<div class="flex items-center gap-2 min-w-0 flex-1">
-								<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
-									{b.vehicleId ? `Bus #${b.vehicleId}` : b.routeId === 'RED_BUS' ? 'Red Bus' : 'Q102'}
-								</span>
-								<span class="font-medium text-text-main truncate text-xs">{shortHeadsign}</span>
-							</div>
-
-							<!-- Right Side: Relative Countdown + Clock Time + Live Flash / Sched Icon -->
-							<div class="flex items-center gap-2.5 font-mono shrink-0">
-								<span class="text-text-muted text-[10px]">{formatRelativeTime(t)}</span>
-								<span class="font-bold text-text-main text-[11px]">{formatClockTime(t)}</span>
+							<div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-bg-elevated/60 border border-border-default/60 text-xs shadow-2xs hover:bg-bg-surface transition-colors">
 								{#if b.isRealtime}
 									<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
 								{:else}
 									<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
 								{/if}
+
+								<span class="font-mono font-extrabold text-text-main text-[11px]">{relTime}</span>
+								<span class="font-mono text-[10px] text-text-muted">{absTime}</span>
+
+								{#if b.vehicleId}
+									<span class="px-1 py-0.2 rounded bg-bg-surface text-[9px] font-mono font-bold text-text-muted border border-border-default/70 shrink-0">
+										#{b.vehicleId}
+									</span>
+								{/if}
 							</div>
-						</div>
-					{/each}
+						{/each}
+					</div>
 				</div>
 			{/if}
 		{/if}

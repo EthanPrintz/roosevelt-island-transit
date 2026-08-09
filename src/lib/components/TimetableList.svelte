@@ -2,7 +2,7 @@
 import { Clock01Icon, FlashIcon, SparklesIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import type { TransitDeparture } from '$lib/transit/domain/types';
-import { formatRelativeTime } from '$lib/utils/time-format';
+import { formatClockTime, formatRelativeTime } from '$lib/utils/time-format';
 
 interface Props {
 	departures: TransitDeparture[];
@@ -20,16 +20,22 @@ const iconColors = {
 };
 
 let activeIconColor = $derived(iconColors[accentColor] || iconColors.orange);
+
+// Detect if all departures in this list share the same headsign
+let firstHeadsign = $derived(departures[0]?.headsign);
+let isUniformHeadsign = $derived(
+	departures.length > 0 && departures.every((d) => d.headsign === firstHeadsign),
+);
 </script>
 
 <div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
 	{#each departures as dep (dep.id)}
 		{@const relTime = formatRelativeTime(dep.predictedTime || dep.scheduledTime)}
-		{@const absTime = new Date(dep.predictedTime || dep.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+		{@const absTime = formatClockTime(dep.predictedTime || dep.scheduledTime)}
 		{@const customBadge = badgeTextFn ? badgeTextFn(dep) : undefined}
 
 		<div class="p-2 flex items-center justify-between text-xs gap-2 hover:bg-bg-surface/50 transition-colors">
-			<!-- Left Side: Route Badge / Cabin / Vessel + Destination -->
+			<!-- Left Side: Route Badge / Cabin / Vessel + Destination (Omitted if uniform) -->
 			<div class="flex items-center gap-2 min-w-0 flex-1">
 				{#if customBadge}
 					<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
@@ -41,7 +47,13 @@ let activeIconColor = $derived(iconColors[accentColor] || iconColors.orange);
 					</span>
 				{/if}
 
-				<span class="font-medium text-text-main truncate">{dep.headsign}</span>
+				{#if !isUniformHeadsign}
+					<span class="font-medium text-text-main truncate text-xs">{dep.headsign}</span>
+				{:else if dep.mode === 'subway'}
+					<span class="text-xs font-semibold text-text-main truncate">
+						{dep.routeId === 'M' ? 'M Train' : 'F Train'}
+					</span>
+				{/if}
 
 				{#if dep.scheduleRelationship === 'ADDED'}
 					<span class="inline-flex items-center gap-0.5 px-1 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px] shrink-0">
