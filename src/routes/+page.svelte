@@ -16,6 +16,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/svelte';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
 import type { BikeStation, TransitAlert, TransitDeparture } from '$lib/transit/domain/types';
+import { formatRelativeTime } from '$lib/utils/time-format';
 
 let departures = $state<TransitDeparture[]>([]);
 let alerts = $state<TransitAlert[]>([]);
@@ -59,11 +60,7 @@ async function loadLiveData() {
 }
 
 function getRelativeTimeLabel(isoString: string): string {
-	const diffMs = new Date(isoString).getTime() - Date.now();
-	const mins = Math.round(diffMs / 60000);
-	if (mins <= 0) return 'Arriving Now';
-	if (mins === 1) return 'In 1 min';
-	return `In ${mins} mins`;
+	return formatRelativeTime(isoString);
 }
 
 type DockSlotType = 'ebike' | 'classic' | 'broken_bike' | 'disabled_dock' | 'empty';
