@@ -84,12 +84,12 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 						<HugeiconsIcon icon={Bicycle01Icon} size={9} />
 					</div>
 				{:else if slot === 'broken_bike'}
-					<div class="w-3.5 h-3.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center" title="Broken Bike">
-						<HugeiconsIcon icon={Wrench01Icon} size={9} />
+					<div class="w-3.5 h-3.5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-500 flex items-center justify-center" title="Broken Bike">
+						<HugeiconsIcon icon={Wrench01Icon} size={8} />
 					</div>
 				{:else if slot === 'disabled_dock'}
-					<div class="w-3.5 h-3.5 rounded bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center" title="Disabled Dock">
-						<HugeiconsIcon icon={SquareIcon} size={9} />
+					<div class="w-3.5 h-3.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-500 flex items-center justify-center" title="Disabled Dock">
+						<HugeiconsIcon icon={SquareIcon} size={8} />
 					</div>
 				{:else}
 					<div class="w-3.5 h-3.5 rounded bg-border-default/40 border border-border-subtle" title="Empty Dock"></div>
