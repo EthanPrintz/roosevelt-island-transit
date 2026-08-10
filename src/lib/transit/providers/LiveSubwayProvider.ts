@@ -14,17 +14,38 @@ export const MTA_BDFM_FEED_URL =
 	'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm';
 export const MTA_STATIC_GTFS_URL =
 	'https://web.mta.info/developers/data/nyct/subway/google_transit.zip';
-/**
- * LiveSubwayProvider
- *
- * Hybrid GTFS engine that combines static MTA Subway schedules (stop ID B06)
- * with live real-time GTFS-RT Protobuf updates from MTA BDFM feed.
- * Features Dynamic Active Horizon Suppression to eliminate ghost timetable entries.
- */
+
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
 	readonly name = 'MTA Subway Live (F/M Lines)';
 	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
+
+	private feedCache: { buf: ArrayBuffer; expiresAt: number } | null = null;
+	private pendingFeedPromise: Promise<ArrayBuffer | null> | null = null;
+
+	private async fetchBdfmFeedBuf(): Promise<ArrayBuffer | null> {
+		const now = Date.now();
+		if (this.feedCache && this.feedCache.expiresAt > now) {
+			return this.feedCache.buf;
+		}
+		if (this.pendingFeedPromise) return this.pendingFeedPromise;
+
+		this.pendingFeedPromise = (async () => {
+			const res = await fetch(MTA_BDFM_FEED_URL).catch(() => null);
+			if (res?.ok) {
+				const buf = await res.arrayBuffer().catch(() => null);
+				if (buf) this.feedCache = { buf, expiresAt: Date.now() + 10000 };
+				return buf;
+			}
+			return null;
+		})();
+
+		try {
+			return await this.pendingFeedPromise;
+		} finally {
+			this.pendingFeedPromise = null;
+		}
+	}
 
 	async getDepartures(options?: DepartureOptions): Promise<ProviderResult<SubwayDeparture>> {
 		try {
@@ -50,8 +71,8 @@ export class LiveSubwayProvider implements TransitProvider {
 				);
 			}
 
-			// 2. Fetch live GTFS-RT feed
-			const res = await fetch(MTA_BDFM_FEED_URL);
+			// 2. Fetch live GTFS-RT feed (Deduplicated)
+			const arrayBuffer = await this.fetchBdfmFeedBuf();
 			const liveUpdates = new Map<
 				string,
 				{
@@ -65,46 +86,49 @@ export class LiveSubwayProvider implements TransitProvider {
 				}
 			>();
 
-			if (res.ok) {
-				const arrayBuffer = await res.arrayBuffer();
-				const feed = decodeGtfsRealtimeBuffer(arrayBuffer);
+			if (arrayBuffer) {
+				try {
+					const feed = decodeGtfsRealtimeBuffer(arrayBuffer);
 
-				for (const entity of feed.entity) {
-					if (!entity.tripUpdate?.stopTimeUpdate) continue;
-					const trip = entity.tripUpdate.trip;
-					const tripId = trip.tripId;
+					for (const entity of feed.entity) {
+						if (!entity.tripUpdate?.stopTimeUpdate) continue;
+						const trip = entity.tripUpdate.trip;
+						const tripId = trip.tripId;
 
-					let rel: ScheduleRelationship = 'SCHEDULED';
-					if (trip.scheduleRelationship === 'ADDED') rel = 'ADDED';
-					else if (trip.scheduleRelationship === 'CANCELED') rel = 'CANCELED';
-					else if (trip.scheduleRelationship === 'UNSCHEDULED') rel = 'UNSCHEDULED';
+						let rel: ScheduleRelationship = 'SCHEDULED';
+						if (trip.scheduleRelationship === 'ADDED') rel = 'ADDED';
+						else if (trip.scheduleRelationship === 'CANCELED') rel = 'CANCELED';
+						else if (trip.scheduleRelationship === 'UNSCHEDULED') rel = 'UNSCHEDULED';
 
-					const originStartTime = trip.startTime || undefined;
-					const rawRoute = (trip.routeId || 'F').toUpperCase();
-					const routeId: 'F' | 'M' = rawRoute === 'M' ? 'M' : 'F';
+						const originStartTime = trip.startTime || undefined;
+						const rawRoute = (trip.routeId || 'F').toUpperCase();
+						const routeId: 'F' | 'M' = rawRoute === 'M' ? 'M' : 'F';
 
-					for (const update of entity.tripUpdate.stopTimeUpdate) {
-						const stopId = String(update.stopId || '').replace(/"/g, '');
-						if (stopId.startsWith('B06')) {
-							const timeVal = update.departure?.time || update.arrival?.time;
-							if (!timeVal) continue;
-							const isoTime = new Date(timeVal * 1000).toISOString();
-							const delaySec = update.departure?.delay || update.arrival?.delay || 0;
-							const track = stopId.endsWith('N') ? 'Uptown' : 'Downtown';
+						for (const update of entity.tripUpdate.stopTimeUpdate) {
+							const stopId = String(update.stopId || '').replace(/"/g, '');
+							if (stopId.startsWith('B06')) {
+								const timeVal = update.departure?.time || update.arrival?.time;
+								if (!timeVal) continue;
+								const isoTime = new Date(timeVal * 1000).toISOString();
+								const delaySec = update.departure?.delay || update.arrival?.delay || 0;
+								const track = stopId.endsWith('N') ? 'Uptown' : 'Downtown';
 
-							if (tripId) {
-								liveUpdates.set(tripId, {
-									time: isoTime,
-									delay: delaySec,
-									track,
-									stopId,
-									scheduleRelationship: rel,
-									originStartTime,
-									routeId,
-								});
+								if (tripId) {
+									liveUpdates.set(tripId, {
+										time: isoTime,
+										delay: delaySec,
+										track,
+										stopId,
+										scheduleRelationship: rel,
+										originStartTime,
+										routeId,
+									});
+								}
 							}
 						}
 					}
+				} catch (subErr) {
+					console.warn('Failed to decode GTFS realtime buffer for subway', subErr);
 				}
 			}
 
@@ -203,13 +227,13 @@ export class LiveSubwayProvider implements TransitProvider {
 					status: rt.scheduleRelationship === 'CANCELED' ? 'suspended' : 'normal',
 					stopName: 'Roosevelt Island Station',
 					stopId: rt.stopId,
-					track: rt.track as 'Uptown' | 'Downtown',
+					track: isNorthbound ? 'Uptown' : 'Downtown',
 					isShuttle: false,
 					originStartTime: rt.originStartTime,
 				});
 			}
 
-			// 5. Dynamic Active Horizon & Proximity Shift Suppression Engine & Stale Trip Filtering
+			// 5. Dynamic Active Horizon Suppression
 			const filteredDepartures = suppressGhostSchedules(departures);
 
 			return {
@@ -219,14 +243,14 @@ export class LiveSubwayProvider implements TransitProvider {
 						new Date(b.predictedTime || b.scheduledTime).getTime(),
 				),
 				fetchedAt: new Date().toISOString(),
-				isCached: false,
+				isCached: Boolean(this.feedCache),
 			};
 		} catch (err) {
 			return {
 				data: [],
 				fetchedAt: new Date().toISOString(),
 				isCached: false,
-				error: err instanceof Error ? err.message : String(err),
+				error: String(err),
 			};
 		}
 	}

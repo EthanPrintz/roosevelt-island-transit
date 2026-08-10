@@ -42,6 +42,39 @@ export class LiveQ102Provider implements TransitProvider {
 	readonly name = 'MTA Q102 Bus';
 	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
 
+	// In-flight & 10s TTL response cache to deduplicate getDepartures and getVehicles calls
+	private siriCache: { json: unknown; expiresAt: number } | null = null;
+	private pendingSiriPromise: Promise<unknown> | null = null;
+
+	private async fetchSiriFeed(apiKey: string): Promise<unknown> {
+		const now = Date.now();
+		if (this.siriCache && this.siriCache.expiresAt > now) {
+			return this.siriCache.json;
+		}
+		if (this.pendingSiriPromise) {
+			return this.pendingSiriPromise;
+		}
+
+		const siriUrl = `${MTA_BUS_SIRI_VM_URL}?key=${encodeURIComponent(apiKey)}&version=2&LineRef=Q102`;
+		this.pendingSiriPromise = (async () => {
+			const res = await fetch(siriUrl).catch(() => null);
+			if (res?.ok) {
+				const json = await res.json().catch(() => null);
+				if (json) {
+					this.siriCache = { json, expiresAt: Date.now() + 10000 };
+				}
+				return json;
+			}
+			return null;
+		})();
+
+		try {
+			return await this.pendingSiriPromise;
+		} finally {
+			this.pendingSiriPromise = null;
+		}
+	}
+
 	async getDepartures(options?: DepartureOptions): Promise<ProviderResult<BusDeparture>> {
 		const windowMinutes = options?.windowMinutes ?? 120;
 		try {
@@ -93,17 +126,16 @@ export class LiveQ102Provider implements TransitProvider {
 				);
 			}
 
-			// 2. Fetch live SIRI VehicleMonitoring data
-			const siriUrl = `${MTA_BUS_SIRI_VM_URL}?key=${encodeURIComponent(apiKey)}&version=2&LineRef=Q102`;
-			const res = await fetch(siriUrl).catch(() => null);
-
+			// 2. Fetch live SIRI VehicleMonitoring data (Deduplicated)
+			const rawJson = await this.fetchSiriFeed(apiKey);
+			// biome-ignore lint/suspicious/noExplicitAny: Internal SIRI API payload structure
+			const siriJson = rawJson as any;
 			const departures: BusDeparture[] = [];
 
-			if (res?.ok) {
+			if (siriJson) {
 				try {
-					const json = await res.json();
 					const activities =
-						json?.Siri?.ServiceDelivery?.VehicleMonitoringDelivery?.[0]?.VehicleActivity || [];
+						siriJson?.Siri?.ServiceDelivery?.VehicleMonitoringDelivery?.[0]?.VehicleActivity || [];
 
 					for (const act of activities) {
 						const journey = act?.MonitoredVehicleJourney;
@@ -212,7 +244,7 @@ export class LiveQ102Provider implements TransitProvider {
 						new Date(b.predictedTime || b.scheduledTime).getTime(),
 				),
 				fetchedAt: new Date().toISOString(),
-				isCached: false,
+				isCached: Boolean(this.siriCache),
 			};
 		} catch (err) {
 			return {
@@ -227,15 +259,15 @@ export class LiveQ102Provider implements TransitProvider {
 	async getVehicles(): Promise<ProviderResult<LiveVehiclePosition>> {
 		try {
 			const apiKey = env.MTA_BUS_TIME_API_KEY || '3fff4736-ddbb-443a-baab-c66a72bdc4c1';
-			const siriUrl = `${MTA_BUS_SIRI_VM_URL}?key=${encodeURIComponent(apiKey)}&version=2&LineRef=Q102`;
-			const res = await fetch(siriUrl).catch(() => null);
+			const rawJson = await this.fetchSiriFeed(apiKey);
+			// biome-ignore lint/suspicious/noExplicitAny: Internal SIRI API payload structure
+			const siriJson = rawJson as any;
 
 			const vehicles: LiveVehiclePosition[] = [];
 
-			if (res?.ok) {
-				const json = await res.json();
+			if (siriJson) {
 				const activities =
-					json?.Siri?.ServiceDelivery?.VehicleMonitoringDelivery?.[0]?.VehicleActivity || [];
+					siriJson?.Siri?.ServiceDelivery?.VehicleMonitoringDelivery?.[0]?.VehicleActivity || [];
 
 				for (const act of activities) {
 					const journey = act?.MonitoredVehicleJourney;
@@ -275,7 +307,7 @@ export class LiveQ102Provider implements TransitProvider {
 			return {
 				data: vehicles,
 				fetchedAt: new Date().toISOString(),
-				isCached: false,
+				isCached: Boolean(this.siriCache),
 			};
 		} catch (err) {
 			return {

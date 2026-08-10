@@ -4,13 +4,16 @@ interface CacheEntry<T> {
 }
 
 /**
- * Server-side TTL Cache to prevent exceeding upstream API rate limits.
+ * Server-side TTL Cache with Single-Flight Promise Locking
+ * to prevent thundering-herd API stampedes and protect 3rd-party rate limits.
  */
 export class ServerTtlCache {
 	private cache = new Map<string, CacheEntry<unknown>>();
+	private pendingPromises = new Map<string, Promise<unknown>>();
 
 	/**
 	 * Retrieves cached item or executes fetcher if expired/missing.
+	 * Concurrent requests during a cache miss join the active in-flight Promise.
 	 *
 	 * @param key Unique cache key
 	 * @param ttlMs Time to live in milliseconds
@@ -28,13 +31,26 @@ export class ServerTtlCache {
 			return { data: existing.data, isCached: true };
 		}
 
-		const data = await fetcher();
-		this.cache.set(key, {
-			data,
-			expiresAt: now + ttlMs,
-		});
+		// Single-Flight Pattern: If a fetch is already in flight for this key, join the active promise
+		let pending = this.pendingPromises.get(key) as Promise<T> | undefined;
+		if (pending) {
+			const data = await pending;
+			return { data, isCached: true };
+		}
 
-		return { data, isCached: false };
+		pending = fetcher();
+		this.pendingPromises.set(key, pending);
+
+		try {
+			const data = await pending;
+			this.cache.set(key, {
+				data,
+				expiresAt: Date.now() + ttlMs,
+			});
+			return { data, isCached: false };
+		} finally {
+			this.pendingPromises.delete(key);
+		}
 	}
 
 	/**
@@ -42,13 +58,15 @@ export class ServerTtlCache {
 	 */
 	invalidate(key: string): void {
 		this.cache.delete(key);
+		this.pendingPromises.delete(key);
 	}
 
 	/**
-	 * Clears all cached items.
+	 * Clears all cached items and pending flight locks.
 	 */
 	clear(): void {
 		this.cache.clear();
+		this.pendingPromises.clear();
 	}
 }
 
