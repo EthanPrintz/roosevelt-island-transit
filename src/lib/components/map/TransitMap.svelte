@@ -261,8 +261,8 @@ onMount(() => {
 		mapInstance = new maplibreglRef.Map({
 			container: mapContainer,
 			style: targetStyle,
-			center: [-73.95, 40.761],
-			zoom: 14.2,
+			center: [-73.9525, 40.7605],
+			zoom: 14.45,
 			bearing: -5,
 			pitch: 40,
 			attributionControl: false,
