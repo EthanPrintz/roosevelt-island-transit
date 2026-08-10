@@ -343,13 +343,13 @@ export class LiveSubwayProvider implements TransitProvider {
 }
 
 const SUBWAY_STATION_COORDS: Record<string, [number, number]> = {
-	B06: [-73.953438, 40.759188],
-	B04: [-73.9423, 40.7547],
-	F11: [-73.9661, 40.7646],
-	F12: [-73.9774, 40.7629],
-	F14: [-73.9813, 40.7587],
-	F15: [-73.9877, 40.7496],
-	B08: [-73.9298, 40.7523],
+	B06: [-73.95326, 40.759145], // Roosevelt Island Platform
+	B04: [-73.942836, 40.754203], // 21 St - Queensbridge Platform
+	F11: [-73.966113, 40.764629], // Lex - 63 St Platform
+	F12: [-73.97745, 40.763972], // 57 St Platform
+	F14: [-73.981329, 40.758663], // 47-50th Sts Platform
+	F15: [-73.987823, 40.749719], // 34 St Herald Sq Platform
+	B08: [-73.928781, 40.752039], // 36th St Queens Platform
 };
 
 const SUBWAY_STATION_NAMES: Record<string, string> = {
