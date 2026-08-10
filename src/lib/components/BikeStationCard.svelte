@@ -35,18 +35,11 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 </script>
 
 <div class="panel-card space-y-3.5">
-	<!-- 1. Station Header & Occupancy Status Badge -->
-	<div class="flex items-center justify-between gap-3 border-b border-border-subtle/60 pb-2.5">
-		<div>
-			<h3 class="font-extrabold text-base text-text-main leading-snug tracking-tight">{station.name}</h3>
-			<div class="text-[11px] font-mono text-text-muted">
-				{station.capacity} Total Docking Slots
-			</div>
-		</div>
-
-		<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-400 font-mono text-xs font-bold shrink-0">
-			<HugeiconsIcon icon={Bicycle01Icon} size={12} />
-			<span>{station.bikesAvailable.total} Bikes ({Math.round((station.bikesAvailable.total / Math.max(1, station.capacity)) * 100)}% Full)</span>
+	<!-- 1. Station Header -->
+	<div class="border-b border-border-subtle/60 pb-2.5">
+		<h3 class="font-extrabold text-base text-text-main leading-snug tracking-tight">{station.name}</h3>
+		<div class="text-[11px] font-mono text-text-muted">
+			{station.capacity} Total Docking Slots
 		</div>
 	</div>
 
@@ -88,9 +81,8 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 
 	<!-- 3. Visual Dock Matrix -->
 	<div class="space-y-1.5 pt-0.5">
-		<div class="flex items-center justify-between text-[11px] font-mono text-text-muted">
-			<span>Station Docks</span>
-			<span>{station.docksAvailable} Open Docks</span>
+		<div class="text-[11px] font-mono text-text-muted">
+			Station Docks
 		</div>
 
 		<div class="flex flex-wrap gap-1 max-w-full pt-0.5">
