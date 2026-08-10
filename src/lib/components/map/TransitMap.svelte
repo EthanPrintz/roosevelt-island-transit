@@ -261,14 +261,14 @@ onMount(() => {
 		mapInstance = new maplibreglRef.Map({
 			container: mapContainer,
 			style: targetStyle,
-			center: [-73.9496, 40.7615], // Roosevelt Island centroid
-			zoom: 14.5,
-			bearing: 0,
-			pitch: 0,
+			center: [-73.95, 40.761],
+			zoom: 14.2,
+			bearing: -5,
+			pitch: 40,
 			attributionControl: false,
 			maxBounds: [
-				[-73.975, 40.74],
-				[-73.93, 40.785],
+				[-73.985, 40.725],
+				[-73.915, 40.8],
 			],
 		});
 
