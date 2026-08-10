@@ -45,7 +45,7 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 		</div>
 
 		<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-400 font-mono text-xs font-bold shrink-0">
-			<HugeiconsIcon icon={FlashIcon} size={12} />
+			<HugeiconsIcon icon={Bicycle01Icon} size={12} />
 			<span>{station.bikesAvailable.total} Bikes ({Math.round((station.bikesAvailable.total / Math.max(1, station.capacity)) * 100)}% Full)</span>
 		</div>
 	</div>
