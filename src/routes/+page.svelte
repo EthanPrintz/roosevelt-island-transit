@@ -105,10 +105,10 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 	<title>Roosevelt Island Transit Dashboard & Live Map</title>
 </svelte:head>
 
-<div class="max-w-7xl mx-auto px-4 py-4 space-y-4">
-	<!-- Main Responsive Grid / Split Container -->
-	{#if mapSettings.viewMode === 'cards'}
-		<!-- Cards Only Mode (Clean 2-Column Responsive Dashboard) -->
+<!-- Main Responsive Grid / Viewport Container -->
+{#if mapSettings.viewMode === 'cards'}
+	<!-- Cards Only Mode (Clean 2-Column Responsive Dashboard) -->
+	<div class="max-w-7xl mx-auto px-4 py-4">
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto items-start">
 			<!-- Column 1: Subway, Tramway, Ferry, City Bus, Citi Bike -->
 			<div class="space-y-6">
@@ -124,36 +124,40 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 				{@render redBusSection()}
 			</div>
 		</div>
-	{:else if mapSettings.viewMode === 'map'}
-		<!-- Map Only Mode (Full Viewport Vector Canvas) -->
-		<div class="relative w-full h-[calc(100vh-10rem)]">
-			<TransitMap {vehicles} {stations} />
-			<BottomSheetDrawer>
-				{@render cardSections()}
-			</BottomSheetDrawer>
-		</div>
-	{:else}
-		<!-- Split Mode (Desktop Side-by-Side, Mobile Bottom Sheet) -->
-		<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+	</div>
+{:else if mapSettings.viewMode === 'map'}
+	<!-- Full Viewport Map Mode (Edge-to-Edge Vector Canvas + Mobile Drawer) -->
+	<div class="fixed inset-0 top-16 z-10 w-full h-[calc(100vh-4rem)] overflow-hidden">
+		<TransitMap {vehicles} {stations} />
+		<BottomSheetDrawer>
+			{@render cardSections()}
+		</BottomSheetDrawer>
+	</div>
+{:else}
+	<!-- Split View Mode -->
+	<!-- Mobile (< lg): Full Edge-to-Edge Map + Bottom Sheet Drawer -->
+	<div class="block lg:hidden fixed inset-0 top-16 z-10 w-full h-[calc(100vh-4rem)] overflow-hidden">
+		<TransitMap {vehicles} {stations} />
+		<BottomSheetDrawer>
+			{@render cardSections()}
+		</BottomSheetDrawer>
+	</div>
+
+	<!-- Desktop (>= lg): Side-by-Side Split View -->
+	<div class="hidden lg:block max-w-7xl mx-auto px-4 py-4">
+		<div class="grid grid-cols-12 gap-6 items-start">
 			<!-- Left Column: Departure Timetable Cards -->
-			<div class="lg:col-span-6 xl:col-span-5 space-y-6">
+			<div class="col-span-5 space-y-6">
 				{@render cardSections()}
 			</div>
 
 			<!-- Right Column: Sticky Vector Map -->
-			<div class="hidden lg:block lg:col-span-6 xl:col-span-7 sticky top-20 h-[calc(100vh-6.5rem)]">
+			<div class="col-span-7 sticky top-20 h-[calc(100vh-6.5rem)] rounded-2xl overflow-hidden border border-border-default shadow-xs">
 				<TransitMap {vehicles} {stations} />
 			</div>
 		</div>
-
-		<!-- Mobile Bottom Sheet Fallback for Split Mode -->
-		<div class="lg:hidden">
-			<BottomSheetDrawer>
-				{@render cardSections()}
-			</BottomSheetDrawer>
-		</div>
-	{/if}
-</div>
+	</div>
+{/if}
 
 {#snippet cardSections()}
 	{@render subwaySection()}
