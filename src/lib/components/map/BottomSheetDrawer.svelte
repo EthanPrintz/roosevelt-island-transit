@@ -23,7 +23,7 @@ let snapClasses = $derived.by(() => {
 </script>
 
 <div
-	class="fixed bottom-0 left-0 right-0 z-20 flex flex-col bg-bg-surface/95 backdrop-blur-xl border-t border-border-default shadow-2xl transition-all duration-300 ease-out rounded-t-2xl md:hidden {snapClasses}"
+	class="fixed bottom-0 left-0 right-0 z-20 flex flex-col bg-bg-surface/95 backdrop-blur-xl border-t border-border-default shadow-2xl transition-all duration-300 ease-out rounded-t-2xl lg:hidden {snapClasses}"
 >
 	<!-- Drag Handle / Grabber Bar -->
 	<div
