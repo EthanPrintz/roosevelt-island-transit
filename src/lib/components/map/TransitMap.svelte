@@ -118,7 +118,9 @@ function updateVehicleHtmlMarkers(mapInstance: any) {
 
 			const color = getModeAccentColor(v.mode);
 			const routeLabel = getRouteLabel(v.mode, v.routeId);
-			const bearing = typeof v.bearing === 'number' ? v.bearing : 0;
+			const vehicleBearing = typeof v.bearing === 'number' ? v.bearing : 0;
+			const mapBearing = mapInstance?.getBearing?.() || 0;
+			const displayBearing = Math.round((vehicleBearing - mapBearing + 360) % 360);
 			const svgIcon = getModeSvgIcon(v.mode);
 
 			const el = document.createElement('div');
@@ -130,7 +132,7 @@ function updateVehicleHtmlMarkers(mapInstance: any) {
 
 			el.innerHTML = `
 				<span style="display: flex; align-items: center; justify-content: center; width: 13px; height: 13px; flex-shrink: 0;">${svgIcon}</span>
-				<span style="display: flex; align-items: center; justify-content: center; width: 10px; height: 10px; flex-shrink: 0; transform: rotate(${bearing}deg);">${CHEVRON_SVG}</span>
+				<span style="display: flex; align-items: center; justify-content: center; width: 10px; height: 10px; flex-shrink: 0; transform: rotate(${displayBearing}deg);">${CHEVRON_SVG}</span>
 			`;
 
 			el.addEventListener('click', (e) => {
@@ -316,6 +318,12 @@ onMount(() => {
 			map = mapInstance;
 			isLoaded = true;
 			setupMapSourcesAndLayers(mapInstance);
+		});
+
+		mapInstance.on('rotate', () => {
+			if (mapInstance && isLoaded) {
+				updateVehicleHtmlMarkers(mapInstance);
+			}
 		});
 
 		// Setup ResizeObserver to trigger map.resize() on layout shifts
