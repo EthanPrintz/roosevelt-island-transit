@@ -38,3 +38,25 @@ This workspace is configured for Antigravity / Gemini coding agents. All agents 
 - **Type Diagnostics**: Svelte Check (`bun run check`).
 - **Unit Testing**: Vitest (`bun run test`).
 - Always run `bun run check && bun run lint && bun run test` before declaring code changes complete.
+
+## 7. Test-Driven Development (TDD) Mandates & Workflow
+All agents and developers MUST follow strict TDD principles when adding features, modifying algorithms, or fixing bugs:
+
+- **Red-Green-Refactor Cycle**:
+  1. **Red**: Write unit tests (`*.test.ts` or `*.svelte.test.ts`) that fail BEFORE implementing new functions, providers, or endpoints.
+  2. **Green**: Implement the minimal, clean solution necessary to make the tests pass.
+  3. **Refactor**: Clean up and optimize while ensuring all tests stay green.
+- **Testing Architecture & Tooling**:
+  - **Runtime & Manager**: Use `bun` (v1.3+) for execution, scripts, and dependency management.
+  - **Test Runner**: Use **Vitest** (`bun run test`) as the standard test runner. Vitest shares Vite's build pipeline, ensuring seamless compilation of Svelte 5 runes (`$state`, `$derived`), `$lib/*` aliases, and component mounting.
+- **Testing Requirements by Layer**:
+  1. **Pure Domain Logic & Utilities**: Every helper in `$lib/utils/` or `$lib/transit/utils/` must have a corresponding `.test.ts` file covering happy paths, edge cases, and empty inputs.
+  2. **Transit Providers**: New or modified providers implementing `TransitProvider` MUST include contract tests verifying `getDepartures`, `getAlerts`, `getVehicles`, and `getBikeStations`, plus error boundary fallback on network failures.
+  3. **Svelte 5 State Runes**: Shared `.svelte.ts` state modules (e.g. `src/lib/state/theme.svelte.ts`) must test reactive property getters/setters and state mutations.
+  4. **Server Endpoints & Load Functions**: SvelteKit API endpoints (`+server.ts`) and server load functions (`+page.server.ts`) must have co-located `+server.test.ts` / `+page.server.test.ts` unit tests verifying request parameter parsing, caching (`serverCache`), response payload structure, and HTTP headers (`Cache-Control`).
+  5. **UI Components**: Components in `$lib/components/` must have co-located unit/integration tests verifying 3-row hero card layouts, prop reactivity, theme state interaction, and accessible user callbacks.
+- **Mocking Guidelines**:
+  - Store reusable JSON data fixtures under `src/lib/transit/fixtures/`.
+  - Use `vi.spyOn(globalThis, 'fetch')` or `vi.fn()` for network mocking; avoid monkey-patching globals directly.
+  - Never swallow errors silently in tests or production code.
+

@@ -85,4 +85,115 @@ describe('suppressGhostSchedules', () => {
 		expect(ids).toContain('static-future');
 		expect(ids).not.toContain('static-ghost');
 	});
+
+	it('returns an empty array when given an empty list', () => {
+		expect(suppressGhostSchedules([])).toEqual([]);
+	});
+
+	it('retains all static departures when no live departures exist', () => {
+		const static1: SubwayDeparture = {
+			id: 'static-1',
+			mode: 'subway',
+			routeId: 'F',
+			routeName: 'MTA Subway',
+			headsign: 'Queens',
+			destinationName: 'Jamaica',
+			direction: 'queens_bound',
+			scheduledTime: new Date().toISOString(),
+			isRealtime: false,
+			status: 'normal',
+			stopName: 'Roosevelt Island Station',
+			track: 'Uptown',
+			isShuttle: false,
+		};
+		const result = suppressGhostSchedules([static1]);
+		expect(result).toHaveLength(1);
+		expect(result[0].id).toBe('static-1');
+	});
+
+	it('suppresses static departure when scheduledTime matches max live timestamp exactly', () => {
+		const now = new Date();
+		const tPlus20 = new Date(now.getTime() + 20 * 60000).toISOString();
+
+		const liveDep: SubwayDeparture = {
+			id: 'live-exact',
+			mode: 'subway',
+			routeId: 'F',
+			routeName: 'MTA Subway',
+			headsign: 'Manhattan',
+			destinationName: 'Manhattan',
+			direction: 'manhattan_bound',
+			scheduledTime: tPlus20,
+			predictedTime: tPlus20,
+			isRealtime: true,
+			status: 'normal',
+			stopName: 'Roosevelt Island Station',
+			track: 'Downtown',
+			isShuttle: false,
+		};
+
+		const staticDep: SubwayDeparture = {
+			id: 'static-exact',
+			mode: 'subway',
+			routeId: 'F',
+			routeName: 'MTA Subway',
+			headsign: 'Manhattan',
+			destinationName: 'Manhattan',
+			direction: 'manhattan_bound',
+			scheduledTime: tPlus20,
+			isRealtime: false,
+			status: 'normal',
+			stopName: 'Roosevelt Island Station',
+			track: 'Downtown',
+			isShuttle: false,
+		};
+
+		const result = suppressGhostSchedules([liveDep, staticDep]);
+		const ids = result.map((d) => d.id);
+		expect(ids).toContain('live-exact');
+		expect(ids).not.toContain('static-exact');
+	});
+
+	it('suppresses independently per direction', () => {
+		const tPlus10 = new Date(Date.now() + 10 * 60000).toISOString();
+		const tPlus20 = new Date(Date.now() + 20 * 60000).toISOString();
+
+		const liveManhattan: SubwayDeparture = {
+			id: 'live-m',
+			mode: 'subway',
+			routeId: 'F',
+			routeName: 'MTA Subway',
+			headsign: 'Manhattan',
+			destinationName: 'Manhattan',
+			direction: 'manhattan_bound',
+			scheduledTime: tPlus20,
+			isRealtime: true,
+			status: 'normal',
+			stopName: 'Roosevelt Island Station',
+			track: 'Downtown',
+			isShuttle: false,
+		};
+
+		const staticQueens: SubwayDeparture = {
+			id: 'static-q',
+			mode: 'subway',
+			routeId: 'F',
+			routeName: 'MTA Subway',
+			headsign: 'Queens',
+			destinationName: 'Jamaica',
+			direction: 'queens_bound',
+			scheduledTime: tPlus10,
+			isRealtime: false,
+			status: 'normal',
+			stopName: 'Roosevelt Island Station',
+			track: 'Uptown',
+			isShuttle: false,
+		};
+
+		const result = suppressGhostSchedules([liveManhattan, staticQueens]);
+		const ids = result.map((d) => d.id);
+		// static-q should NOT be suppressed because live-m is in a different direction
+		expect(ids).toContain('live-m');
+		expect(ids).toContain('static-q');
+	});
 });

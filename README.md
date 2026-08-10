@@ -24,25 +24,53 @@ A highly modular, multi-pronged public transit tracking web application built on
 The transit layer is decoupled from UI rendering via the `TransitProvider` interface contract and managed by `TransitAggregator`:
 
 ```
-src/lib/transit/
-├── domain/                      # Core Contracts & Domain Interfaces
-│   ├── types.ts                 # TransitMode, TransitDeparture, BikeStation, TransitAlert
-│   └── provider.ts              # TransitProvider Interface Contract
-├── fixtures/                    # Mock JSON Fixtures for TDD & Deterministic UI
-│   ├── tram.json, subway.json, redbus.json, q102.json, ferry.json, citibike.json
-├── providers/                   # Live Hybrid & Mock Providers (Adhering to TransitProvider Contract)
-│   ├── LiveSubwayProvider.ts & LiveSubwayProvider.test.ts
-│   ├── LiveFerryProvider.ts & LiveFerryProvider.test.ts
-│   ├── LiveTramProvider.ts & LiveTramProvider.test.ts
-│   ├── LiveCitiBikeProvider.ts & LiveCitiBikeProvider.test.ts
-│   ├── MockSubwayProvider.ts, MockFerryProvider.ts, MockTramProvider.ts, etc.
-├── utils/                       # Shared Data Pipeline Utilities
-│   ├── suppression.ts           # Dynamic Active Horizon Suppression (Ghost schedule pruning)
-│   └── suppression.test.ts      # Vitest test suite for ghost schedule suppression
-└── aggregator/                  # Aggregator Orchestrator
-    ├── TransitAggregator.ts     # Aggregates provider streams with Promise.allSettled error boundaries
-    └── TransitAggregator.test.ts# Vitest test suite for aggregator
+src/
+├── lib/
+│   ├── components/              # UI Components & Unit Tests (SegmentedControl.test.ts, HeroDepartureCard.test.ts, etc.)
+│   ├── server/                  # Server-side cache & GTFS parser + tests (cache.test.ts, gtfs-static.test.ts)
+│   ├── state/                   # Svelte 5 Runes State Modules (theme.svelte.ts & theme.test.ts)
+│   └── transit/
+│       ├── domain/              # Core Contracts (provider.ts, types.ts)
+│       ├── fixtures/            # Mock JSON Fixtures for TDD & Deterministic UI (tram.json, subway.json, etc.)
+│       ├── providers/           # Live Hybrid & Mock Providers + Provider Contract Tests
+│       ├── utils/               # Data Pipeline Utilities & Tests (suppression.ts, status-pill.ts)
+│       └── aggregator/          # Aggregator Orchestrator & Tests (TransitAggregator.ts)
+└── routes/
+    └── api/
+        └── transit/             # API Endpoints & Server Tests (+server.ts & +server.test.ts)
 ```
+
+---
+
+## 🧪 Test-Driven Development (TDD) Guidelines
+
+This project uses **Bun v1.3** as the runtime and package runner, and **Vitest** as the Vite-native test runner.
+
+### Running Tests
+
+```bash
+# Run full unit, contract, server endpoint, and component test suite
+bun run test
+
+# Run tests in watch mode during development
+bun run test -- --watch
+
+# Run static checks and linter alongside tests before committing
+bun run check && bun run lint && bun run test
+```
+
+### TDD Execution Strategy
+
+1. **Write Tests First (Red)**: Create or update `*.test.ts` / `*.svelte.test.ts` before implementing new utilities, providers, runes state, or server endpoints.
+2. **Implement Minimal Code (Green)**: Fulfill the test requirements cleanly.
+3. **Refactor & Verify (Refactor)**: Verify strict type checks (`bun run check`), static analysis (`bun run lint`), and tests (`bun run test`).
+
+### Testing Layers & Conventions
+
+- **Providers**: Every `TransitProvider` implementation must conform to the contract helper (`contract-helper.test.ts`) and test empty responses and fetch failures gracefully.
+- **Server Endpoints**: SvelteKit API endpoints (`+server.ts`) must have co-located `+server.test.ts` verifying parameter sanitization, `serverCache` behavior, and `Cache-Control` response headers.
+- **Runes State**: Shared reactive state (`.svelte.ts`) must test `$state` / `$derived` mutations and theme applications.
+- **UI Components**: Components in `src/lib/components/` must verify 3-row architecture rendering, prop updates, and click handlers.
 
 ---
 
@@ -51,7 +79,7 @@ src/lib/transit/
 | Script | Command | Description |
 | --- | --- | --- |
 | `dev` | `bun run dev` | Starts Vite development server |
-| `test` | `bun run test` | Runs Vitest unit test suite (15 test files, 33 tests) |
+| `test` | `bun run test` | Runs Vitest unit, contract, server, & component test suite |
 | `check` | `bun run check` | Runs Svelte template type checking (`svelte-check`) |
 | `lint` | `bun run lint` | Runs Biome linter and static code analysis |
 | `format` | `bun run format` | Auto-formats code with Biome |
@@ -62,3 +90,4 @@ src/lib/transit/
 ## 🤖 Agentic AI Guidelines
 
 Workspace agentic rules are defined in [`.agents/AGENTS.md`](file://./.agents/AGENTS.md). All AI assistants (Antigravity / Gemini) must maintain strict TDD unit test coverage, interface compliance, and dynamic suppression rules when extending transit providers.
+
