@@ -125,13 +125,12 @@ function updateVehicleHtmlMarkers(mapInstance: any) {
 			// Explicit fixed dimensions (88px x 24px) prevent offsetWidth reflow jitters during map pan/zoom
 			el.setAttribute(
 				'style',
-				`display: flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; width: auto !important; max-width: max-content !important; height: 24px !important; box-sizing: border-box !important; padding: 0 10px !important; border-radius: 9999px !important; font-size: 11px !important; font-weight: 700 !important; font-family: system-ui, -apple-system, sans-serif !important; color: #ffffff !important; background-color: ${color} !important; border: 1.5px solid rgba(255, 255, 255, 0.95) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important; white-space: nowrap !important; pointer-events: auto !important; cursor: pointer !important; user-select: none !important; transform: none !important; transition: none !important;`,
+				`display: flex !important; align-items: center !important; justify-content: center !important; gap: 4px !important; width: auto !important; height: 24px !important; box-sizing: border-box !important; padding: 0 7px !important; border-radius: 9999px !important; color: #ffffff !important; background-color: ${color} !important; border: 1.5px solid rgba(255, 255, 255, 0.95) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important; white-space: nowrap !important; pointer-events: auto !important; cursor: pointer !important; user-select: none !important;`,
 			);
 
 			el.innerHTML = `
 				<span style="display: flex; align-items: center; justify-content: center; width: 13px; height: 13px; flex-shrink: 0;">${svgIcon}</span>
-				<span style="letter-spacing: -0.01em; flex-shrink: 0; white-space: nowrap;">${routeLabel}</span>
-				<span style="display: flex; align-items: center; justify-content: center; width: 11px; height: 11px; flex-shrink: 0; transform: rotate(${bearing}deg);">${CHEVRON_SVG}</span>
+				<span style="display: flex; align-items: center; justify-content: center; width: 10px; height: 10px; flex-shrink: 0; transform: rotate(${bearing}deg);">${CHEVRON_SVG}</span>
 			`;
 
 			el.addEventListener('click', (e) => {
@@ -139,7 +138,7 @@ function updateVehicleHtmlMarkers(mapInstance: any) {
 				mapSettings.selectEntity(v.id, [v.lng, v.lat]);
 				onSelectEntity?.(v.id);
 
-				const title = `${routeLabel} (${v.vehicleId || v.id})`;
+				const title = v.vehicleId ? `#${v.vehicleId}` : routeLabel;
 				const subtitle = v.nextStopName ? `Next stop: ${v.nextStopName}` : v.direction || v.mode;
 				showSinglePopup(mapInstance, [v.lng, v.lat], title, subtitle, color, svgIcon);
 			});

@@ -63,7 +63,7 @@ describe('map-adapter.ts', () => {
 			expect(busFeature.geometry.coordinates).toEqual([-73.9496, 40.7615]);
 			expect(busFeature.properties?.id).toBe('bus-101');
 			expect(busFeature.properties?.mode).toBe('red_bus');
-			expect(busFeature.properties?.routeLabel).toBe('Red Bus');
+			expect(busFeature.properties?.routeLabel).toBe('Bus');
 			expect(busFeature.properties?.bearing).toBe(45);
 			expect(busFeature.properties?.color).toBeDefined();
 

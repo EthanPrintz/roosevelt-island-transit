@@ -66,9 +66,8 @@ export function getRouteLabel(mode: TransitMode, routeId?: string): string {
 		case 'ferry':
 			return 'Ferry';
 		case 'red_bus':
-			return 'Red Bus';
 		case 'q102_bus':
-			return 'Q102';
+			return 'Bus';
 		default:
 			return routeId || 'Transit';
 	}
