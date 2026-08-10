@@ -169,8 +169,8 @@ function setupMapSourcesAndLayers(mapInstance: any) {
 			source: 'transit-routes',
 			paint: {
 				'line-color': ['get', 'color'],
-				'line-width': 3.5,
-				'line-opacity': 0.7,
+				'line-width': 3,
+				'line-opacity': 0.35,
 			},
 		});
 	}
