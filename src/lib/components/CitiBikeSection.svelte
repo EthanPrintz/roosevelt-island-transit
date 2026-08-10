@@ -64,7 +64,7 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 			{transitSettings.isLoading ? 'Loading live station availability...' : 'No live Citi Bike station status available.'}
 		</div>
 	{:else}
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+		<div class="space-y-3">
 			{#each stations as station (station.id)}
 				<BikeStationCard {station} />
 			{/each}
