@@ -308,7 +308,7 @@ export class LiveSubwayProvider implements TransitProvider {
 
 					if (currentOrNextStopId && SUBWAY_STATION_COORDS[currentOrNextStopId]) {
 						const [lng, lat] = SUBWAY_STATION_COORDS[currentOrNextStopId];
-						const bearing = isNorthbound ? 45 : 225;
+						const bearing = getSubwayTrackBearing(currentOrNextStopId, isNorthbound);
 
 						vehicles.push({
 							id: `subway-vehicle-${routeId}-${tripId}`,
@@ -361,3 +361,50 @@ const SUBWAY_STATION_NAMES: Record<string, string> = {
 	F15: '34th St Herald Sq',
 	B08: '36th St (Queens)',
 };
+
+/**
+ * Calculates forward azimuth bearing in degrees (0-360) between two coordinates
+ */
+export function calculateAzimuth(from: [number, number], to: [number, number]): number {
+	const [lon1, lat1] = from.map((d) => (d * Math.PI) / 180);
+	const [lon2, lat2] = to.map((d) => (d * Math.PI) / 180);
+
+	const dLon = lon2 - lon1;
+	const y = Math.sin(dLon) * Math.cos(lat2);
+	const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+
+	const rad = Math.atan2(y, x);
+	const deg = (rad * 180) / Math.PI;
+	return Math.round((deg + 360) % 360);
+}
+
+// 63rd St Line Station Sequence from South to North (Manhattan -> Queens)
+const SUBWAY_STATION_SEQUENCE = ['F15', 'F14', 'F12', 'F11', 'B06', 'B04', 'B08'];
+
+function getSubwayTrackBearing(stopId: string, isNorthbound: boolean): number {
+	const baseStopId = stopId.replace(/[NS]$/, '');
+	const idx = SUBWAY_STATION_SEQUENCE.indexOf(baseStopId);
+
+	if (idx !== -1) {
+		const targetIdx = isNorthbound
+			? Math.min(SUBWAY_STATION_SEQUENCE.length - 1, idx + 1)
+			: Math.max(0, idx - 1);
+		const fromStop = isNorthbound ? baseStopId : SUBWAY_STATION_SEQUENCE[targetIdx];
+		const toStop = isNorthbound ? SUBWAY_STATION_SEQUENCE[targetIdx] : baseStopId;
+
+		const fromCoords = SUBWAY_STATION_COORDS[fromStop];
+		const toCoords = SUBWAY_STATION_COORDS[toStop];
+
+		if (
+			fromCoords &&
+			toCoords &&
+			(fromCoords[0] !== toCoords[0] || fromCoords[1] !== toCoords[1])
+		) {
+			let bearing = calculateAzimuth(fromCoords, toCoords);
+			if (!isNorthbound) bearing = (bearing + 180) % 360;
+			return bearing;
+		}
+	}
+
+	return isNorthbound ? 45 : 225;
+}

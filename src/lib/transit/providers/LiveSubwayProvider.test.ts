@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LiveSubwayProvider } from './LiveSubwayProvider';
+import { calculateAzimuth, LiveSubwayProvider } from './LiveSubwayProvider';
 
 describe('LiveSubwayProvider', () => {
 	it('conforms to TransitProvider contract for subway mode and enforces Active Horizon Suppression', async () => {
@@ -30,7 +30,7 @@ describe('LiveSubwayProvider', () => {
 		}
 	});
 
-	it('declares vehicle_tracking capability and fetches live F/M train vehicle positions', async () => {
+	it('declares vehicle_tracking capability and fetches live F/M train vehicle positions with precise bearings', async () => {
 		const provider = new LiveSubwayProvider();
 		expect(provider.capabilities.has('vehicle_tracking')).toBe(true);
 
@@ -47,8 +47,20 @@ describe('LiveSubwayProvider', () => {
 			expect(v.lat).toBeLessThan(41);
 			expect(v.lng).toBeGreaterThan(-74.5);
 			expect(v.lng).toBeLessThan(-73);
+			expect(typeof v.bearing).toBe('number');
+			expect(v.bearing).toBeGreaterThanOrEqual(0);
+			expect(v.bearing).toBeLessThan(360);
 			expect(typeof v.updatedAt).toBe('string');
 		}
+	});
+
+	it('calculates precise forward azimuth bearings between coordinates', () => {
+		const northBearing = calculateAzimuth([-73.95, 40.75], [-73.95, 40.76]);
+		expect(northBearing).toBe(0);
+
+		const eastBearing = calculateAzimuth([-73.95, 40.75], [-73.94, 40.75]);
+		expect(eastBearing).toBeGreaterThan(80);
+		expect(eastBearing).toBeLessThan(100);
 	});
 
 	it('returns empty alerts array by default', async () => {
