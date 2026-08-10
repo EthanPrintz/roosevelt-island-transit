@@ -175,66 +175,46 @@ function setupMapSourcesAndLayers(mapInstance: any) {
 		});
 	}
 
-	// 2. Fixed Transit Hubs & Bus Stops Component Layer (Stationary Target Bullseyes)
+	// 2. Fixed Transit Hubs & Bus Stops Component Layer (Minimalist Dots)
 	if (!mapInstance.getSource('fixed-stops')) {
 		mapInstance.addSource('fixed-stops', {
 			type: 'geojson',
 			data: getFixedTransitStopsGeoJSON(),
 		});
 
-		// Outer Ring
 		mapInstance.addLayer({
 			id: 'fixed-stops-circle',
 			type: 'circle',
 			source: 'fixed-stops',
 			paint: {
 				'circle-color': ['get', 'color'],
-				'circle-radius': 6.5,
-				'circle-stroke-width': 2,
+				'circle-radius': 3.5,
+				'circle-opacity': 0.85,
+				'circle-stroke-width': 1,
 				'circle-stroke-color': '#ffffff',
-			},
-		});
-
-		// Hollow Target Center Core
-		mapInstance.addLayer({
-			id: 'fixed-stops-target-core',
-			type: 'circle',
-			source: 'fixed-stops',
-			paint: {
-				'circle-color': '#ffffff',
-				'circle-radius': 2.5,
+				'circle-stroke-opacity': 0.6,
 			},
 		});
 	}
 
-	// 3. Citi Bike Stations Component Layer (Stationary Target Bullseyes)
+	// 3. Citi Bike Stations Component Layer (Minimalist Dots)
 	if (!mapInstance.getSource('bike-stations')) {
 		mapInstance.addSource('bike-stations', {
 			type: 'geojson',
 			data: bikeStationsToGeoJSON(stations),
 		});
 
-		// Outer Ring
 		mapInstance.addLayer({
 			id: 'bike-stations-circle',
 			type: 'circle',
 			source: 'bike-stations',
 			paint: {
 				'circle-color': ['get', 'statusColor'],
-				'circle-radius': 6.5,
-				'circle-stroke-width': 2,
+				'circle-radius': 3.5,
+				'circle-opacity': 0.85,
+				'circle-stroke-width': 1,
 				'circle-stroke-color': '#ffffff',
-			},
-		});
-
-		// Hollow Target Center Core
-		mapInstance.addLayer({
-			id: 'bike-stations-target-core',
-			type: 'circle',
-			source: 'bike-stations',
-			paint: {
-				'circle-color': '#ffffff',
-				'circle-radius': 2.5,
+				'circle-stroke-opacity': 0.6,
 			},
 		});
 	} else {
@@ -258,11 +238,9 @@ function setupMapSourcesAndLayers(mapInstance: any) {
 		mapSettings.showBuses;
 
 	setVis('fixed-stops-circle', showStops);
-	setVis('fixed-stops-target-core', showStops);
 	setVis('transit-routes-line', showStops);
 
 	setVis('bike-stations-circle', mapSettings.showCitiBike);
-	setVis('bike-stations-target-core', mapSettings.showCitiBike);
 }
 
 onMount(() => {
