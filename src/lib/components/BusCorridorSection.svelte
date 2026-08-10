@@ -129,8 +129,8 @@ let southboundGroups = $derived.by(() => {
 				{@const cleanNextStop = nextDep.nextStopName && !/approaching|at stop|at_stop/i.test(nextDep.nextStopName) ? ` (${nextDep.nextStopName})` : ''}
 				{@const subDetails = nextDep.vehicleId ? `Bus #${nextDep.vehicleId}${cleanNextStop}` : undefined}
 
-				<div class="p-3.5 rounded-xl border space-y-2 relative overflow-hidden shadow-2xs {styles.heroContainer}">
-					<!-- Top Row: Standardized Status Pill (Left) & Relative Countdown (Right) -->
+				<div class="p-3.5 rounded-xl border space-y-1.5 relative overflow-hidden shadow-2xs {styles.heroContainer}">
+					<!-- Top Row: Standardized Status Pill (Left) -->
 					<div class="flex items-center justify-between text-xs">
 						<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {pill.pillClass}">
 							{#key pill.icon}
@@ -138,37 +138,34 @@ let southboundGroups = $derived.by(() => {
 							{/key}
 							<span>{pill.label}</span>
 						</span>
-
-						<span class="font-mono text-xs font-bold {styles.timeText}">
-							{formatRelativeTime(targetTime)}
-						</span>
 					</div>
 
-					<!-- Middle Row: Clean Destination Title (Left) & Large Clock Time (Right) -->
-					<div class="flex items-baseline justify-between gap-2 pt-0.5">
-						<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
-							<span class="truncate">{nextDep.headsign}</span>
-						</div>
-
-						<div class="font-mono text-lg font-black text-text-main leading-none shrink-0">
-							{formatClockTime(targetTime)}
-						</div>
+					<!-- Middle Row: Clean Destination Title -->
+					<div class="pt-0.5">
+						<h4 class="text-sm font-extrabold text-text-main leading-tight truncate">
+							{nextDep.headsign}
+						</h4>
 					</div>
 
-					<!-- Bottom Row: Sub Details (Left) & Scheduled Fallback (Right) -->
-					<div class="flex items-center justify-between text-[10px] font-mono text-text-muted pt-0.5">
-						<div class="truncate min-w-0 flex-1">
-							{#if subDetails}
-								{@const cleanSubDetails = subDetails.replace(/\s*\((?:approaching|at stop|at_stop)\)/gi, '')}
-								{#if cleanSubDetails}
-									<span>{cleanSubDetails}</span>
-								{/if}
+					<!-- Large Clock Time -->
+					<div class="font-mono text-xl font-black text-text-main leading-none pt-0.5">
+						{formatClockTime(targetTime)}
+					</div>
+
+					<!-- Relative Countdown (Under Clock Time) -->
+					<div class="font-mono text-xs font-bold {styles.timeText}">
+						{formatRelativeTime(targetTime)}
+					</div>
+
+					<!-- Sub Details & Scheduled Fallback -->
+					<div class="text-[10px] font-mono text-text-muted pt-0.5 truncate">
+						{#if subDetails}
+							{@const cleanSubDetails = subDetails.replace(/\s*\((?:approaching|at stop|at_stop)\)/gi, '')}
+							{#if cleanSubDetails}
+								<span>{cleanSubDetails}</span>
 							{/if}
-
-						</div>
-
-						{#if !nextDep.isRealtime}
-							<div class="shrink-0 font-medium">Scheduled</div>
+						{:else if !nextDep.isRealtime}
+							<span>Scheduled</span>
 						{/if}
 					</div>
 				</div>

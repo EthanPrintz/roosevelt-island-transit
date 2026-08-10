@@ -84,7 +84,7 @@ let cleanHeadsign = $derived(formatHeroHeadsign(departure.headsign));
 </script>
 
 <div class="p-3 rounded-xl border space-y-1.5 relative overflow-hidden shadow-xs {styles.container}">
-	<!-- Row 1: Top Bar (Status Pill + Relative Countdown) -->
+	<!-- Row 1: Top Bar (Status Pill Only) -->
 	<div class="flex items-center justify-between text-xs gap-2">
 		<div class="flex items-center gap-1.5 flex-wrap">
 			<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {resolvedClass}">
@@ -106,10 +106,6 @@ let cleanHeadsign = $derived(formatHeroHeadsign(departure.headsign));
 				</span>
 			{/if}
 		</div>
-
-		<span class="font-mono text-xs font-bold shrink-0 ml-auto {styles.timeText}">
-			{relativeLabel}
-		</span>
 	</div>
 
 	<!-- Row 2: Destination Title (Full Width so it NEVER truncates) -->
@@ -124,7 +120,12 @@ let cleanHeadsign = $derived(formatHeroHeadsign(departure.headsign));
 		{timeString}
 	</div>
 
-	<!-- Row 4: Dedicated Sub-Details Line (Dispatched / Cabin / Vessel / Scheduled) -->
+	<!-- Row 4: Relative Countdown (Under Clock Time) -->
+	<div class="font-mono text-xs font-bold {styles.timeText}">
+		{relativeLabel}
+	</div>
+
+	<!-- Row 5: Dedicated Sub-Details Line (Dispatched / Cabin / Vessel / Scheduled) -->
 	{#if subDetails || !departure.isRealtime}
 		{@const cleanSubDetails = subDetails ? subDetails.replace(/\s*\((?:approaching|at stop|at_stop)\)/gi, '') : ''}
 		{#if cleanSubDetails || !departure.isRealtime}
