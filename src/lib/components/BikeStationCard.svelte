@@ -36,11 +36,8 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 
 <div class="panel-card space-y-3.5">
 	<!-- 1. Station Header -->
-	<div class="border-b border-border-subtle/60 pb-2.5">
+	<div class="border-b border-border-subtle/60 pb-2">
 		<h3 class="font-extrabold text-base text-text-main leading-snug tracking-tight">{station.name}</h3>
-		<div class="text-[11px] font-mono text-text-muted">
-			{station.capacity} Total Docking Slots
-		</div>
 	</div>
 
 	<!-- 2. Primary Stat Hero Cards (3-Column Grid) -->
@@ -68,10 +65,10 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 		</div>
 
 		<!-- Open Docks -->
-		<div class="p-2.5 rounded-xl bg-bg-surface border border-border-default flex flex-col justify-between space-y-1 shadow-2xs">
+		<div class="p-2.5 rounded-xl bg-bg-elevated/70 border border-border-subtle/80 flex flex-col justify-between space-y-1 shadow-2xs">
 			<div class="flex items-center justify-between text-xs text-text-muted">
 				<span class="font-medium">Open Docks</span>
-				<HugeiconsIcon icon={SquareIcon} size={13} />
+				<HugeiconsIcon icon={SquareIcon} size={13} class="text-text-muted" />
 			</div>
 			<div class="font-mono text-lg font-black text-text-main">
 				{station.docksAvailable}
@@ -82,7 +79,7 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 	<!-- 3. Visual Dock Matrix -->
 	<div class="space-y-1.5 pt-0.5">
 		<div class="text-[11px] font-mono text-text-muted">
-			Station Docks
+			{station.capacity} Docking Slots
 		</div>
 
 		<div class="flex flex-wrap gap-1 max-w-full pt-0.5">
