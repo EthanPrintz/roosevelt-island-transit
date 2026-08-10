@@ -30,6 +30,27 @@ describe('LiveSubwayProvider', () => {
 		}
 	});
 
+	it('declares vehicle_tracking capability and fetches live F/M train vehicle positions', async () => {
+		const provider = new LiveSubwayProvider();
+		expect(provider.capabilities.has('vehicle_tracking')).toBe(true);
+
+		const result = await provider.getVehicles();
+		expect(result.data).toBeDefined();
+		expect(Array.isArray(result.data)).toBe(true);
+
+		for (const v of result.data) {
+			expect(v.mode).toBe('subway');
+			expect(typeof v.id).toBe('string');
+			expect(typeof v.lat).toBe('number');
+			expect(typeof v.lng).toBe('number');
+			expect(v.lat).toBeGreaterThan(40);
+			expect(v.lat).toBeLessThan(41);
+			expect(v.lng).toBeGreaterThan(-74.5);
+			expect(v.lng).toBeLessThan(-73);
+			expect(typeof v.updatedAt).toBe('string');
+		}
+	});
+
 	it('returns empty alerts array by default', async () => {
 		const provider = new LiveSubwayProvider();
 		const result = await provider.getAlerts();

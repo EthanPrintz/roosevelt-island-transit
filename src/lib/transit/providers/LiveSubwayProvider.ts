@@ -2,6 +2,7 @@ import { decodeGtfsRealtimeBuffer } from '$lib/server/gtfs';
 import { gtfsStaticStore, type ScheduledDeparture } from '$lib/server/gtfs-static';
 import type { DepartureOptions, ProviderCapability, TransitProvider } from '../domain/provider';
 import type {
+	LiveVehiclePosition,
 	ProviderResult,
 	ScheduleRelationship,
 	SubwayDeparture,
@@ -18,7 +19,7 @@ export const MTA_STATIC_GTFS_URL =
 export class LiveSubwayProvider implements TransitProvider {
 	readonly mode: TransitMode = 'subway';
 	readonly name = 'MTA Subway Live (F/M Lines)';
-	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
+	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts', 'vehicle_tracking']);
 
 	private feedCache: { buf: ArrayBuffer; expiresAt: number } | null = null;
 	private pendingFeedPromise: Promise<ArrayBuffer | null> | null = null;
@@ -262,4 +263,101 @@ export class LiveSubwayProvider implements TransitProvider {
 			isCached: false,
 		};
 	}
+
+	async getVehicles(): Promise<ProviderResult<LiveVehiclePosition>> {
+		try {
+			const arrayBuffer = await this.fetchBdfmFeedBuf();
+			const vehicles: LiveVehiclePosition[] = [];
+
+			if (arrayBuffer) {
+				const feed = decodeGtfsRealtimeBuffer(arrayBuffer);
+				const now = Date.now();
+
+				for (const entity of feed.entity) {
+					if (!entity.tripUpdate?.stopTimeUpdate) continue;
+					const trip = entity.tripUpdate.trip;
+					const tripId = trip.tripId;
+					if (!tripId) continue;
+
+					const routeRaw = (trip.routeId || 'F').toUpperCase();
+					if (routeRaw !== 'F' && routeRaw !== 'M') continue;
+					const routeId: 'F' | 'M' = routeRaw === 'M' ? 'M' : 'F';
+
+					let currentOrNextStopId = '';
+					let nextStopName = '';
+					let closestDiff = Infinity;
+					let isNorthbound = false;
+
+					for (const update of entity.tripUpdate.stopTimeUpdate) {
+						const stopId = String(update.stopId || '').replace(/"/g, '');
+						const baseStopId = stopId.replace(/[NS]$/, '');
+
+						if (SUBWAY_STATION_COORDS[baseStopId]) {
+							const timeVal = update.departure?.time || update.arrival?.time;
+							if (!timeVal) continue;
+							const diff = Math.abs(timeVal * 1000 - now);
+
+							if (diff < closestDiff && diff < 15 * 60 * 1000) {
+								closestDiff = diff;
+								currentOrNextStopId = baseStopId;
+								nextStopName = SUBWAY_STATION_NAMES[baseStopId] || 'Roosevelt Island';
+								isNorthbound = stopId.endsWith('N');
+							}
+						}
+					}
+
+					if (currentOrNextStopId && SUBWAY_STATION_COORDS[currentOrNextStopId]) {
+						const [lng, lat] = SUBWAY_STATION_COORDS[currentOrNextStopId];
+						const bearing = isNorthbound ? 45 : 225;
+
+						vehicles.push({
+							id: `subway-vehicle-${routeId}-${tripId}`,
+							mode: 'subway',
+							routeId,
+							vehicleId: tripId.slice(-4),
+							lat,
+							lng,
+							bearing,
+							direction: isNorthbound ? 'queens_bound' : 'manhattan_bound',
+							nextStopName,
+							updatedAt: new Date().toISOString(),
+						});
+					}
+				}
+			}
+
+			return {
+				data: vehicles,
+				fetchedAt: new Date().toISOString(),
+				isCached: Boolean(this.feedCache),
+			};
+		} catch (err) {
+			return {
+				data: [],
+				fetchedAt: new Date().toISOString(),
+				isCached: false,
+				error: String(err),
+			};
+		}
+	}
 }
+
+const SUBWAY_STATION_COORDS: Record<string, [number, number]> = {
+	B06: [-73.953438, 40.759188],
+	B04: [-73.9423, 40.7547],
+	F11: [-73.9661, 40.7646],
+	F12: [-73.9774, 40.7629],
+	F14: [-73.9813, 40.7587],
+	F15: [-73.9877, 40.7496],
+	B08: [-73.9298, 40.7523],
+};
+
+const SUBWAY_STATION_NAMES: Record<string, string> = {
+	B06: 'Roosevelt Island Station',
+	B04: '21 St - Queensbridge',
+	F11: 'Lexington Ave / 63rd St',
+	F12: '57th St / 6th Ave',
+	F14: '47-50th Sts Rockefeller Ctr',
+	F15: '34th St Herald Sq',
+	B08: '36th St (Queens)',
+};
