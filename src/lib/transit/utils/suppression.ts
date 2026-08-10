@@ -31,7 +31,10 @@ export function suppressGhostSchedules<T extends TransitDeparture>(departures: T
 		const arrivalMs = new Date(dep.predictedTime || dep.scheduledTime).getTime();
 		const diffMins = (arrivalMs - nowMs) / 60000;
 
-		// Discard departures that left more than 2 minutes ago
+		// Discard static scheduled entries as soon as their departure time passes
+		if (!dep.isRealtime && diffMins < 0) return false;
+
+		// Discard live departures that left more than 2 minutes ago
 		if (diffMins < -2) return false;
 
 		// Always retain live tracked departures

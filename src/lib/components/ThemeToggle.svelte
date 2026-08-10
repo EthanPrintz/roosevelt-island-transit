@@ -15,7 +15,7 @@ const modes: { mode: ThemeMode; label: string; icon: any }[] = [
 		<button
 			type="button"
 			onclick={() => themeState.setMode(mode)}
-			class="w-7 h-7 rounded-lg transition-all duration-150 cursor-pointer flex items-center justify-center {themeState.currentMode === mode ? 'bg-primary text-primary-fg shadow-2xs' : 'text-text-muted hover:text-text-main hover:bg-bg-elevated/60'}"
+			class="w-7 h-7 rounded-full transition-all duration-150 cursor-pointer flex items-center justify-center {themeState.currentMode === mode ? 'bg-primary text-primary-fg shadow-2xs' : 'text-text-muted hover:text-text-main hover:bg-bg-elevated/60'}"
 			aria-label="{label} theme"
 			title="{label} theme"
 		>

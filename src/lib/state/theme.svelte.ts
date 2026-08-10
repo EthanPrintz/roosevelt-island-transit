@@ -21,6 +21,13 @@ class ThemeState {
 		}
 	}
 
+	get isDark(): boolean {
+		if (typeof window === 'undefined') return false;
+		if (this.currentMode === 'dark') return true;
+		if (this.currentMode === 'light') return false;
+		return window.matchMedia('(prefers-color-scheme: dark)').matches;
+	}
+
 	private applyTheme() {
 		if (typeof window === 'undefined') return;
 

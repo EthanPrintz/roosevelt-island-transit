@@ -23,7 +23,7 @@ interface VesselTelemetry {
 export class LiveFerryProvider implements TransitProvider {
 	readonly mode: TransitMode = 'ferry';
 	readonly name = 'NYC Ferry Live (Astoria Line)';
-	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts']);
+	readonly capabilities = new Set<ProviderCapability>(['departures', 'alerts', 'vehicle_tracking']);
 
 	private tripUpdateCache: { buf: ArrayBuffer; expiresAt: number } | null = null;
 	private pendingTripPromise: Promise<ArrayBuffer | null> | null = null;
@@ -193,12 +193,12 @@ export class LiveFerryProvider implements TransitProvider {
 			// 3. Process static departures
 			for (const stat of staticDepartures) {
 				const rt = liveUpdates.get(stat.tripId);
-				const isRealtime = Boolean(rt);
-				if (isRealtime) processedRtTripIds.add(stat.tripId);
-
 				const telem =
 					vehicleTelemetryMap.get(`trip-${stat.tripId}`) ||
 					(rt?.vessel ? vehicleTelemetryMap.get(`label-${rt.vessel}`) : undefined);
+
+				const isRealtime = Boolean(rt || telem);
+				if (isRealtime) processedRtTripIds.add(stat.tripId);
 
 				const predictedTime = rt ? rt.time : stat.scheduledTime;
 				const delaySec = rt ? rt.delay : 0;
@@ -293,5 +293,123 @@ export class LiveFerryProvider implements TransitProvider {
 			fetchedAt: new Date().toISOString(),
 			isCached: false,
 		};
+	}
+
+	async getVehicles(): Promise<ProviderResult<import('../domain/types').LiveVehiclePosition>> {
+		try {
+			const posBuf = await this.fetchVehiclePosBuf();
+			if (!posBuf) {
+				return {
+					data: [],
+					fetchedAt: new Date().toISOString(),
+					isCached: false,
+				};
+			}
+
+			// 1. Ensure static GTFS dataset is loaded for trip -> route & direction mapping
+			const tripToRouteMap = new Map<string, string>();
+			const tripToDirectionMap = new Map<string, 'northbound' | 'southbound'>();
+			try {
+				await gtfsStaticStore.loadDataset('ferry', NYC_FERRY_STATIC_GTFS_URL);
+				const fsModule = await import('node:fs');
+				const pathModule = await import('node:path');
+				const tripsFile = pathModule.resolve(process.cwd(), '.cache/gtfs/ferry/trips.txt');
+				if (fsModule.existsSync(tripsFile)) {
+					const content = fsModule.readFileSync(tripsFile, 'utf8');
+					const lines = content.split('\n');
+					const header = lines[0].split(',').map((h) => h.trim().replace(/^"|"$/g, ''));
+					const tIdIdx = header.indexOf('trip_id');
+					const rIdIdx = header.indexOf('route_id');
+					const dirIdx = header.indexOf('direction_id');
+					for (let i = 1; i < lines.length; i++) {
+						const row = lines[i].split(',').map((cell) => cell.trim().replace(/^"|"$/g, ''));
+						if (row.length <= Math.max(tIdIdx, rIdIdx)) continue;
+						tripToRouteMap.set(row[tIdIdx], row[rIdIdx]);
+						if (dirIdx !== -1 && row[dirIdx]) {
+							tripToDirectionMap.set(
+								row[tIdIdx],
+								row[dirIdx] === '0' ? 'southbound' : 'northbound',
+							);
+						}
+					}
+				}
+			} catch (staticErr) {
+				console.warn('Failed to load GTFS static trips mapping for ferry', staticErr);
+			}
+
+			const posFeed = decodeGtfsRealtimeBuffer(posBuf);
+			const vehicles: import('../domain/types').LiveVehiclePosition[] = [];
+
+			for (const entity of posFeed.entity || []) {
+				const v = entity.vehicle;
+				if (
+					!v ||
+					typeof v.position?.latitude !== 'number' ||
+					typeof v.position?.longitude !== 'number'
+				) {
+					continue;
+				}
+
+				const lat = v.position.latitude;
+				const lng = v.position.longitude;
+				if (lat === 0 && lng === 0) continue;
+
+				const tId = v.trip?.tripId;
+				const mappedRouteId = tId ? tripToRouteMap.get(tId) : undefined;
+				const rId = v.trip?.routeId || mappedRouteId;
+
+				// Strictly filter for Astoria Line vessels:
+				// Must have routeId === "AS" OR (if unassigned trip, position must be inside upper East River Astoria corridor)
+				const isAstoriaRoute = rId === 'AS' || rId === 'AST';
+				const isAstoriaCorridor =
+					!rId && lat >= 40.735 && lat <= 40.785 && lng >= -73.965 && lng <= -73.91;
+
+				if (!isAstoriaRoute && !isAstoriaCorridor) {
+					continue;
+				}
+
+				const direction = tId ? tripToDirectionMap.get(tId) || 'northbound' : 'northbound';
+				const isNorthbound = direction === 'northbound';
+
+				// Use GTFS-RT bearing if valid (>0), otherwise use Astoria East River Channel compass angles:
+				// Northbound = ~25° (toward Astoria / E 90th), Southbound = ~205° (toward Wall St / Pier 11)
+				const rawBearing =
+					typeof v.position.speed === 'number' && v.position.bearing ? v.position.bearing : 0;
+				const bearing = rawBearing > 0 ? rawBearing : isNorthbound ? 25 : 205;
+
+				const vesselLabel = v.vehicle?.label || v.vehicle?.id || entity.id;
+				const speedMps = typeof v.position.speed === 'number' ? Math.max(0, v.position.speed) : 0;
+				const timestamp = v.timestamp
+					? new Date(Number(v.timestamp) * 1000).toISOString()
+					: new Date().toISOString();
+
+				vehicles.push({
+					id: `ferry-${vesselLabel}`,
+					vehicleId: vesselLabel,
+					mode: 'ferry',
+					lat,
+					lng,
+					bearing,
+					speedMps,
+					routeId: 'AS',
+					direction,
+					destinationName: isNorthbound ? 'East 90th St / Astoria' : 'Wall St / Pier 11',
+					updatedAt: timestamp,
+				});
+			}
+
+			return {
+				data: vehicles,
+				fetchedAt: new Date().toISOString(),
+				isCached: Boolean(this.vehiclePosCache),
+			};
+		} catch (err) {
+			return {
+				data: [],
+				fetchedAt: new Date().toISOString(),
+				isCached: false,
+				error: err instanceof Error ? err.message : String(err),
+			};
+		}
 	}
 }

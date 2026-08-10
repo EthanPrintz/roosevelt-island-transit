@@ -1,16 +1,10 @@
 <script lang="ts">
 import { Clock01Icon, FlashIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/svelte';
-import type {
-	BusDeparture,
-	LiveVehiclePosition,
-	TransitAlert,
-	TransitDeparture,
-} from '$lib/transit/domain/types';
+import type { BusDeparture, TransitAlert, TransitDeparture } from '$lib/transit/domain/types';
 import { resolveHeroStatusPill } from '$lib/transit/utils/status-pill';
 import { formatClockTime, formatRelativeTime } from '$lib/utils/time-format';
 import ModeSectionHeader from './ModeSectionHeader.svelte';
-import VehicleCorridorTracker from './VehicleCorridorTracker.svelte';
 
 interface Props {
 	title: string;
@@ -19,9 +13,7 @@ interface Props {
 	accentColor: 'blue' | 'rose';
 	northboundDepartures: TransitDeparture[];
 	southboundDepartures: TransitDeparture[];
-	vehicles?: LiveVehiclePosition[];
 	alerts?: TransitAlert[];
-	showRadar?: boolean;
 	northboundTitle: string;
 	northboundSubtitle: string;
 	southboundTitle: string;
@@ -37,9 +29,7 @@ let {
 	accentColor,
 	northboundDepartures = [],
 	southboundDepartures = [],
-	vehicles = [],
 	alerts = [],
-	showRadar = true,
 	northboundTitle,
 	northboundSubtitle,
 	southboundTitle,
@@ -54,77 +44,72 @@ const accentStyles = {
 			'bg-linear-to-br from-blue-500/10 via-bg-surface to-bg-surface border-blue-500/30',
 		timeText: 'text-blue-600 dark:text-blue-400',
 		iconColor: 'text-blue-500',
+		dotBg: 'bg-blue-500',
+		badge: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
 	},
 	rose: {
 		heroContainer:
 			'bg-linear-to-br from-rose-500/10 via-bg-surface to-bg-surface border-rose-500/30',
 		timeText: 'text-rose-600 dark:text-rose-400',
 		iconColor: 'text-rose-500',
+		dotBg: 'bg-rose-500',
+		badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
 	},
 };
 
 let styles = $derived(accentStyles[accentColor] || accentStyles.blue);
 
-function cleanHeadsign(headsign: string): string {
-	if (!headsign) return 'Roosevelt Island';
-	return headsign
-		.replace(/ via RI Bridge/i, '')
-		.replace(/Roosevelt Island - /i, '')
-		.replace(/ Express/i, '')
-		.trim();
-}
+// Group Northbound stops in exact travel sequence order (South -> North: 1..10)
+let northboundGroups = $derived.by(() => {
+	const map = new Map<string, { departures: TransitDeparture[]; minSeq: number }>();
+	for (const dep of northboundDepartures) {
+		const name = dep.stopName || 'Unassigned';
+		const seq = dep.stopSequence ?? 50;
+		if (!map.has(name)) {
+			map.set(name, { departures: [], minSeq: seq });
+		}
+		const item = map.get(name)!;
+		item.departures.push(dep);
+		if (seq < item.minSeq) item.minSeq = seq;
+	}
+	return Array.from(map.entries())
+		.map(([stopName, data]) => ({
+			stopName,
+			departures: data.departures,
+			stopSequence: data.minSeq,
+		}))
+		.sort((a, b) => a.stopSequence - b.stopSequence);
+});
 
-function filterStop(
-	deps: TransitDeparture[],
-	keywords: string[],
-	fallbackAll = false,
-): TransitDeparture[] {
-	const filtered = deps.filter((d) => {
-		const b = d as BusDeparture;
-		const name = (b.stopName || '').toLowerCase();
-		return keywords.some((k) => name.includes(k));
-	});
-	return filtered.length > 0 ? filtered : fallbackAll ? deps : [];
-}
-
-let subwayPlazaNorth = $derived(
-	filterStop(
-		northboundDepartures,
-		['subway', 'tramway', 'plaza', 'roosevelt island station'],
-		false,
-	),
-);
-
-let subwayPlazaSouth = $derived(
-	filterStop(
-		southboundDepartures,
-		['subway', 'tramway', 'plaza', 'roosevelt island station'],
-		false,
-	),
-);
-
-let goodShepherdNorth = $derived(
-	filterStop(northboundDepartures, ['good shepherd', 'chapel', '546 main', '10 river'], false),
-);
-
-let goodShepherdSouth = $derived(
-	filterStop(southboundDepartures, ['good shepherd', 'chapel', '546 main', '10 river'], false),
-);
-
-let octagonNorth = $derived(
-	filterStop(northboundDepartures, ['octagon', 'coler', 'east rd', 'school', 'post office'], false),
-);
-
-let octagonSouth = $derived(
-	filterStop(southboundDepartures, ['octagon', 'coler', 'east rd', 'school', 'post office'], false),
-);
+// Group Southbound stops in exact travel sequence order (North -> South: 101..110)
+let southboundGroups = $derived.by(() => {
+	const map = new Map<string, { departures: TransitDeparture[]; minSeq: number }>();
+	for (const dep of southboundDepartures) {
+		const name = dep.stopName || 'Unassigned';
+		const seq = dep.stopSequence ?? 150;
+		if (!map.has(name)) {
+			map.set(name, { departures: [], minSeq: seq });
+		}
+		const item = map.get(name)!;
+		item.departures.push(dep);
+		if (seq < item.minSeq) item.minSeq = seq;
+	}
+	return Array.from(map.entries())
+		.map(([stopName, data]) => ({
+			stopName,
+			departures: data.departures,
+			stopSequence: data.minSeq,
+		}))
+		.sort((a, b) => a.stopSequence - b.stopSequence);
+});
 </script>
 
 {#snippet stopNode(nodeTitle: string, departures: TransitDeparture[], emptyMsg: string)}
 	{@const liveHeroIndex = departures.findIndex((d) => d.isRealtime)}
 	{@const heroIndex = liveHeroIndex !== -1 && liveHeroIndex <= 2 ? liveHeroIndex : 0}
 	{@const nextDep = departures[heroIndex] as BusDeparture | undefined}
-	{@const followUps = departures.filter((_, idx) => idx !== heroIndex).slice(0, 4)}
+	{@const followUps = departures.filter((_, idx) => idx !== heroIndex)}
+
 
 	<div class="space-y-2.5">
 		{#if nodeTitle}
@@ -141,7 +126,7 @@ let octagonSouth = $derived(
 			{#if nextDep}
 				{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
 				{@const pill = resolveHeroStatusPill(nextDep, accentColor)}
-				{@const cleanNextStop = nextDep.nextStopName && !/approaching|at stop|at_stop/i.test(nextDep.nextStopName) ? ` • ${nextDep.nextStopName}` : ''}
+				{@const cleanNextStop = nextDep.nextStopName && !/approaching|at stop|at_stop/i.test(nextDep.nextStopName) ? ` (${nextDep.nextStopName})` : ''}
 				{@const subDetails = nextDep.vehicleId ? `Bus #${nextDep.vehicleId}${cleanNextStop}` : undefined}
 
 				<div class="p-3.5 rounded-xl border space-y-2 relative overflow-hidden shadow-2xs {styles.heroContainer}">
@@ -174,11 +159,12 @@ let octagonSouth = $derived(
 					<div class="flex items-center justify-between text-[10px] font-mono text-text-muted pt-0.5">
 						<div class="truncate min-w-0 flex-1">
 							{#if subDetails}
-								{@const cleanSubDetails = subDetails.replace(/\s*•?\s*\((?:approaching|at stop|at_stop)\)/gi, '')}
+								{@const cleanSubDetails = subDetails.replace(/\s*\((?:approaching|at stop|at_stop)\)/gi, '')}
 								{#if cleanSubDetails}
 									<span>{cleanSubDetails}</span>
 								{/if}
 							{/if}
+
 						</div>
 
 						{#if !nextDep.isRealtime}
@@ -197,70 +183,100 @@ let octagonSouth = $derived(
 						{@const relTime = formatRelativeTime(t)}
 						{@const absTime = formatClockTime(t)}
 
-							<div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-bg-elevated/60 border border-border-default/60 text-xs shadow-2xs hover:bg-bg-surface transition-colors">
-								{#if b.isRealtime}
-									<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
-								{:else}
-									<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
-								{/if}
+						<div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-bg-elevated/60 border border-border-default/60 text-xs shadow-2xs hover:bg-bg-surface transition-colors">
+							{#if b.isRealtime}
+								<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
+							{:else}
+								<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
+							{/if}
 
-								<span class="font-mono font-extrabold text-text-main text-[11px]">{absTime}</span>
-								<span class="font-mono text-text-muted text-[10px]">• {relTime}</span>
+							<span class="font-mono font-extrabold text-text-main text-[11px]">{absTime}</span>
+							<span class="font-mono text-text-muted text-[10px]">({relTime})</span>
 
-								{#if b.vehicleId}
-									<span class="px-1 py-0.2 rounded bg-bg-surface text-[9px] font-mono font-bold text-text-muted border border-border-default/70 shrink-0">
-										#{b.vehicleId}
-									</span>
-								{/if}
-							</div>
-						{/each}
+							{#if b.vehicleId}
+								<span class="px-1 py-0.2 rounded bg-bg-surface text-[9px] font-mono font-bold text-text-muted border border-border-default/70 shrink-0">
+									#{b.vehicleId}
+								</span>
+							{/if}
+						</div>
+					{/each}
 				</div>
 			{/if}
 		{/if}
 	</div>
 {/snippet}
 
-<div class="space-y-4">
+<div class="space-y-6">
 	<ModeSectionHeader {title} {icon} {iconBgClass} {alerts} />
 
-	<!-- Live Corridor Radar Track (Conditional) -->
-	{#if showRadar}
-		<VehicleCorridorTracker {vehicles} {accentColor} />
-	{/if}
-
-	<!-- 1. Subway Plaza -->
-	<div class="panel-card p-4 space-y-3">
-		<div class="border-b border-border-default/40 pb-2">
-			<h3 class="text-sm font-black tracking-tight text-text-main">Subway Plaza</h3>
+	<!-- 1. NORTHBOUND STOPS SECTION (In Travel Sequence Order: South -> North) -->
+	<div class="space-y-3">
+		<div class="flex items-center justify-between px-1 border-b border-border-default/50 pb-2">
+			<div>
+				<h3 class="text-sm font-black text-text-main">
+					{northboundTitle}
+				</h3>
+				<p class="text-xs text-text-muted font-medium">{northboundSubtitle}</p>
+			</div>
+			<span class="px-2 py-0.5 rounded-md {styles.badge} font-mono text-[10px] font-bold uppercase tracking-wider border">
+				{northboundGroups.length} Stops
+			</span>
 		</div>
 
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-			{@render stopNode(northboundTitle, subwayPlazaNorth, emptyMessageNorth)}
-			{@render stopNode(southboundTitle, subwayPlazaSouth, emptyMessageSouth)}
-		</div>
+		{#if northboundGroups.length === 0}
+			<div class="text-center text-xs text-text-muted italic py-6 border border-dashed border-border-default/60 rounded-xl">
+				{emptyMessageNorth}
+			</div>
+		{:else}
+			{#each northboundGroups as group (group.stopName)}
+				<div class="panel-card p-4 space-y-3">
+					<div class="border-b border-border-default/40 pb-1.5 flex items-center justify-between">
+						<h4 class="text-sm font-black tracking-tight text-text-main">{group.stopName}</h4>
+						<span class="px-2 py-0.5 rounded-md {styles.badge} font-mono text-[9px] font-bold uppercase tracking-wider border">
+							Northbound
+						</span>
+					</div>
+					<div class="w-full">
+						{@render stopNode('', group.departures, emptyMessageNorth)}
+					</div>
+				</div>
+			{/each}
+		{/if}
 	</div>
 
-	<!-- 2. Good Shepherd Plaza -->
-	<div class="panel-card p-4 space-y-3">
-		<div class="border-b border-border-default/40 pb-2">
-			<h3 class="text-sm font-black tracking-tight text-text-main">Good Shepherd Plaza</h3>
+	<!-- 2. SOUTHBOUND STOPS SECTION (In Travel Sequence Order: North -> South) -->
+	<div class="space-y-3 pt-2">
+		<div class="flex items-center justify-between px-1 border-b border-border-default/50 pb-2">
+			<div>
+				<h3 class="text-sm font-black text-text-main">
+					{southboundTitle}
+				</h3>
+				<p class="text-xs text-text-muted font-medium">{southboundSubtitle}</p>
+			</div>
+			<span class="px-2 py-0.5 rounded-md {styles.badge} font-mono text-[10px] font-bold uppercase tracking-wider border">
+				{southboundGroups.length} Stops
+			</span>
 		</div>
 
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-			{@render stopNode(northboundTitle, goodShepherdNorth, emptyMessageNorth)}
-			{@render stopNode(southboundTitle, goodShepherdSouth, emptyMessageSouth)}
-		</div>
-	</div>
 
-	<!-- 3. Octagon / Coler -->
-	<div class="panel-card p-4 space-y-3">
-		<div class="border-b border-border-default/40 pb-2">
-			<h3 class="text-sm font-black tracking-tight text-text-main">Octagon / Coler</h3>
-		</div>
-
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-			{@render stopNode(northboundTitle, octagonNorth, emptyMessageNorth)}
-			{@render stopNode(southboundTitle, octagonSouth, emptyMessageSouth)}
-		</div>
+		{#if southboundGroups.length === 0}
+			<div class="text-center text-xs text-text-muted italic py-6 border border-dashed border-border-default/60 rounded-xl">
+				{emptyMessageSouth}
+			</div>
+		{:else}
+			{#each southboundGroups as group (group.stopName)}
+				<div class="panel-card p-4 space-y-3">
+					<div class="border-b border-border-default/40 pb-1.5 flex items-center justify-between">
+						<h4 class="text-sm font-black tracking-tight text-text-main">{group.stopName}</h4>
+						<span class="px-2 py-0.5 rounded-md {styles.badge} font-mono text-[9px] font-bold uppercase tracking-wider border">
+							Southbound
+						</span>
+					</div>
+					<div class="w-full">
+						{@render stopNode('', group.departures, emptyMessageSouth)}
+					</div>
+				</div>
+			{/each}
+		{/if}
 	</div>
 </div>

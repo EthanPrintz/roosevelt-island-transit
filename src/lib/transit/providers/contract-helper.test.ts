@@ -7,6 +7,7 @@
 import { describe, it } from 'vitest';
 import type { TransitProvider } from '../domain/provider';
 import { assertTransitProviderContract } from './contract-helper';
+import { LiveRedBusProvider } from './LiveRedBusProvider';
 import { MockCitiBikeProvider } from './MockCitiBikeProvider';
 import { MockFerryProvider } from './MockFerryProvider';
 import { MockQ102Provider } from './MockQ102Provider';
@@ -21,6 +22,7 @@ describe('TransitProvider Uniform Contract Suite', () => {
 		{ name: 'MockFerryProvider', instance: new MockFerryProvider() },
 		{ name: 'MockQ102Provider', instance: new MockQ102Provider() },
 		{ name: 'MockRedBusProvider', instance: new MockRedBusProvider() },
+		{ name: 'LiveRedBusProvider', instance: new LiveRedBusProvider() },
 		{ name: 'MockCitiBikeProvider', instance: new MockCitiBikeProvider() },
 	];
 

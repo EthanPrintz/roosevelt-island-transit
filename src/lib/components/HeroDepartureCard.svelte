@@ -112,11 +112,12 @@ let relativeLabel = $derived(
 	<div class="flex items-center justify-between text-[10px] font-mono text-text-muted pt-0.5">
 		<div class="truncate min-w-0 flex-1">
 			{#if subDetails}
-				{@const cleanSubDetails = subDetails.replace(/\s*•?\s*\((?:approaching|at stop|at_stop)\)/gi, '')}
+				{@const cleanSubDetails = subDetails.replace(/\s*\((?:approaching|at stop|at_stop)\)/gi, '')}
 				{#if cleanSubDetails}
 					<span>{cleanSubDetails}</span>
 				{/if}
 			{/if}
+
 		</div>
 
 		{#if !departure.isRealtime}

@@ -49,7 +49,8 @@ let {
 		{@const liveHeroIndex = departures.findIndex((d) => d.isRealtime)}
 		{@const heroIndex = liveHeroIndex !== -1 && liveHeroIndex <= 2 ? liveHeroIndex : 0}
 		{@const heroDep = departures[heroIndex]}
-		{@const timetableDeps = departures.filter((_, idx) => idx !== heroIndex).slice(0, maxTimetableItems ?? 5)}
+		{@const remainingDeps = departures.filter((_, idx) => idx !== heroIndex)}
+		{@const timetableDeps = maxTimetableItems ? remainingDeps.slice(0, maxTimetableItems) : remainingDeps}
 		<HeroDepartureCard
 			departure={heroDep}
 			{accentColor}
@@ -68,3 +69,5 @@ let {
 		{/if}
 	{/if}
 </div>
+
+

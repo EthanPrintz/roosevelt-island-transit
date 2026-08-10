@@ -1,11 +1,15 @@
 <script lang="ts">
 import { Bus01Icon, CableCarIcon, FerryBoatIcon, Train01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/svelte';
 import BusCorridorSection from '$lib/components/BusCorridorSection.svelte';
 import CitiBikeSection from '$lib/components/CitiBikeSection.svelte';
 import ModeSectionHeader from '$lib/components/ModeSectionHeader.svelte';
+import BottomSheetDrawer from '$lib/components/map/BottomSheetDrawer.svelte';
+import TransitMap from '$lib/components/map/TransitMap.svelte';
 import SegmentedControl from '$lib/components/SegmentedControl.svelte';
 import type { SegmentOption } from '$lib/components/segmented-control.types';
 import TransitColumn from '$lib/components/TransitColumn.svelte';
+import { type MapViewMode, mapSettings } from '$lib/state/map-settings.svelte';
 import { transitSettings } from '$lib/state/transit-settings.svelte';
 import type {
 	BikeStation,
@@ -26,6 +30,12 @@ const windowOptions: SegmentOption<number>[] = [
 	{ value: 240, label: '4h' },
 	{ value: 360, label: '6h' },
 	{ value: 480, label: '8h' },
+];
+
+const viewOptions: SegmentOption<MapViewMode>[] = [
+	{ value: 'split', label: 'Split' },
+	{ value: 'cards', label: 'Cards' },
+	{ value: 'map', label: 'Map' },
 ];
 
 $effect(() => {
@@ -83,9 +93,6 @@ let redBusDepartures = $derived(departures.filter((d) => d.mode === 'red_bus'));
 let northboundRedBus = $derived(redBusDepartures.filter((d) => d.direction === 'northbound'));
 let southboundRedBus = $derived(redBusDepartures.filter((d) => d.direction === 'southbound'));
 
-let q102Vehicles = $derived(vehicles.filter((v) => v.mode === 'q102_bus'));
-let redBusVehicles = $derived(vehicles.filter((v) => v.mode === 'red_bus'));
-
 let subwayAlerts = $derived(alerts.filter((a) => a.mode === 'subway'));
 let tramAlerts = $derived(alerts.filter((a) => a.mode === 'tram'));
 let ferryAlerts = $derived(alerts.filter((a) => a.mode === 'ferry'));
@@ -95,11 +102,48 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 </script>
 
 <svelte:head>
-	<title>Roosevelt Island Transit</title>
+	<title>Roosevelt Island Transit Dashboard & Live Map</title>
 </svelte:head>
 
-<div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+<div class="max-w-7xl mx-auto px-4 py-4 space-y-4">
+	<!-- Main Responsive Grid / Split Container -->
+	{#if mapSettings.viewMode === 'cards'}
+		<!-- Cards Only Mode (Full Width List) -->
+		<div class="max-w-4xl mx-auto space-y-6">
+			{@render cardSections()}
+		</div>
+	{:else if mapSettings.viewMode === 'map'}
+		<!-- Map Only Mode (Full Viewport Vector Canvas) -->
+		<div class="relative w-full h-[calc(100vh-10rem)]">
+			<TransitMap {vehicles} {stations} />
+			<BottomSheetDrawer>
+				{@render cardSections()}
+			</BottomSheetDrawer>
+		</div>
+	{:else}
+		<!-- Split Mode (Desktop Side-by-Side, Mobile Bottom Sheet) -->
+		<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+			<!-- Left Column: Departure Timetable Cards -->
+			<div class="lg:col-span-6 xl:col-span-5 space-y-6">
+				{@render cardSections()}
+			</div>
 
+			<!-- Right Column: Sticky Vector Map -->
+			<div class="hidden lg:block lg:col-span-6 xl:col-span-7 sticky top-20 h-[calc(100vh-6.5rem)]">
+				<TransitMap {vehicles} {stations} />
+			</div>
+		</div>
+
+		<!-- Mobile Bottom Sheet Fallback for Split Mode -->
+		<div class="lg:hidden">
+			<BottomSheetDrawer>
+				{@render cardSections()}
+			</BottomSheetDrawer>
+		</div>
+	{/if}
+</div>
+
+{#snippet cardSections()}
 	<!-- Section 1: Subway -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
@@ -107,13 +151,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 			icon={Train01Icon}
 			iconBgClass="bg-orange-500/10 text-orange-500"
 			alerts={subwayAlerts}
-		>
-			<SegmentedControl
-				options={windowOptions}
-				value={transitSettings.selectedWindow}
-				onSelect={(val) => transitSettings.setWindow(val)}
-			/>
-		</ModeSectionHeader>
+		/>
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 			<TransitColumn
@@ -206,7 +244,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 					const f = dep as FerryDeparture;
 					return f.vesselName
 						? f.speedKnots
-							? `${f.vesselName} • ${f.speedKnots} kts`
+							? `${f.vesselName} (${f.speedKnots} kts)`
 							: f.vesselName
 						: 'Astoria Line';
 				}}
@@ -223,7 +261,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 					const f = dep as FerryDeparture;
 					return f.vesselName
 						? f.speedKnots
-							? `${f.vesselName} • ${f.speedKnots} kts`
+							? `${f.vesselName} (${f.speedKnots} kts)`
 							: f.vesselName
 						: 'Astoria Line';
 				}}
@@ -238,10 +276,8 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 		icon={Bus01Icon}
 		iconBgClass="bg-blue-500/10 text-blue-500"
 		accentColor="blue"
-		showRadar={false}
 		northboundDepartures={astoriaQ102}
 		southboundDepartures={colerQ102}
-		vehicles={q102Vehicles}
 		alerts={q102Alerts}
 		northboundTitle="Astoria-Bound"
 		northboundSubtitle="27 Ave via RI Bridge"
@@ -259,7 +295,6 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 		accentColor="rose"
 		northboundDepartures={northboundRedBus}
 		southboundDepartures={southboundRedBus}
-		vehicles={redBusVehicles}
 		alerts={redBusAlerts}
 		northboundTitle="Northbound"
 		northboundSubtitle="Octagon via Main St"
@@ -271,4 +306,4 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 
 	<!-- Section 6: Citi Bike -->
 	<CitiBikeSection {stations} alerts={citibikeAlerts} />
-</div>
+{/snippet}

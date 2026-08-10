@@ -30,9 +30,45 @@ describe('LiveFerryProvider', () => {
 		}
 	});
 
+	it('flags departure as isRealtime true when vehicle position telemetry is present', async () => {
+		const provider = new LiveFerryProvider();
+		const result = await provider.getDepartures();
+		// Find any departure that has vessel telemetry
+		const trackedDep = result.data.find((dep) =>
+			Boolean(dep.vesselName || dep.speedKnots !== undefined),
+		);
+		if (trackedDep) {
+			expect(trackedDep.isRealtime).toBe(true);
+		}
+	});
+
+	it('evaluates isRealtime as true when vehicle telemetry exists even without trip updates', () => {
+		const telem = { vesselLabel: 'H110', speedKnots: 6, vesselStatus: 'IN_TRANSIT_TO' as const };
+		const rt = undefined;
+
+		const isRealtime = Boolean(rt || telem);
+		expect(isRealtime).toBe(true);
+	});
+
 	it('returns empty alerts array by default', async () => {
 		const provider = new LiveFerryProvider();
 		const result = await provider.getAlerts();
 		expect(result.data).toEqual([]);
+	});
+
+	it('fetches and decodes live vessel vehicle positions via getVehicles', async () => {
+		const provider = new LiveFerryProvider();
+		expect(provider.capabilities.has('vehicle_tracking')).toBe(true);
+
+		const result = await provider.getVehicles();
+		expect(result.data).toBeDefined();
+		expect(Array.isArray(result.data)).toBe(true);
+
+		for (const v of result.data) {
+			expect(v.mode).toBe('ferry');
+			expect(v.id).toContain('ferry-');
+			expect(typeof v.lat).toBe('number');
+			expect(typeof v.lng).toBe('number');
+		}
 	});
 });

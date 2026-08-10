@@ -4,9 +4,9 @@ import {
 	LiveCitiBikeProvider,
 	LiveFerryProvider,
 	LiveQ102Provider,
+	LiveRedBusProvider,
 	LiveSubwayProvider,
 	LiveTramProvider,
-	MockRedBusProvider,
 	TransitAggregator,
 } from '$lib/transit';
 import type { TransitMode } from '$lib/transit/domain/types';
@@ -16,7 +16,7 @@ aggregator.registerProvider(new LiveSubwayProvider());
 aggregator.registerProvider(new LiveTramProvider());
 aggregator.registerProvider(new LiveFerryProvider());
 aggregator.registerProvider(new LiveQ102Provider());
-aggregator.registerProvider(new MockRedBusProvider());
+aggregator.registerProvider(new LiveRedBusProvider());
 aggregator.registerProvider(new LiveCitiBikeProvider());
 
 export const GET: RequestHandler = async ({ url }) => {

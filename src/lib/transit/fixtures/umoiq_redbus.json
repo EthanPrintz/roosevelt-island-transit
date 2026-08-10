@@ -1,0 +1,73 @@
+{
+	"vehicleLocations": {
+		"vehicle": [
+			{
+				"id": "101",
+				"routeTag": "red",
+				"dirTag": "northbound",
+				"lat": "40.7608",
+				"lon": "-73.9515",
+				"secsSinceReport": 10,
+				"predictable": true,
+				"heading": 45,
+				"speedKmHr": 20
+			},
+			{
+				"id": "102",
+				"routeTag": "red",
+				"dirTag": "southbound",
+				"lat": "40.7582",
+				"lon": "-73.9538",
+				"secsSinceReport": 15,
+				"predictable": true,
+				"heading": 225,
+				"speedKmHr": 18
+			}
+		],
+		"lastTime": {
+			"time": 1770500000000
+		}
+	},
+	"predictions": [
+		{
+			"agencyTitle": "Roosevelt Island Operating Corporation",
+			"routeTitle": "Red Bus Shuttle",
+			"routeTag": "red",
+			"stopTitle": "Subway Plaza",
+			"stopTag": "subway_plaza",
+			"direction": {
+				"title": "Northbound to Octagon",
+				"prediction": [
+					{
+						"epochTime": "1770500300000",
+						"seconds": "300",
+						"minutes": "5",
+						"isDeparture": "true",
+						"dirTag": "northbound",
+						"vehicle": "101"
+					}
+				]
+			}
+		},
+		{
+			"agencyTitle": "Roosevelt Island Operating Corporation",
+			"routeTitle": "Red Bus Shuttle",
+			"routeTag": "red",
+			"stopTitle": "Good Shepherd Plaza",
+			"stopTag": "good_shepherd",
+			"direction": {
+				"title": "Southbound to Cornell Tech",
+				"prediction": [
+					{
+						"epochTime": "1770500600000",
+						"seconds": "600",
+						"minutes": "10",
+						"isDeparture": "true",
+						"dirTag": "southbound",
+						"vehicle": "102"
+					}
+				]
+			}
+		}
+	]
+}

@@ -64,4 +64,27 @@ describe('GET /api/transit (server.ts)', () => {
 		expect(body).toHaveProperty('departures');
 		expect(Array.isArray(body.departures)).toBe(true);
 	});
+
+	it('returns live Red Bus departures and vehicles when mode=red_bus', async () => {
+		const requestUrl = new URL('http://localhost/api/transit?mode=red_bus');
+		const mockEvent = {
+			url: requestUrl,
+		} as Parameters<typeof GET>[0];
+
+		const response = await GET(mockEvent);
+		expect(response.status).toBe(200);
+
+		const body = await response.json();
+		expect(Array.isArray(body.departures)).toBe(true);
+		expect(Array.isArray(body.vehicles)).toBe(true);
+		expect(body.departures.length).toBeGreaterThan(0);
+		expect(body.vehicles.length).toBeGreaterThan(0);
+
+		for (const dep of body.departures) {
+			expect(dep.mode).toBe('red_bus');
+		}
+		for (const veh of body.vehicles) {
+			expect(veh.mode).toBe('red_bus');
+		}
+	});
 });

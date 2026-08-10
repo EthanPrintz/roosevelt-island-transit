@@ -51,15 +51,13 @@ let {
 	{#if alerts.length > 0}
 		<div class="space-y-1.5 pt-1">
 			{#each alerts as alert (alert.id)}
-				<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
-					<span class="font-bold text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">•</span>
-					<div class="flex-1">
-						<div class="font-bold leading-tight">{alert.title}</div>
-						{#if alert.description}
-							<div class="text-[11px] opacity-90 mt-0.5 line-clamp-2">{alert.description}</div>
-						{/if}
-					</div>
+				<div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200">
+					<div class="font-bold leading-tight">{alert.title}</div>
+					{#if alert.description}
+						<div class="text-[11px] opacity-90 mt-0.5 line-clamp-2">{alert.description}</div>
+					{/if}
 				</div>
+
 			{/each}
 		</div>
 	{/if}

@@ -12,15 +12,15 @@ let {
 } = $props();
 </script>
 
-<div class="inline-flex items-center rounded-xl bg-bg-surface border border-border-default p-1 gap-1 shadow-2xs">
+<div class="h-9 inline-flex items-center rounded-full bg-bg-surface border border-border-default p-1 gap-1 shadow-2xs">
 	{#each options as opt}
 		{@const isActive = opt.value === value}
 		<button
 			type="button"
 			onclick={() => onSelect(opt.value)}
-			class="h-6 px-2.5 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shrink-0 {isActive
+			class="h-7 px-3 rounded-full font-sans text-xs font-bold transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 {isActive
 				? 'bg-primary text-primary-fg shadow-2xs'
-				: 'text-text-muted hover:text-text-main hover:bg-bg-elevated/50'}"
+				: 'text-text-muted hover:text-text-main hover:bg-bg-elevated/60'}"
 		>
 			{#if opt.bullet}
 				<span

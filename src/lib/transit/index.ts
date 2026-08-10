@@ -7,6 +7,7 @@ export * from './domain/types';
 export * from './providers/LiveCitiBikeProvider';
 export * from './providers/LiveFerryProvider';
 export * from './providers/LiveQ102Provider';
+export * from './providers/LiveRedBusProvider';
 export * from './providers/LiveSubwayProvider';
 export * from './providers/LiveTramProvider';
 export * from './providers/MockCitiBikeProvider';
