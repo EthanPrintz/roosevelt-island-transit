@@ -42,8 +42,8 @@ function getModeSvgIcon(mode: string): string {
 			return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16l-1.5 6H5.5L4 11z"/><path d="M6 11V6a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5"/><path d="M9 5V3M15 5V3"/><path d="M2 20c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1"/></svg>`;
 		case 'citibike':
 			return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h2l1.5 5.5H12l-1.5-4.5L7.5 14M12 11.5L8.5 17.5"/></svg>`;
-		default: // Bus (Red Bus / Q102)
-			return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v1a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-1M15 16v1a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-1M3 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/><path d="M3 11h18M7 14h.01M17 14h.01"/></svg>`;
+		default: // Bus (Red Bus / Q102) - Official Hugeicons Bus01Icon
+			return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20.5V22"/><path d="M7 20.5V22"/><path d="M4 6.78186C4 6.14251 4 5.82283 4.17387 5.43355C4.34773 5.04428 4.52427 4.88606 4.87736 4.56964C6.03437 3.53277 8.36029 2 12 2C15.6397 2 17.9656 3.53277 19.1226 4.56964C19.4757 4.88606 19.6523 5.04428 19.8261 5.43355C20 5.82283 20 6.14251 20 6.78186V14C20 16.8284 20 18.2426 19.1213 19.1213C18.2426 20 16.8284 20 14 20H10C7.17157 20 5.75736 20 4.87868 19.1213C4 18.2426 4 16.8284 4 14V6.78186Z"/><path d="M4 14C4 14 7.73333 15 12 15C16.2667 15 20 14 20 14"/><path d="M4.5 17.5H6"/><path d="M18 17.5H19.5"/><path d="M11 17.5L13 17.5"/><path d="M4 6H20"/><path d="M2 9L2 10"/><path d="M22 9L22 10"/></svg>`;
 	}
 }
 
