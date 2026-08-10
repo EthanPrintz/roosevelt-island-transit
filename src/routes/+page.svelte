@@ -108,9 +108,21 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 <div class="max-w-7xl mx-auto px-4 py-4 space-y-4">
 	<!-- Main Responsive Grid / Split Container -->
 	{#if mapSettings.viewMode === 'cards'}
-		<!-- Cards Only Mode (Full Width List) -->
-		<div class="max-w-4xl mx-auto space-y-6">
-			{@render cardSections()}
+		<!-- Cards Only Mode (Clean 2-Column Responsive Dashboard) -->
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto items-start">
+			<!-- Column 1: Subway, Tramway, Ferry, City Bus, Citi Bike -->
+			<div class="space-y-6">
+				{@render subwaySection()}
+				{@render tramwaySection()}
+				{@render ferrySection()}
+				{@render cityBusSection()}
+				{@render citiBikeSection()}
+			</div>
+
+			<!-- Column 2: Red Bus -->
+			<div class="space-y-6">
+				{@render redBusSection()}
+			</div>
 		</div>
 	{:else if mapSettings.viewMode === 'map'}
 		<!-- Map Only Mode (Full Viewport Vector Canvas) -->
@@ -144,6 +156,15 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 </div>
 
 {#snippet cardSections()}
+	{@render subwaySection()}
+	{@render tramwaySection()}
+	{@render ferrySection()}
+	{@render cityBusSection()}
+	{@render redBusSection()}
+	{@render citiBikeSection()}
+{/snippet}
+
+{#snippet subwaySection()}
 	<!-- Section 1: Subway -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
@@ -153,7 +174,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 			alerts={subwayAlerts}
 		/>
 
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 			<TransitColumn
 				title="Manhattan-Bound"
 				subtitle="via 63rd St & 6th Ave"
@@ -181,7 +202,9 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 			/>
 		</div>
 	</div>
+{/snippet}
 
+{#snippet tramwaySection()}
 	<!-- Section 2: Tramway -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
@@ -191,7 +214,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 			alerts={tramAlerts}
 		/>
 
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 			<TransitColumn
 				title="Manhattan-Bound"
 				subtitle="59th St & 2nd Ave"
@@ -223,7 +246,9 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 			/>
 		</div>
 	</div>
+{/snippet}
 
+{#snippet ferrySection()}
 	<!-- Section 3: Ferry -->
 	<div class="space-y-2.5">
 		<ModeSectionHeader
@@ -233,7 +258,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 			alerts={ferryAlerts}
 		/>
 
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 			<TransitColumn
 				title="Southbound"
 				subtitle="Wall St / Pier 11"
@@ -269,7 +294,9 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 			/>
 		</div>
 	</div>
+{/snippet}
 
+{#snippet cityBusSection()}
 	<!-- Section 4: City Bus -->
 	<BusCorridorSection
 		title="City Bus"
@@ -286,7 +313,9 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 		emptyMessageNorth="No upcoming Astoria-bound City Buses (Q102)."
 		emptyMessageSouth="No upcoming Coler-bound City Buses (Q102)."
 	/>
+{/snippet}
 
+{#snippet redBusSection()}
 	<!-- Section 5: Red Bus -->
 	<BusCorridorSection
 		title="Red Bus"
@@ -303,7 +332,9 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 		emptyMessageNorth="No live Red Bus tracking data available."
 		emptyMessageSouth="No live Red Bus tracking data available."
 	/>
+{/snippet}
 
+{#snippet citiBikeSection()}
 	<!-- Section 6: Citi Bike -->
 	<CitiBikeSection {stations} alerts={citibikeAlerts} />
 {/snippet}

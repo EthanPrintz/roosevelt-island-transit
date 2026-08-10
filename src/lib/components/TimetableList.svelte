@@ -30,43 +30,41 @@ let isUniformHeadsign = $derived(
 
 <div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden">
 	{#each departures as dep (dep.id)}
-		{@const relTime = formatRelativeTime(dep.predictedTime || dep.scheduledTime)}
+		{@const relTime = formatRelativeTime(dep.predictedTime || dep.scheduledTime, undefined, true)}
 		{@const absTime = formatClockTime(dep.predictedTime || dep.scheduledTime)}
 		{@const customBadge = badgeTextFn ? badgeTextFn(dep) : undefined}
 
-		<div class="p-2 flex items-center justify-between text-xs gap-2 hover:bg-bg-surface/50 transition-colors">
-			<!-- Left Side: Route Badge / Cabin / Vessel + Destination (Omitted if uniform) -->
-			<div class="flex items-center gap-2 min-w-0 flex-1">
-				{#if customBadge}
-					<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
-						{customBadge}
-					</span>
-				{:else if dep.mode === 'subway'}
-					<span class="bullet-subway text-[9px] shrink-0">
-						{dep.routeId}
-					</span>
-				{/if}
+		<div class="px-2 py-1.5 flex items-center text-xs gap-2 hover:bg-bg-surface/50 transition-colors">
+			<!-- Left Side: Route Badge / Bullet -->
+			{#if customBadge && customBadge !== 'ASTORIA' && customBadge !== 'NORTH' && customBadge !== 'SOUTH'}
+				<span class="px-1.5 py-0.5 rounded-full bg-bg-surface border border-border-default/80 font-mono text-[9px] text-text-muted shrink-0 font-bold">
+					{customBadge}
+				</span>
+			{:else if dep.mode === 'subway'}
+				<span class="bullet-subway text-[9px] shrink-0">
+					{dep.routeId}
+				</span>
+			{/if}
 
-				{#if !isUniformHeadsign}
-					<span class="font-medium text-text-main truncate text-xs">{dep.headsign}</span>
-				{:else if dep.mode === 'subway'}
-					<span class="text-xs font-semibold text-text-main truncate">
-						{dep.routeId === 'M' ? 'M Train' : 'F Train'}
-					</span>
-				{/if}
+			{#if !isUniformHeadsign}
+				<span class="font-medium text-text-main truncate text-xs min-w-0 flex-1">{dep.headsign}</span>
+			{/if}
 
-				{#if dep.scheduleRelationship === 'ADDED'}
-					<span class="inline-flex items-center gap-0.5 px-1 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px] shrink-0">
-						<HugeiconsIcon icon={SparklesIcon} size={9} />
-						<span>Extra</span>
-					</span>
-				{/if}
-			</div>
+			{#if dep.scheduleRelationship === 'ADDED'}
+				<span class="inline-flex items-center gap-0.5 px-1 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-mono text-[9px] shrink-0">
+					<HugeiconsIcon icon={SparklesIcon} size={9} />
+					<span>Extra</span>
+				</span>
+			{/if}
 
-			<!-- Right Side: Relative Countdown + Clock Time + Live Indicator / Scheduled Clock Icon -->
-			<div class="flex items-center gap-2.5 font-mono shrink-0">
-				<span class="text-text-muted text-[10px]">{relTime}</span>
-				<span class="font-bold text-text-main text-[11px]">{absTime}</span>
+			<!-- Relative Countdown (Positioned naturally after bullet/badge) -->
+			<span class="font-mono text-xs font-semibold text-text-main shrink-0 {isUniformHeadsign ? 'ml-1' : 'ml-auto'}">
+				{relTime}
+			</span>
+
+			<!-- Right Side: Clock Time + Live Indicator / Scheduled Icon -->
+			<div class="flex items-center gap-1.5 font-mono shrink-0 ml-auto">
+				<span class="text-text-muted text-[11px]">{absTime}</span>
 				{#if dep.isRealtime}
 					<HugeiconsIcon icon={FlashIcon} size={10} class={activeIconColor} />
 				{:else}

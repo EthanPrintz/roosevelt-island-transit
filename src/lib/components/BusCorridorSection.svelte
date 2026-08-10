@@ -180,7 +180,7 @@ let southboundGroups = $derived.by(() => {
 					{#each followUps as dep (dep.id)}
 						{@const b = dep as BusDeparture}
 						{@const t = b.predictedTime || b.scheduledTime}
-						{@const relTime = formatRelativeTime(t)}
+						{@const relTime = formatRelativeTime(t, undefined, true)}
 						{@const absTime = formatClockTime(t)}
 
 						<div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-bg-elevated/60 border border-border-default/60 text-xs shadow-2xs hover:bg-bg-surface transition-colors">

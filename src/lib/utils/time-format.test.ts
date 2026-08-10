@@ -32,4 +32,11 @@ describe('formatRelativeTime', () => {
 		expect(formatRelativeTime('2026-08-09T14:05:00.000Z', now)).toBe('In 2 hrs 5 mins');
 		expect(formatRelativeTime('2026-08-09T15:25:00.000Z', now)).toBe('In 3 hrs 25 mins');
 	});
+
+	it('supports omitIn mode for compact timetables', () => {
+		expect(formatRelativeTime('2026-08-09T12:01:00.000Z', now, true)).toBe('1 min');
+		expect(formatRelativeTime('2026-08-09T12:15:00.000Z', now, true)).toBe('15 mins');
+		expect(formatRelativeTime('2026-08-09T13:00:00.000Z', now, true)).toBe('1 hr');
+		expect(formatRelativeTime('2026-08-09T13:15:00.000Z', now, true)).toBe('1 hr 15 mins');
+	});
 });

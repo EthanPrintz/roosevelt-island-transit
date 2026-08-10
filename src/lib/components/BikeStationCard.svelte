@@ -35,64 +35,68 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 </script>
 
 <div class="panel-card space-y-3">
-	<div class="flex items-start justify-between gap-2">
-		<div>
-			<h3 class="font-bold text-sm text-text-main">{station.name}</h3>
+	<!-- 1. Station Name -->
+	<div class="border-b border-border-subtle/60 pb-2">
+		<h3 class="font-extrabold text-sm sm:text-base text-text-main leading-snug">{station.name}</h3>
+	</div>
+
+	<!-- 2. Primary Summary Metrics (Clean Multi-Line Rows) -->
+	<div class="space-y-1.5 font-mono text-xs border-b border-border-subtle/40 pb-2.5">
+		<div class="flex items-center justify-between">
+			<span class="text-text-muted font-sans font-medium">Bikes Available</span>
+			<span class="text-sm font-black text-blue-600 dark:text-blue-400">{station.bikesAvailable.total}</span>
 		</div>
 
-		<div class="text-right shrink-0">
-			<div class="text-lg font-black font-mono text-blue-600 dark:text-blue-400">
-				{station.bikesAvailable.total} <span class="text-xs font-normal text-text-muted">bikes</span>
-			</div>
-			<div class="text-[10px] font-mono text-text-muted">
-				{station.docksAvailable} docks open
-			</div>
+		<div class="flex items-center justify-between">
+			<span class="text-text-muted font-sans font-medium">Open Docks</span>
+			<span class="text-xs font-bold text-text-main">{station.docksAvailable}</span>
 		</div>
 	</div>
 
-	<!-- E-Bike / Classic Availability Stats -->
-	<div class="grid grid-cols-2 gap-2 text-xs">
-		<div class="p-2 rounded-lg bg-bg-surface border border-border-default flex items-center justify-between">
-			<span class="text-text-muted flex items-center gap-1">
-				<HugeiconsIcon icon={Bicycle01Icon} size={14} />
-				<span>Classic</span>
+	<!-- 3. Bike Type Breakdown (Dedicated Full-Width Rows - No 2-Column Truncation) -->
+	<div class="space-y-1.5">
+		<div class="px-2.5 py-1.5 rounded-lg bg-bg-surface border border-border-default flex items-center justify-between text-xs">
+			<span class="text-text-muted flex items-center gap-1.5 font-medium">
+				<HugeiconsIcon icon={Bicycle01Icon} size={14} class="shrink-0" />
+				<span>Classic Bikes</span>
 			</span>
-			<span class="font-mono font-bold text-text-main">{station.bikesAvailable.classic || 0}</span>
+			<span class="font-mono font-bold text-xs text-text-main">{station.bikesAvailable.classic || 0}</span>
 		</div>
-		<div class="p-2 rounded-lg bg-bg-surface border border-border-default flex items-center justify-between">
-			<span class="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-				<HugeiconsIcon icon={FlashIcon} size={14} />
-				<span>E-Bikes</span>
+
+		<div class="px-2.5 py-1.5 rounded-lg bg-bg-surface border border-border-default flex items-center justify-between text-xs">
+			<span class="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-medium">
+				<HugeiconsIcon icon={FlashIcon} size={14} class="shrink-0" />
+				<span>Electric E-Bikes</span>
 			</span>
-			<span class="font-mono font-bold text-blue-600 dark:text-blue-400">{station.bikesAvailable.ebike || 0}</span>
+			<span class="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">{station.bikesAvailable.ebike || 0}</span>
 		</div>
 	</div>
 
-	<!-- Visual Dock Grid Visualization -->
+	<!-- 4. Visual Dock Grid Visualization -->
 	<div class="pt-1">
-		<div class="text-[10px] font-mono text-text-muted mb-1.5 flex items-center justify-between">
-			<span>Station Dock Status ({station.capacity} Total Docks)</span>
+		<div class="text-[10px] font-mono text-text-muted mb-1.5">
+			Station Dock Status ({station.capacity} Total Docks)
 		</div>
-		<div class="flex flex-wrap gap-1">
+		<div class="flex flex-wrap gap-1 max-w-full">
 			{#each generateDockSlots(station) as slot, i (i)}
 				{#if slot === 'ebike'}
-					<div class="w-3.5 h-3.5 rounded bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center" title="E-Bike Available">
+					<div class="w-3.5 h-3.5 rounded bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center shrink-0" title="E-Bike Available">
 						<HugeiconsIcon icon={FlashIcon} size={9} />
 					</div>
 				{:else if slot === 'classic'}
-					<div class="w-3.5 h-3.5 rounded bg-text-main text-bg-base flex items-center justify-center" title="Classic Bike Available">
+					<div class="w-3.5 h-3.5 rounded bg-text-main text-bg-base flex items-center justify-center shrink-0" title="Classic Bike Available">
 						<HugeiconsIcon icon={Bicycle01Icon} size={9} />
 					</div>
 				{:else if slot === 'broken_bike'}
-					<div class="w-3.5 h-3.5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-500 flex items-center justify-center" title="Broken Bike">
+					<div class="w-3.5 h-3.5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-500 flex items-center justify-center shrink-0" title="Broken Bike">
 						<HugeiconsIcon icon={Wrench01Icon} size={8} />
 					</div>
 				{:else if slot === 'disabled_dock'}
-					<div class="w-3.5 h-3.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-500 flex items-center justify-center" title="Disabled Dock">
+					<div class="w-3.5 h-3.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-500 flex items-center justify-center shrink-0" title="Disabled Dock">
 						<HugeiconsIcon icon={SquareIcon} size={8} />
 					</div>
 				{:else}
-					<div class="w-3.5 h-3.5 rounded bg-border-default/40 border border-border-subtle" title="Empty Dock"></div>
+					<div class="w-3.5 h-3.5 rounded bg-border-default/40 border border-border-subtle shrink-0" title="Empty Dock"></div>
 				{/if}
 			{/each}
 		</div>

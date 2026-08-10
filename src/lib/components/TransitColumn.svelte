@@ -34,11 +34,11 @@ let {
 	lineBadgeClassFn,
 	subDetailsFn,
 	badgeTextFn,
-	maxTimetableItems,
+	maxTimetableItems = 6,
 }: Props = $props();
 </script>
 
-<div class="panel-card space-y-3">
+<div class="panel-card space-y-2.5">
 	<DirectionHeader {title} {subtitle} />
 
 	{#if departures.length === 0}

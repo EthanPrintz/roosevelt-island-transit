@@ -66,11 +66,26 @@ let timeString = $derived(
 let relativeLabel = $derived(
 	formatRelativeTime(departure.predictedTime || departure.scheduledTime),
 );
+
+function formatHeroHeadsign(raw: string): string {
+	if (!raw) return '';
+	let s = raw
+		.replace(/\s*(?:Station|Terminal|Landing|Pier|Dock)$/i, '')
+		.replace(/Wall St\.\s*\/\s*Pier 11/i, 'Wall St / Pier 11')
+		.replace(/East 90th St\s*\/\s*UES/i, 'East 90th St')
+		.trim();
+	if (s.includes(' - ')) {
+		s = s.split(' - ')[0].trim();
+	}
+	return s;
+}
+
+let cleanHeadsign = $derived(formatHeroHeadsign(departure.headsign));
 </script>
 
-<div class="p-3 rounded-xl border space-y-2 relative overflow-hidden shadow-xs {styles.container}">
-	<!-- Top Row: Standardized Status Pill (Left) & Relative Countdown (Right) -->
-	<div class="flex items-center justify-between text-xs">
+<div class="p-3 rounded-xl border space-y-1.5 relative overflow-hidden shadow-xs {styles.container}">
+	<!-- Row 1: Top Bar (Status Pill + Relative Countdown) -->
+	<div class="flex items-center justify-between text-xs gap-2">
 		<div class="flex items-center gap-1.5 flex-wrap">
 			<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {resolvedClass}">
 				{#key resolvedIcon}
@@ -92,36 +107,30 @@ let relativeLabel = $derived(
 			{/if}
 		</div>
 
-		<span class="font-mono text-xs font-bold {styles.timeText}">
+		<span class="font-mono text-xs font-bold shrink-0 ml-auto {styles.timeText}">
 			{relativeLabel}
 		</span>
 	</div>
 
-	<!-- Middle Row: Clean Destination Title & Large Clock Time -->
-	<div class="flex items-baseline justify-between gap-2 pt-0.5">
-		<div class="text-sm font-extrabold text-text-main leading-tight truncate min-w-0 flex-1">
-			<span class="truncate">{departure.headsign}</span>
-		</div>
-
-		<div class="font-mono text-lg font-black text-text-main leading-none shrink-0">
-			{timeString}
-		</div>
+	<!-- Row 2: Destination Title (Full Width so it NEVER truncates) -->
+	<div class="pt-0.5">
+		<h4 class="text-sm font-extrabold text-text-main leading-snug tracking-tight">
+			{cleanHeadsign}
+		</h4>
 	</div>
 
-	<!-- Bottom Row: Mono Sub-Details Line (Left) & Optional Muted Scheduled Fallback (Right) -->
-	<div class="flex items-center justify-between text-[10px] font-mono text-text-muted pt-0.5">
-		<div class="truncate min-w-0 flex-1">
-			{#if subDetails}
-				{@const cleanSubDetails = subDetails.replace(/\s*\((?:approaching|at stop|at_stop)\)/gi, '')}
-				{#if cleanSubDetails}
-					<span>{cleanSubDetails}</span>
-				{/if}
-			{/if}
+	<!-- Row 3: Large Clock Time -->
+	<div class="font-mono text-xl font-black text-text-main leading-none pt-0.5">
+		{timeString}
+	</div>
 
-		</div>
-
-		{#if !departure.isRealtime}
-			<span class="shrink-0 ml-2">Scheduled</span>
+	<!-- Row 4: Dedicated Sub-Details Line (Dispatched / Cabin / Vessel / Scheduled) -->
+	{#if subDetails || !departure.isRealtime}
+		{@const cleanSubDetails = subDetails ? subDetails.replace(/\s*\((?:approaching|at stop|at_stop)\)/gi, '') : ''}
+		{#if cleanSubDetails || !departure.isRealtime}
+			<div class="text-[10px] font-mono text-text-muted pt-0.5 truncate">
+				{cleanSubDetails || 'Scheduled'}
+			</div>
 		{/if}
-	</div>
+	{/if}
 </div>

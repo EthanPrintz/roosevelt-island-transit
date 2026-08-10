@@ -11,7 +11,6 @@ import {
 	getRouteLabel,
 	getTransitRoutesGeoJSON,
 } from '$lib/transit/map/map-adapter';
-import MapLayerControls from './MapLayerControls.svelte';
 
 let {
 	vehicles = [],
@@ -289,6 +288,7 @@ onMount(() => {
 			zoom: 14.5,
 			bearing: 0,
 			pitch: 0,
+			attributionControl: false,
 			maxBounds: [
 				[-73.975, 40.74],
 				[-73.93, 40.785],
@@ -414,13 +414,6 @@ export function flyTo(lng: number, lat: number, zoom = 16) {
 <div class="relative w-full h-full min-h-75 rounded-2xl overflow-hidden border border-border-default shadow-2xs bg-bg-surface">
 	<!-- Map Container Canvas -->
 	<div bind:this={mapContainer} class="w-full h-full"></div>
-
-	<!-- Floating Map Controls -->
-	<div class="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-		<div class="pointer-events-auto">
-			<MapLayerControls />
-		</div>
-	</div>
 
 	<!-- Map Watermark & Credit Badge -->
 	<div class="absolute bottom-2 left-3 z-10 text-[10px] text-text-muted font-mono bg-bg-surface/90 backdrop-blur-sm px-2 py-0.5 rounded-lg border border-border-subtle pointer-events-none">
