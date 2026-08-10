@@ -169,38 +169,43 @@ let southboundGroups = $derived.by(() => {
 				</div>
 			{/if}
 
-			<!-- RIGHT COLUMN: Timetable List -->
-			<div class="p-3.5 rounded-xl border border-border-default bg-bg-surface flex flex-col justify-between shadow-2xs">
+			<!-- RIGHT COLUMN: Timetable List (Subway/Ferry/Tram style divide-y list) -->
+			<div class="divide-y divide-border-subtle rounded-xl bg-bg-elevated/40 border border-border-default/60 overflow-hidden self-start shadow-2xs">
 				{#if followUps.length > 0}
-					<div class="space-y-1.5 pr-0.5">
-						{#each followUps as dep (dep.id)}
-							{@const b = dep as BusDeparture}
-							{@const t = b.predictedTime || b.scheduledTime}
-							{@const relTime = formatRelativeTime(t, undefined, true)}
-							{@const absTime = formatClockTime(t)}
+					{#each followUps as dep (dep.id)}
+						{@const b = dep as BusDeparture}
+						{@const t = b.predictedTime || b.scheduledTime}
+						{@const relTime = formatRelativeTime(t, undefined, true)}
+						{@const absTime = formatClockTime(t)}
 
-							<div class="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-bg-elevated/60 border border-border-default/60 text-xs shadow-2xs hover:bg-bg-surface transition-colors">
-								<div class="flex items-center gap-1.5">
-									{#if b.isRealtime}
-										<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
-									{:else}
-										<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
-									{/if}
+						<div class="px-3 py-2 flex items-center justify-between text-xs gap-2 hover:bg-bg-surface/50 transition-colors">
+							<div class="flex items-center gap-2 font-mono">
+								<!-- Relative Countdown (6 mins) FIRST with fixed min-width for vertical column alignment -->
+								<span class="font-mono text-xs font-semibold text-text-main shrink-0 min-w-17">
+									{relTime}
+								</span>
 
-									<span class="font-mono font-extrabold text-text-main text-[11px]">{absTime}</span>
-									<span class="font-mono text-text-muted text-[10px]">({relTime})</span>
-								</div>
-
+								<!-- Optional Vehicle ID SECOND (Aligned in clean vertical column) -->
 								{#if b.vehicleId}
-									<span class="px-1.5 py-0.5 rounded bg-bg-surface text-[9.5px] font-mono font-bold text-text-muted border border-border-default/70 shrink-0">
+									<span class="font-mono text-[10px] text-text-muted shrink-0 font-medium">
 										#{b.vehicleId}
 									</span>
 								{/if}
 							</div>
-						{/each}
-					</div>
+
+							<!-- Far Right Side: Clock Time (04:00 PM) + Icon -->
+							<div class="flex items-center gap-1.5 font-mono shrink-0 ml-auto">
+								<span class="text-text-muted text-[11px]">{absTime}</span>
+								{#if b.isRealtime}
+									<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
+								{:else}
+									<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
+								{/if}
+							</div>
+						</div>
+					{/each}
 				{:else}
-					<div class="text-xs text-text-muted italic p-3 text-center rounded-xl bg-bg-elevated/40 border border-border-default/40">
+					<div class="text-xs text-text-muted italic p-3 text-center bg-bg-elevated/40">
 						No subsequent departures
 					</div>
 				{/if}

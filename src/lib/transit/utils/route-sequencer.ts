@@ -1,10 +1,10 @@
 /**
  * Route Sequencer & Upcoming Stops Utility
  *
- * Provides pure utility functions to compute ordered upcoming stops for live vehicles
- * across all Roosevelt Island public transit modes, including estimated arrival times (ETA).
- *
- * ALL ROUTE SEQUENCES ARE 100% VERIFIED FROM OFFICIAL GTFS AND RIOC DATASETS.
+ * Computes ordered upcoming remaining stop sequences for live vehicles across all
+ * Roosevelt Island transit modes (Red Bus, Q102 Bus, NYC Ferry, Tramway, MTA F Train).
+ * Calculates physical Haversine distance-based estimated arrival times (ETA seconds,
+ * clock time, relative countdowns) based on vehicle speed and mode dwell times.
  */
 
 import type { LiveVehiclePosition, TransitMode } from '$lib/transit/domain/types';
@@ -16,7 +16,6 @@ export interface UpcomingStopItem {
 	lat?: number;
 	lng?: number;
 	etaSeconds?: number;
-	etaMinutes?: number;
 	formattedTime?: string;
 	countdownText?: string;
 }
@@ -24,36 +23,27 @@ export interface UpcomingStopItem {
 interface RouteStopDefinition {
 	id: string;
 	title: string;
-	subtitle?: string;
 	lat: number;
 	lng: number;
 }
 
-const RED_BUS_NORTHBOUND_STOPS: RouteStopDefinition[] = [
-	{ id: 'southpnt', title: 'Southpoint Park Terminus', lat: 40.7533378, lng: -73.9583568 },
+// ---------------------------------------------------------------------------
+// Red Bus Official Continuous Loop Sequences (Northbound + Southbound)
+// ---------------------------------------------------------------------------
+
+const RED_BUS_FULL_LOOP: RouteStopDefinition[] = [
+	// Northbound Segment (Index 0..8)
 	{ id: 'cornell', title: 'Graduate Hotel / Cornell Tech', lat: 40.7565451, lng: -73.9558944 },
 	{ id: 'tramwest_n', title: 'Tram Bus Stop (Northbound)', lat: 40.7575689, lng: -73.954253 },
 	{ id: 'subway_n', title: 'Subway Station (Northbound)', lat: 40.7591377, lng: -73.9534642 },
-	{
-		id: '504main',
-		title: 'Youth Center / Library (504 Main St)',
-		lat: 40.760975,
-		lng: -73.9506879,
-	},
+	{ id: '504main', title: 'Youth Center / Library', lat: 40.760975, lng: -73.9506879 },
 	{ id: '545main', title: 'Public Safety (545 Main St)', lat: 40.7616856, lng: -73.9497772 },
 	{ id: 'capfield', title: 'Capobianco Field / PS IS 217', lat: 40.7639548, lng: -73.9478313 },
 	{ id: 'post', title: 'Supermarket / Post Office', lat: 40.7648881, lng: -73.9469218 },
-	{
-		id: '40river_n',
-		title: 'Bus Garage / 40 River Road (North)',
-		lat: 40.7657848,
-		lng: -73.9461261,
-	},
+	{ id: '40river_n', title: 'Bus Garage / 40 River Rd (North)', lat: 40.7657848, lng: -73.9461261 },
 	{ id: 'colerh', title: 'Coler Hospital', lat: 40.7705558, lng: -73.9428722 },
-	{ id: 'octagon', title: 'Octagon', lat: 40.7688463, lng: -73.9431741 },
-];
 
-const RED_BUS_SOUTHBOUND_STOPS: RouteStopDefinition[] = [
+	// Southbound Segment (Index 9..19)
 	{ id: 'octagon', title: 'Octagon', lat: 40.7688463, lng: -73.9431741 },
 	{ id: 'comfstat', title: 'McManus Field', lat: 40.7668776, lng: -73.9449412 },
 	{ id: '40river_s', title: '40 River Road (Southbound)', lat: 40.7660204, lng: -73.9460596 },
@@ -129,35 +119,28 @@ const FERRY_SOUTHBOUND_STOPS: UpcomingStopItem[] = [
 		title: 'Wall St / Pier 11',
 		subtitle: 'Financial District Terminal',
 		lat: 40.7032,
-		lng: -74.0048,
+		lng: -74.007,
 	},
 ];
 
 const FERRY_NORTHBOUND_STOPS: UpcomingStopItem[] = [
 	{
-		id: 'ri-ferry',
-		title: 'Roosevelt Island Pier',
-		subtitle: 'Astoria Line Dock',
-		lat: 40.7568,
-		lng: -73.9525,
-	},
-	{
-		id: 'astoria',
+		id: 'astoria-landing',
 		title: 'Astoria Landing',
-		subtitle: 'Queens Landing',
-		lat: 40.7725,
-		lng: -73.931,
+		subtitle: 'Queens Pier',
+		lat: 40.7712,
+		lng: -73.9365,
 	},
 	{
 		id: 'e90',
 		title: 'East 90th St',
 		subtitle: 'Upper East Side Terminal',
-		lat: 40.7774,
+		lat: 40.7778,
 		lng: -73.9431,
 	},
 ];
 
-const SUBWAY_MANHATTAN_STOPS: UpcomingStopItem[] = [
+const SUBWAY_QUEENS_STOPS: UpcomingStopItem[] = [
 	{
 		id: 'subway-ri',
 		title: 'Roosevelt Island Station',
@@ -168,35 +151,41 @@ const SUBWAY_MANHATTAN_STOPS: UpcomingStopItem[] = [
 	{
 		id: 'lex63',
 		title: 'Lexington Ave / 63rd St',
-		subtitle: '63rd St Line Transfer',
-		lat: 40.7646,
-		lng: -73.966,
-	},
-	{ id: 'st57', title: '57th St / 6th Ave', subtitle: 'Manhattan', lat: 40.7638, lng: -73.9774 },
-	{
-		id: 'rock',
-		title: '47-50th Sts Rockefeller Center',
-		subtitle: '6th Ave Line',
-		lat: 40.7586,
-		lng: -73.9813,
+		subtitle: 'Manhattan',
+		lat: 40.7645,
+		lng: -73.9662,
 	},
 	{
-		id: 'bryant',
-		title: '42nd St Bryant Park',
-		subtitle: 'Manhattan Transfer',
+		id: '57st',
+		title: '57th St',
+		subtitle: 'Manhattan',
+		lat: 40.7639,
+		lng: -73.9774,
+	},
+	{
+		id: 'rockefeller',
+		title: '47-50 Sts - Rockefeller Ctr',
+		subtitle: 'Manhattan',
+		lat: 40.7587,
+		lng: -73.9787,
+	},
+	{
+		id: '42st',
+		title: '42st - Bryant Park',
+		subtitle: 'Manhattan',
 		lat: 40.7538,
-		lng: -73.9846,
+		lng: -73.9837,
 	},
 	{
-		id: 'herald',
-		title: '34th St Herald Sq',
-		subtitle: 'Manhattan Transfer',
+		id: 'heraldsq',
+		title: '34st - Herald Sq',
+		subtitle: 'Manhattan Terminal',
 		lat: 40.7496,
 		lng: -73.9878,
 	},
 ];
 
-const SUBWAY_QUEENS_STOPS: UpcomingStopItem[] = [
+const SUBWAY_MANHATTAN_STOPS: UpcomingStopItem[] = [
 	{
 		id: 'subway-ri',
 		title: 'Roosevelt Island Station',
@@ -324,19 +313,45 @@ export function getUpcomingStopsForVehicle(
 
 	if (mode === 'red_bus') {
 		const isNorthbound = direction === 'northbound';
-		const rawSeq = isNorthbound ? RED_BUS_NORTHBOUND_STOPS : RED_BUS_SOUTHBOUND_STOPS;
+		const doubleLoop = [...RED_BUS_FULL_LOOP, ...RED_BUS_FULL_LOOP, ...RED_BUS_FULL_LOOP];
 
-		if (typeof lat === 'number') {
-			const remaining = rawSeq.filter((stop) => {
-				if (isNorthbound) {
-					return stop.lat > lat - 0.0003;
-				}
-				return stop.lat < lat + 0.0003;
+		let matchIdx = -1;
+		if (nextStopName) {
+			const target = nextStopName.toLowerCase().trim();
+			const offset = isNorthbound ? 0 : 9;
+			const sliceToSearch = RED_BUS_FULL_LOOP.slice(offset).concat(
+				RED_BUS_FULL_LOOP.slice(0, offset),
+			);
+			const subMatch = sliceToSearch.findIndex((s) => {
+				const title = s.title.toLowerCase();
+				const cleanTitle = title.replace(/\s*\(.*\)/, '').trim();
+				return title.includes(target) || target.includes(cleanTitle);
 			});
-			seq = remaining.map((s) => ({ id: s.id, title: s.title, lat: s.lat, lng: s.lng }));
-		} else {
-			seq = rawSeq.map((s) => ({ id: s.id, title: s.title, lat: s.lat, lng: s.lng }));
+			if (subMatch >= 0) {
+				matchIdx = (offset + subMatch) % RED_BUS_FULL_LOOP.length;
+			}
 		}
+
+		if (matchIdx === -1 && typeof lat === 'number') {
+			const segmentStart = isNorthbound ? 0 : 9;
+			const segmentEnd = isNorthbound ? 8 : 19;
+			let minDistance = Infinity;
+			for (let i = segmentStart; i <= segmentEnd; i++) {
+				const s = RED_BUS_FULL_LOOP[i];
+				const d = getDistanceMeters(lat, vehicle.lng ?? -73.95, s.lat, s.lng);
+				if (d < minDistance) {
+					minDistance = d;
+					matchIdx = i;
+				}
+			}
+		}
+
+		if (matchIdx === -1) {
+			matchIdx = isNorthbound ? 0 : 9;
+		}
+
+		const slicedLoop = doubleLoop.slice(matchIdx, matchIdx + limit);
+		seq = slicedLoop.map((s) => ({ id: s.id, title: s.title, lat: s.lat, lng: s.lng }));
 	} else if (mode === 'q102_bus') {
 		const isAstoria = direction === 'queens_bound' || direction === 'northbound';
 		const rawSeq = isAstoria ? Q102_ASTORIA_STOPS : Q102_COLER_STOPS;
@@ -375,8 +390,8 @@ export function getUpcomingStopsForVehicle(
 		seq = direction === 'manhattan_bound' ? TRAM_MANHATTAN_STOPS : TRAM_ISLAND_STOPS;
 	}
 
-	// Align sequence so nextStopName (if reported by feed) is at index 0 (top of upcoming list)
-	if (nextStopName && seq.length > 0) {
+	// Align non-Red Bus sequences so nextStopName (if reported by feed) is at index 0
+	if (mode !== 'red_bus' && nextStopName && seq.length > 0) {
 		const targetName = nextStopName.toLowerCase().trim();
 		const matchIdx = seq.findIndex((s) => {
 			const title = s.title.toLowerCase();
@@ -389,8 +404,6 @@ export function getUpcomingStopsForVehicle(
 		}
 	}
 
-	const sliced = seq.slice(0, limit);
-
 	// Calculate cumulative ETAs (etaSeconds, etaMinutes, formattedTime, countdownText)
 	const now = referenceTime ? new Date(referenceTime).getTime() : Date.now();
 	const { speedMps, dwellTime } = getModeSpeedAndDwell(mode, vehicle.speedMps);
@@ -398,7 +411,7 @@ export function getUpcomingStopsForVehicle(
 	let currentLat = lat;
 	let currentLng = vehicle.lng;
 
-	return sliced.map((stop, idx) => {
+	return seq.slice(0, limit).map((stop, idx) => {
 		let distMeters = 800;
 		if (
 			typeof stop.lat === 'number' &&
@@ -433,7 +446,6 @@ export function getUpcomingStopsForVehicle(
 		return {
 			...stop,
 			etaSeconds: accumulatedSeconds,
-			etaMinutes,
 			formattedTime,
 			countdownText,
 		};

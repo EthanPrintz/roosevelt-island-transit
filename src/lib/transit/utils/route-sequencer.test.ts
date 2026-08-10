@@ -55,6 +55,50 @@ describe('route-sequencer.ts', () => {
 		expect(titles.some((t: string) => t.includes('Motorgate'))).toBe(true);
 	});
 
+	it('wraps around from Northbound to Southbound for Red Bus near Coler Hospital', () => {
+		const bus: LiveVehiclePosition = {
+			id: 'redbus-9',
+			vehicleId: '9',
+			mode: 'red_bus',
+			routeId: 'RED_BUS',
+			direction: 'northbound',
+			lat: 40.7705, // Coler Hospital
+			lng: -73.9428,
+			bearing: 350,
+			nextStopName: 'Coler Hospital',
+			destinationName: 'Octagon',
+			updatedAt: new Date().toISOString(),
+		};
+
+		const stops = getUpcomingStopsForVehicle(bus, 4);
+		expect(stops.length).toBe(4);
+		expect(stops[0].title).toContain('Coler Hospital');
+		expect(stops[1].title).toContain('Octagon');
+		expect(stops[2].title).toContain('McManus Field');
+	});
+
+	it('wraps around from Southbound to Northbound for Red Bus near Southpoint', () => {
+		const bus: LiveVehiclePosition = {
+			id: 'redbus-14',
+			vehicleId: '14',
+			mode: 'red_bus',
+			routeId: 'RED_BUS',
+			direction: 'southbound',
+			lat: 40.7533, // Southpoint Park Terminus
+			lng: -73.9583,
+			bearing: 180,
+			nextStopName: 'Southpoint Park Terminus',
+			destinationName: 'Southpoint',
+			updatedAt: new Date().toISOString(),
+		};
+
+		const stops = getUpcomingStopsForVehicle(bus, 4);
+		expect(stops.length).toBe(4);
+		expect(stops[0].title).toContain('Southpoint');
+		expect(stops[1].title).toContain('Cornell Tech');
+		expect(stops[2].title).toContain('Tram Bus Stop');
+	});
+
 	it('returns upcoming stops for NYC Ferry Northbound line with Astoria Landing FIRST', () => {
 		const ferry: LiveVehiclePosition = {
 			id: 'ferry-h110',
@@ -113,7 +157,7 @@ describe('route-sequencer.ts', () => {
 		const stops = getUpcomingStopsForVehicle(subway);
 		expect(stops.length).toBeGreaterThan(0);
 		expect(stops[0].title).toBe('Roosevelt Island Station');
-		expect(stops[1].title).toBe('Lexington Ave / 63rd St');
+		expect(stops[1].title).toBe('21st St Queensbridge');
 	});
 
 	it('attaches calculated ETA times (etaSeconds, countdownText, formattedTime) to each upcoming stop', () => {

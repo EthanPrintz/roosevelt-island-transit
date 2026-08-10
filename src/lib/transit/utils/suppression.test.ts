@@ -99,7 +99,7 @@ describe('suppressGhostSchedules', () => {
 			headsign: 'Queens',
 			destinationName: 'Jamaica',
 			direction: 'queens_bound',
-			scheduledTime: new Date().toISOString(),
+			scheduledTime: new Date(Date.now() + 60000).toISOString(),
 			isRealtime: false,
 			status: 'normal',
 			stopName: 'Roosevelt Island Station',
