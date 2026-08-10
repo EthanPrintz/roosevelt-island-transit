@@ -202,7 +202,9 @@ export class LiveFerryProvider implements TransitProvider {
 
 				const predictedTime = rt ? rt.time : stat.scheduledTime;
 				const delaySec = rt ? rt.delay : 0;
-				const isSouthbound = stat.directionId === 1 || stat.headsign.includes('Wall St');
+				const headLower = (stat.headsign || '').toLowerCase();
+				const isSouthbound =
+					stat.directionId === 0 || headLower.includes('wall st') || headLower.includes('pier 11');
 
 				departures.push({
 					id: `ferry-live-${stat.tripId}-${stat.stopId}`,
@@ -210,8 +212,8 @@ export class LiveFerryProvider implements TransitProvider {
 					routeId: stat.routeId === 'AS' ? 'AST' : stat.routeId || 'AST',
 					routeName: 'NYC Ferry (Astoria Line)',
 					tripId: stat.tripId,
-					headsign: stat.headsign || (isSouthbound ? 'Wall St / Pier 11' : 'E 90th St'),
-					destinationName: isSouthbound ? 'Wall St / Pier 11' : 'E 90th St',
+					headsign: stat.headsign || (isSouthbound ? 'Wall St / Pier 11' : 'East 90th St'),
+					destinationName: isSouthbound ? 'Wall St / Pier 11' : 'East 90th St',
 					direction: isSouthbound ? 'southbound' : 'northbound',
 					scheduledTime: stat.scheduledTime,
 					predictedTime,
@@ -236,7 +238,7 @@ export class LiveFerryProvider implements TransitProvider {
 					vehicleTelemetryMap.get(`trip-${tripId}`) ||
 					(rt.vessel ? vehicleTelemetryMap.get(`label-${rt.vessel}`) : undefined);
 
-				const isSouthbound = rt.seq > 3;
+				const isSouthbound = rt.seq <= 3;
 
 				departures.push({
 					id: `ferry-live-${tripId}-25`,
@@ -244,8 +246,8 @@ export class LiveFerryProvider implements TransitProvider {
 					routeId: 'AST',
 					routeName: 'NYC Ferry (Astoria Line)',
 					tripId,
-					headsign: isSouthbound ? 'Wall St / Pier 11' : 'E 90th St',
-					destinationName: isSouthbound ? 'Wall St / Pier 11' : 'E 90th St',
+					headsign: isSouthbound ? 'Wall St / Pier 11' : 'East 90th St',
+					destinationName: isSouthbound ? 'Wall St / Pier 11' : 'East 90th St',
 					direction: isSouthbound ? 'southbound' : 'northbound',
 					scheduledTime: rt.time,
 					predictedTime: rt.time,
