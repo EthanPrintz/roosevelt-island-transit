@@ -80,7 +80,7 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 				<span class="font-medium">Open Docks</span>
 				<HugeiconsIcon icon={SquareIcon} size={13} />
 			</div>
-			<div class="font-mono text-lg font-black text-emerald-600 dark:text-emerald-400">
+			<div class="font-mono text-lg font-black text-text-main">
 				{station.docksAvailable}
 			</div>
 		</div>
@@ -89,7 +89,7 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 	<!-- 3. Visual Dock Matrix -->
 	<div class="space-y-1.5 pt-0.5">
 		<div class="flex items-center justify-between text-[11px] font-mono text-text-muted">
-			<span>Station Dock Matrix</span>
+			<span>Station Docks</span>
 			<span>{station.docksAvailable} Open Docks</span>
 		</div>
 
