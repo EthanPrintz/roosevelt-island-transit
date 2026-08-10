@@ -1,9 +1,14 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+import { mount, onMount, unmount } from 'svelte';
 import { browser } from '$app/environment';
 import { mapSettings } from '$lib/state/map-settings.svelte';
 import { themeState } from '$lib/state/theme.svelte';
-import type { BikeStation, LiveVehiclePosition } from '$lib/transit/domain/types';
+import type {
+	BikeStation,
+	LiveVehiclePosition,
+	TransitAlert,
+	TransitDeparture,
+} from '$lib/transit/domain/types';
 import {
 	bikeStationsToGeoJSON,
 	getFixedTransitStopsGeoJSON,
@@ -11,12 +16,17 @@ import {
 	getRouteLabel,
 	getTransitRoutesGeoJSON,
 } from '$lib/transit/map/map-adapter';
+import MapPopupContent from './MapPopupContent.svelte';
 
 let {
+	departures = [],
+	alerts = [],
 	vehicles = [],
 	stations = [],
 	onSelectEntity,
 } = $props<{
+	departures?: TransitDeparture[];
+	alerts?: TransitAlert[];
 	vehicles?: LiveVehiclePosition[];
 	stations?: BikeStation[];
 	onSelectEntity?: (id: string) => void;
@@ -31,6 +41,8 @@ let activeStyleUrl = '';
 let htmlMarkersMap = new Map<string, any>();
 let maplibreglRef: any = null;
 let activePopup: any = null;
+let activePopupInstance: any = null;
+let activePopupEntityId: string | null = $state(null);
 
 function getModeSvgIcon(mode: string): string {
 	switch (mode) {
@@ -42,53 +54,65 @@ function getModeSvgIcon(mode: string): string {
 			return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16l-1.5 6H5.5L4 11z"/><path d="M6 11V6a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5"/><path d="M9 5V3M15 5V3"/><path d="M2 20c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1"/></svg>`;
 		case 'citibike':
 			return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h2l1.5 5.5H12l-1.5-4.5L7.5 14M12 11.5L8.5 17.5"/></svg>`;
-		default: // Bus (Red Bus / Q102) - Official Hugeicons Bus01Icon
+		default: // Bus (Red Bus / Q102)
 			return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20.5V22"/><path d="M7 20.5V22"/><path d="M4 6.78186C4 6.14251 4 5.82283 4.17387 5.43355C4.34773 5.04428 4.52427 4.88606 4.87736 4.56964C6.03437 3.53277 8.36029 2 12 2C15.6397 2 17.9656 3.53277 19.1226 4.56964C19.4757 4.88606 19.6523 5.04428 19.8261 5.43355C20 5.82283 20 6.14251 20 6.78186V14C20 16.8284 20 18.2426 19.1213 19.1213C18.2426 20 16.8284 20 14 20H10C7.17157 20 5.75736 20 4.87868 19.1213C4 18.2426 4 16.8284 4 14V6.78186Z"/><path d="M4 14C4 14 7.73333 15 12 15C16.2667 15 20 14 20 14"/><path d="M4.5 17.5H6"/><path d="M18 17.5H19.5"/><path d="M11 17.5L13 17.5"/><path d="M4 6H20"/><path d="M2 9L2 10"/><path d="M22 9L22 10"/></svg>`;
 	}
 }
 
 const CHEVRON_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>`;
 
-function showSinglePopup(
-	mapInstance: any,
-	coords: [number, number],
-	title: string,
-	subtitle: string,
-	color: string,
-	modeIcon?: string,
-) {
+function showSinglePopup(mapInstance: any, coords: [number, number], entityId: string) {
 	if (activePopup) {
 		activePopup.remove();
 		activePopup = null;
 	}
+	if (activePopupInstance) {
+		unmount(activePopupInstance);
+		activePopupInstance = null;
+	}
 
 	if (!mapInstance || !maplibreglRef) return;
 
-	const iconMarkup = modeIcon
-		? `<span style="display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; color: ${color};">${modeIcon}</span>`
-		: '';
+	activePopupEntityId = entityId;
 
-	const html = `
-		<div style="font-family: inherit; padding: 2px 4px 2px 0;">
-			<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-				${iconMarkup}
-				<strong style="font-size: 13px; font-weight: 700; color: var(--text-main); letter-spacing: -0.01em;">${title}</strong>
-			</div>
-			<div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">${subtitle}</div>
-		</div>
-	`;
+	const container = document.createElement('div');
+	activePopupInstance = mount(MapPopupContent, {
+		target: container,
+		props: {
+			entityId,
+			get departures() {
+				return departures;
+			},
+			get vehicles() {
+				return vehicles;
+			},
+			get stations() {
+				return stations;
+			},
+			get alerts() {
+				return alerts;
+			},
+		},
+	});
 
 	activePopup = new maplibreglRef.Popup({
 		offset: 14,
 		closeButton: true,
 		closeOnClick: true,
+		maxWidth: '340px',
 	})
 		.setLngLat(coords)
-		.setHTML(html)
+		.setDOMContent(container)
 		.addTo(mapInstance);
 
 	activePopup.on('close', () => {
 		activePopup = null;
+		activePopupEntityId = null;
+		mapSettings.clearSelection();
+		if (activePopupInstance) {
+			unmount(activePopupInstance);
+			activePopupInstance = null;
+		}
 	});
 }
 
@@ -117,14 +141,12 @@ function updateVehicleHtmlMarkers(mapInstance: any) {
 			}
 
 			const color = getModeAccentColor(v.mode);
-			const routeLabel = getRouteLabel(v.mode, v.routeId);
 			const vehicleBearing = typeof v.bearing === 'number' ? v.bearing : 0;
 			const mapBearing = mapInstance?.getBearing?.() || 0;
 			const displayBearing = Math.round((vehicleBearing - mapBearing + 360) % 360);
 			const svgIcon = getModeSvgIcon(v.mode);
 
 			const el = document.createElement('div');
-			// Explicit fixed dimensions (88px x 24px) prevent offsetWidth reflow jitters during map pan/zoom
 			el.setAttribute(
 				'style',
 				`display: flex !important; align-items: center !important; justify-content: center !important; gap: 4px !important; width: auto !important; height: 24px !important; box-sizing: border-box !important; padding: 0 7px !important; border-radius: 9999px !important; color: #ffffff !important; background-color: ${color} !important; border: 1.5px solid rgba(255, 255, 255, 0.95) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important; white-space: nowrap !important; pointer-events: auto !important; cursor: pointer !important; user-select: none !important;`,
@@ -140,9 +162,7 @@ function updateVehicleHtmlMarkers(mapInstance: any) {
 				mapSettings.selectEntity(v.id, [v.lng, v.lat]);
 				onSelectEntity?.(v.id);
 
-				const title = v.vehicleId ? `#${v.vehicleId}` : routeLabel;
-				const subtitle = v.nextStopName ? `Next stop: ${v.nextStopName}` : v.direction || v.mode;
-				showSinglePopup(mapInstance, [v.lng, v.lat], title, subtitle, color, svgIcon);
+				showSinglePopup(mapInstance, [v.lng, v.lat], v.id);
 			});
 
 			const marker = new maplibreglRef.Marker({ element: el, anchor: 'center' })
@@ -285,20 +305,11 @@ onMount(() => {
 					if (!feature) return;
 					const id = feature.properties?.id;
 					if (id) {
-						mapSettings.selectEntity(id, feature.geometry.coordinates);
+						const coords = feature.geometry.coordinates.slice();
+						mapSettings.selectEntity(id, coords);
 						onSelectEntity?.(id);
 
-						const coords = feature.geometry.coordinates.slice();
-						const title = feature.properties.title || feature.properties.name || id;
-						const subtitle = feature.properties.subtitle || feature.properties.mode || '';
-						const mode = feature.properties.mode || 'subway';
-						const color =
-							feature.properties.color ||
-							feature.properties.statusColor ||
-							getModeAccentColor(mode as any);
-						const svgIcon = getModeSvgIcon(mode);
-
-						showSinglePopup(mapInstance, coords, title, subtitle, color, svgIcon);
+						showSinglePopup(mapInstance, coords, id);
 					}
 				});
 
@@ -344,6 +355,10 @@ onMount(() => {
 			activePopup.remove();
 			activePopup = null;
 		}
+		if (activePopupInstance) {
+			unmount(activePopupInstance);
+			activePopupInstance = null;
+		}
 		for (const marker of htmlMarkersMap.values()) {
 			marker.remove();
 		}
@@ -363,15 +378,18 @@ $effect(() => {
 	}
 });
 
-// Reactive flyTo when selectedCoords changes
+// Reactive flyTo and popup opening when selectedCoords / selectedEntityId changes
 $effect(() => {
-	if (map && isLoaded && mapSettings.selectedCoords) {
+	if (map && isLoaded && mapSettings.selectedEntityId && mapSettings.selectedCoords) {
 		const [lng, lat] = mapSettings.selectedCoords;
-		map.flyTo({
-			center: [lng, lat],
-			zoom: 16,
-			duration: 1200,
-		});
+		if (activePopupEntityId !== mapSettings.selectedEntityId) {
+			map.flyTo({
+				center: [lng, lat],
+				zoom: 16,
+				duration: 1200,
+			});
+			showSinglePopup(map, [lng, lat], mapSettings.selectedEntityId);
+		}
 	}
 });
 

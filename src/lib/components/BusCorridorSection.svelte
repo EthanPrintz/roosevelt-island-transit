@@ -18,6 +18,8 @@ interface Props {
 	northboundSubtitle: string;
 	southboundTitle: string;
 	southboundSubtitle: string;
+	northboundBadgeText?: string;
+	southboundBadgeText?: string;
 	emptyMessageNorth: string;
 	emptyMessageSouth: string;
 }
@@ -34,6 +36,8 @@ let {
 	northboundSubtitle,
 	southboundTitle,
 	southboundSubtitle,
+	northboundBadgeText = 'Northbound',
+	southboundBadgeText = 'Southbound',
 	emptyMessageNorth,
 	emptyMessageSouth,
 }: Props = $props();
@@ -104,33 +108,27 @@ let southboundGroups = $derived.by(() => {
 });
 </script>
 
-{#snippet stopNode(nodeTitle: string, departures: TransitDeparture[], emptyMsg: string)}
+{#snippet stopNode(departures: TransitDeparture[], emptyMsg: string)}
 	{@const liveHeroIndex = departures.findIndex((d) => d.isRealtime)}
 	{@const heroIndex = liveHeroIndex !== -1 && liveHeroIndex <= 2 ? liveHeroIndex : 0}
 	{@const nextDep = departures[heroIndex] as BusDeparture | undefined}
 	{@const followUps = departures.filter((_, idx) => idx !== heroIndex)}
 
-
-	<div class="space-y-2.5">
-		{#if nodeTitle}
-			<div class="px-0.5">
-				<h4 class="text-xs font-extrabold text-text-main">{nodeTitle}</h4>
-			</div>
-		{/if}
-
-		{#if departures.length === 0}
-			<div class="text-center text-xs text-text-muted italic py-5 border border-dashed border-border-default/60 rounded-xl">
-				{emptyMsg}
-			</div>
-		{:else}
+	{#if departures.length === 0}
+		<div class="text-center text-xs text-text-muted italic py-5 border border-dashed border-border-default/60 rounded-xl">
+			{emptyMsg}
+		</div>
+	{:else}
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+			<!-- LEFT COLUMN: Hero Departure Card -->
 			{#if nextDep}
 				{@const targetTime = nextDep.predictedTime || nextDep.scheduledTime}
 				{@const pill = resolveHeroStatusPill(nextDep, accentColor)}
 				{@const cleanNextStop = nextDep.nextStopName && !/approaching|at stop|at_stop/i.test(nextDep.nextStopName) ? ` (${nextDep.nextStopName})` : ''}
 				{@const subDetails = nextDep.vehicleId ? `Bus #${nextDep.vehicleId}${cleanNextStop}` : undefined}
 
-				<div class="p-3.5 rounded-xl border space-y-1.5 relative overflow-hidden shadow-2xs {styles.heroContainer}">
-					<!-- Top Row: Standardized Status Pill (Left) -->
+				<div class="p-3.5 rounded-xl border space-y-2 relative overflow-hidden shadow-2xs flex flex-col justify-between self-start {styles.heroContainer}">
+					<!-- Top Row: Status Pill -->
 					<div class="flex items-center justify-between text-xs">
 						<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider {pill.pillClass}">
 							{#key pill.icon}
@@ -147,17 +145,17 @@ let southboundGroups = $derived.by(() => {
 						</h4>
 					</div>
 
-					<!-- Large Clock Time -->
-					<div class="font-mono text-xl font-black text-text-main leading-none pt-0.5">
-						{formatClockTime(targetTime)}
+					<!-- Large Clock Time & Countdown -->
+					<div>
+						<div class="font-mono text-xl font-black text-text-main leading-none pt-0.5">
+							{formatClockTime(targetTime)}
+						</div>
+						<div class="font-mono text-xs font-bold mt-1 {styles.timeText}">
+							{formatRelativeTime(targetTime)}
+						</div>
 					</div>
 
-					<!-- Relative Countdown (Under Clock Time) -->
-					<div class="font-mono text-xs font-bold {styles.timeText}">
-						{formatRelativeTime(targetTime)}
-					</div>
-
-					<!-- Sub Details & Scheduled Fallback -->
+					<!-- Sub Details -->
 					<div class="text-[10px] font-mono text-text-muted pt-0.5 truncate">
 						{#if subDetails}
 							{@const cleanSubDetails = subDetails.replace(/\s*\((?:approaching|at stop|at_stop)\)/gi, '')}
@@ -171,36 +169,44 @@ let southboundGroups = $derived.by(() => {
 				</div>
 			{/if}
 
-			<!-- Follow-Up Departures: Compact Horizontal Arrival Chips -->
-			{#if followUps.length > 0}
-				<div class="flex flex-wrap items-center gap-1.5 pt-1">
-					{#each followUps as dep (dep.id)}
-						{@const b = dep as BusDeparture}
-						{@const t = b.predictedTime || b.scheduledTime}
-						{@const relTime = formatRelativeTime(t, undefined, true)}
-						{@const absTime = formatClockTime(t)}
+			<!-- RIGHT COLUMN: Timetable List -->
+			<div class="p-3.5 rounded-xl border border-border-default bg-bg-surface flex flex-col justify-between shadow-2xs">
+				{#if followUps.length > 0}
+					<div class="space-y-1.5 pr-0.5">
+						{#each followUps as dep (dep.id)}
+							{@const b = dep as BusDeparture}
+							{@const t = b.predictedTime || b.scheduledTime}
+							{@const relTime = formatRelativeTime(t, undefined, true)}
+							{@const absTime = formatClockTime(t)}
 
-						<div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-bg-elevated/60 border border-border-default/60 text-xs shadow-2xs hover:bg-bg-surface transition-colors">
-							{#if b.isRealtime}
-								<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
-							{:else}
-								<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
-							{/if}
+							<div class="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-bg-elevated/60 border border-border-default/60 text-xs shadow-2xs hover:bg-bg-surface transition-colors">
+								<div class="flex items-center gap-1.5">
+									{#if b.isRealtime}
+										<HugeiconsIcon icon={FlashIcon} size={10} class={styles.iconColor} />
+									{:else}
+										<HugeiconsIcon icon={Clock01Icon} size={10} class="text-text-muted opacity-60" />
+									{/if}
 
-							<span class="font-mono font-extrabold text-text-main text-[11px]">{absTime}</span>
-							<span class="font-mono text-text-muted text-[10px]">({relTime})</span>
+									<span class="font-mono font-extrabold text-text-main text-[11px]">{absTime}</span>
+									<span class="font-mono text-text-muted text-[10px]">({relTime})</span>
+								</div>
 
-							{#if b.vehicleId}
-								<span class="px-1 py-0.2 rounded bg-bg-surface text-[9px] font-mono font-bold text-text-muted border border-border-default/70 shrink-0">
-									#{b.vehicleId}
-								</span>
-							{/if}
-						</div>
-					{/each}
-				</div>
-			{/if}
-		{/if}
-	</div>
+								{#if b.vehicleId}
+									<span class="px-1.5 py-0.5 rounded bg-bg-surface text-[9.5px] font-mono font-bold text-text-muted border border-border-default/70 shrink-0">
+										#{b.vehicleId}
+									</span>
+								{/if}
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<div class="text-xs text-text-muted italic p-3 text-center rounded-xl bg-bg-elevated/40 border border-border-default/40">
+						No subsequent departures
+					</div>
+				{/if}
+			</div>
+		</div>
+	{/if}
 {/snippet}
 
 <div class="space-y-6">
@@ -230,11 +236,11 @@ let southboundGroups = $derived.by(() => {
 					<div class="border-b border-border-default/40 pb-1.5 flex items-center justify-between">
 						<h4 class="text-sm font-black tracking-tight text-text-main">{group.stopName}</h4>
 						<span class="px-2 py-0.5 rounded-md {styles.badge} font-mono text-[9px] font-bold uppercase tracking-wider border">
-							Northbound
+							{northboundBadgeText}
 						</span>
 					</div>
 					<div class="w-full">
-						{@render stopNode('', group.departures, emptyMessageNorth)}
+						{@render stopNode(group.departures, emptyMessageNorth)}
 					</div>
 				</div>
 			{/each}
@@ -255,7 +261,6 @@ let southboundGroups = $derived.by(() => {
 			</span>
 		</div>
 
-
 		{#if southboundGroups.length === 0}
 			<div class="text-center text-xs text-text-muted italic py-6 border border-dashed border-border-default/60 rounded-xl">
 				{emptyMessageSouth}
@@ -266,11 +271,11 @@ let southboundGroups = $derived.by(() => {
 					<div class="border-b border-border-default/40 pb-1.5 flex items-center justify-between">
 						<h4 class="text-sm font-black tracking-tight text-text-main">{group.stopName}</h4>
 						<span class="px-2 py-0.5 rounded-md {styles.badge} font-mono text-[9px] font-bold uppercase tracking-wider border">
-							Southbound
+							{southboundBadgeText}
 						</span>
 					</div>
 					<div class="w-full">
-						{@render stopNode('', group.departures, emptyMessageSouth)}
+						{@render stopNode(group.departures, emptyMessageSouth)}
 					</div>
 				</div>
 			{/each}

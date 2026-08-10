@@ -25,13 +25,13 @@ let totalBrokenBikes = $derived(stations.reduce((sum, s) => sum + (s.disabledBik
 	<ModeSectionHeader
 		title="Citi Bike"
 		icon={Bicycle01Icon}
-		iconBgClass="bg-blue-600/10 text-blue-600 dark:text-blue-400"
+		iconBgClass="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
 		{alerts}
 	>
 		<!-- Legend Bar -->
 		<div class="flex flex-wrap items-center gap-3 text-[10px] font-medium text-text-muted bg-bg-surface px-3 py-1 rounded-xl border border-border-default shadow-2xs">
 			<div class="flex items-center gap-1.5">
-				<span class="w-3 h-3 rounded bg-blue-600 text-white flex items-center justify-center shadow-2xs">
+				<span class="w-3 h-3 rounded bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
 					<HugeiconsIcon icon={FlashIcon} size={8} />
 				</span>
 				<span>E-Bike ({totalEbikes})</span>

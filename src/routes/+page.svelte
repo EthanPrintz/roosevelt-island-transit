@@ -128,7 +128,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 {:else if mapSettings.viewMode === 'map'}
 	<!-- Full Viewport Map Mode (Edge-to-Edge Vector Canvas + Mobile Drawer) -->
 	<div class="fixed inset-0 top-16 z-10 w-full h-[calc(100vh-4rem)] overflow-hidden">
-		<TransitMap {vehicles} {stations} />
+		<TransitMap {departures} {alerts} {vehicles} {stations} />
 		<BottomSheetDrawer>
 			{@render cardSections()}
 		</BottomSheetDrawer>
@@ -137,7 +137,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 	<!-- Split View Mode -->
 	<!-- Mobile (< lg): Full Edge-to-Edge Map + Bottom Sheet Drawer -->
 	<div class="block lg:hidden fixed inset-0 top-16 z-10 w-full h-[calc(100vh-4rem)] overflow-hidden">
-		<TransitMap {vehicles} {stations} />
+		<TransitMap {departures} {alerts} {vehicles} {stations} />
 		<BottomSheetDrawer>
 			{@render cardSections()}
 		</BottomSheetDrawer>
@@ -153,7 +153,7 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 
 			<!-- Right Column: Sticky Vector Map -->
 			<div class="col-span-7 sticky top-20 h-[calc(100vh-6.5rem)] rounded-2xl overflow-hidden border border-border-default shadow-xs">
-				<TransitMap {vehicles} {stations} />
+				<TransitMap {departures} {alerts} {vehicles} {stations} />
 			</div>
 		</div>
 	</div>
@@ -312,8 +312,10 @@ let citibikeAlerts = $derived(alerts.filter((a) => a.mode === 'citibike'));
 		alerts={q102Alerts}
 		northboundTitle="Astoria-Bound"
 		northboundSubtitle="27 Ave via RI Bridge"
+		northboundBadgeText="Astoria-Bound"
 		southboundTitle="Coler Hospital-Bound"
 		southboundSubtitle="Southtown & North Loop"
+		southboundBadgeText="Coler-Bound"
 		emptyMessageNorth="No upcoming Astoria-bound City Buses (Q102)."
 		emptyMessageSouth="No upcoming Coler-bound City Buses (Q102)."
 	/>

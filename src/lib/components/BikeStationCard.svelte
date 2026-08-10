@@ -54,12 +54,12 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 		</div>
 
 		<!-- Electric E-Bikes -->
-		<div class="p-2.5 rounded-xl bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/20 flex flex-col justify-between space-y-1 shadow-2xs">
-			<div class="flex items-center justify-between text-xs text-blue-600 dark:text-blue-400">
+		<div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col justify-between space-y-1 shadow-2xs">
+			<div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400">
 				<span class="font-bold">E-Bikes</span>
 				<HugeiconsIcon icon={FlashIcon} size={14} />
 			</div>
-			<div class="font-mono text-lg font-black text-blue-600 dark:text-blue-400">
+			<div class="font-mono text-lg font-black text-emerald-600 dark:text-emerald-400">
 				{station.bikesAvailable.ebike || 0}
 			</div>
 		</div>
@@ -85,7 +85,7 @@ function generateDockSlots(st: BikeStation): DockSlotType[] {
 		<div class="flex flex-wrap gap-1 max-w-full pt-0.5">
 			{#each generateDockSlots(station) as slot, i (i)}
 				{#if slot === 'ebike'}
-					<div class="w-4 h-4 rounded bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-2xs" title="E-Bike Available">
+					<div class="w-4 h-4 rounded bg-emerald-600 dark:bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-2xs" title="E-Bike Available">
 						<HugeiconsIcon icon={FlashIcon} size={10} />
 					</div>
 				{:else if slot === 'classic'}
